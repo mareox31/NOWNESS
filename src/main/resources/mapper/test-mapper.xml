@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="highfive.nowness.repository.TestRepository">
+
+    <select id="getTest" resultType="Test">
+        SELECT id, name FROM test
+    </select>
+
+    <insert id="addTest">
+        insert into test (id, name) values (#{id}, #{name})
+    </insert>
+
+    <delete id="deleteTest">
+        delete from test where id=#{id}
+    </delete>
+
+</mapper>
