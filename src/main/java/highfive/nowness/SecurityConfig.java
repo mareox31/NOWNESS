@@ -29,7 +29,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(auth -> {
-                        auth.requestMatchers("/user/logout").hasRole("USER");
+                        auth.requestMatchers("/user/mypage", "/user/logout").hasRole("USER"); // 로그인하지 않은 채로 명시된 경로에 접근하면 로그인 페이지로 redirect
                         auth.requestMatchers("/admin", "/admin/**").hasRole("ADMIN");
                         auth.requestMatchers("/**").permitAll();})
                 .formLogin(formLoginConfigurer -> formLoginConfigurer
