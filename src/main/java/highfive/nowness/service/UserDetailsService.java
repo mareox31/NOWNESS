@@ -46,6 +46,13 @@ public class UserDetailsService implements UserService {
         return new User(userDto);
     }
 
+    @Override
+    public User loadUserByNickname(String nickname) throws UsernameNotFoundException {
+        UserDTO userDto = userRepository.findByNickname(nickname)
+                .orElseThrow(() -> new UsernameNotFoundException(nickname));
+        return new User(userDto);
+    }
+
     /**
      * 저장소에 신규 사용자 정보를 저장합니다.
      * @param user 사용자 도메인 클래스

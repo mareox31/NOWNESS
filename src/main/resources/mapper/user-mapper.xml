@@ -17,6 +17,10 @@
         SELECT * FROM users WHERE email = #{email}
     </select>
 
+    <select id="findByNickname" resultMap="userResultMap">
+        SELECT * FROM users WHERE nickname = #{nickname}
+    </select>
+
     <insert id="save" parameterType="UserDTO">
         INSERT INTO users (email, password, nickname, last_updated_ip)
         VALUES (#{email}, #{password}, #{nickname}, #{lastLoginIp})

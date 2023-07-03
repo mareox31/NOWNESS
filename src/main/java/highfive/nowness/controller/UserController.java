@@ -40,8 +40,14 @@ public class UserController {
 
     @PostMapping("/signup")
     public String processSignup(SignUpForm signUpForm, HttpServletRequest request) {
+        if (isDuplicateUserInfo(signUpForm)) return "login_signup";
         userDetailsService.saveUser(signUpForm.toUser(passwordEncoder, request));
         return "redirect:/user/login";
+    }
+
+    private boolean isDuplicateUserInfo(SignUpForm signUpForm) {
+        return userDetailsService.loadUserByEmail(signUpForm.getEmail()) != null ||
+                userDetailsService.loadUserByNickname(signUpForm.getNickname()) != null;
     }
 
     @Data

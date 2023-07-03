@@ -10,5 +10,6 @@ import java.util.Optional;
 @Repository
 public interface UserRepository {
     Optional<UserDTO> findByEmail(String email);
+    Optional<UserDTO> findByNickname(String nickname);
     void save(UserDTO userDTO);
 }
