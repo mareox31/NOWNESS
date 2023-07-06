@@ -4,7 +4,6 @@ import highfive.nowness.domain.User;
 import highfive.nowness.service.UserDetailsService;
 import highfive.nowness.util.UserUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -46,22 +45,6 @@ public class UserController {
     private boolean isDuplicateUserInfo(SignUpForm signUpForm) {
         return userDetailsService.loadUserByEmail(signUpForm.getEmail()) != null ||
                 userDetailsService.loadUserByNickname(signUpForm.getNickname()) != null;
-    }
-
-    @Data
-    class SignUpForm {
-        private String email;
-        private String password;
-        private String nickname;
-
-        public User toUser(PasswordEncoder passwordEncoder, HttpServletRequest request) {
-            return User.builder()
-                    .email(email)
-                    .password(passwordEncoder.encode(password))
-                    .nickname(nickname)
-                    .lastLoginIp(request.getRemoteAddr())
-                    .build();
-        }
     }
 
     @GetMapping("/mypage")
