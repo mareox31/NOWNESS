@@ -33,18 +33,14 @@
                                name="email"
                                aria-describedby="emailValidationFeedback" required>
                         <label for="floatingEmail">이메일주소</label>
-                        <div id="emailValidationFeedback" class="invalid-feedback">
-                            이메일을 확인해주세요.
-                        </div>
+                        <div id="emailValidationFeedback" class="invalid-feedback"></div>
                     </div>
                     <div th:if="${#ctx.springRequestContext.requestUri} == '/user/signup'" class="form-floating mb-3">
                         <input type="text" class="form-control" id="floatingNickname" placeholder="exampleNickname"
                                name="nickname"
                                aria-describedby="nicknameValidationFeedback" required>
                         <label for="floatingNickname">닉네임</label>
-                        <div id="nicknameValidationFeedback" class="invalid-feedback">
-                            한글, 영어(대/소문자), 숫자로만 입력할 수 있으며 3~8글자만 입력 가능합니다.
-                        </div>
+                        <div id="nicknameValidationFeedback" class="invalid-feedback"></div>
                     </div>
                     <div class="form-floating">
                         <input type="password" class="form-control" id="floatingPassword" placeholder="비밀번호"
@@ -77,8 +73,8 @@
                 </div>
                 <div class="row">
                     <div class="d-grid gap-2">
-                        <input class="btn btn-primary p-3" type="submit"
-                               th:id="${#ctx.springRequestContext.requestUri} == '/user/login' ? 'btnLogin' : 'btnSignup'"
+                        <input class="btn btn-primary p-3" type="submit" disabled
+                               th:id="btnSubmit"
                                th:value="${#ctx.springRequestContext.requestUri} == '/user/login' ? '로그인' : '회원가입'"/>
                     </div>
                 </div>
