@@ -12,4 +12,6 @@ public interface UserRepository {
     Optional<UserDTO> findByEmail(String email);
     Optional<UserDTO> findByNickname(String nickname);
     void save(UserDTO userDTO);
+    int countByEmail(String email);
+    int countByNickname(String nickname);
 }
