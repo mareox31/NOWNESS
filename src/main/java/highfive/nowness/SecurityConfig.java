@@ -4,11 +4,14 @@ import highfive.nowness.service.UserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+import java.time.Duration;
 
 @EnableWebSecurity
 @Configuration
@@ -39,11 +42,12 @@ public class SecurityConfig {
                         .passwordParameter("password")
                         .defaultSuccessUrl("/main"))
                 .rememberMe(rememberMeConfigurer -> rememberMeConfigurer
-                        .tokenValiditySeconds(2_592_000)) // 하루 86_400초, 일주일 604_800초, 30일 2_592_000초
+                        .tokenValiditySeconds((int)Duration.ofDays(30).toSeconds()))
                 .logout(logoutConfigurer -> logoutConfigurer
                         .logoutUrl("/user/logout")
                         .logoutSuccessUrl("/user/login"))
                 .userDetailsService(userDetailsService)
+                .oauth2Login(Customizer.withDefaults())
                 .build();
     }
 

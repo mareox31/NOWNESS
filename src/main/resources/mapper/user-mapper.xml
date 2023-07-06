@@ -24,5 +24,6 @@
     <insert id="save" parameterType="UserDTO">
         INSERT INTO users (email, password, nickname, last_updated_ip)
         VALUES (#{email}, #{password}, #{nickname}, #{lastLoginIp})
+        ON DUPLICATE KEY UPDATE nickname = #{nickname}, last_updated_ip = #{lastLoginIp}
     </insert>
 </mapper>
