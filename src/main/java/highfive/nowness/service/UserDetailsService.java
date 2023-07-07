@@ -66,4 +66,12 @@ public class UserDetailsService implements UserService {
                 .lastLoginIp(user.getLastLoginIp())
                 .build());
     }
+
+    public boolean isExistEmail(String email) {
+        return userRepository.countByEmail(email) == 1;
+    }
+
+    public boolean isExistNickname(String nickname) {
+        return userRepository.countByNickname(nickname) == 1;
+    }
 }

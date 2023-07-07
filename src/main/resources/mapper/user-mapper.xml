@@ -24,6 +24,14 @@
     <insert id="save" parameterType="UserDTO">
         INSERT INTO users (email, password, nickname, last_updated_ip)
         VALUES (#{email}, #{password}, #{nickname}, #{lastLoginIp})
-        ON DUPLICATE KEY UPDATE nickname = #{nickname}, last_updated_ip = #{lastLoginIp}
+        ON DUPLICATE KEY UPDATE last_updated_ip = #{lastLoginIp}
     </insert>
+
+    <select id="countByEmail" resultType="int">
+        SELECT count(id) FROM users WHERE email = #{email}
+    </select>
+
+    <select id="countByNickname" resultType="int">
+        SELECT count(id) FROM users WHERE nickname = #{nickname}
+    </select>
 </mapper>
