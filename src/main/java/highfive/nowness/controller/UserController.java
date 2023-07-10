@@ -37,14 +37,21 @@ public class UserController {
 
     @PostMapping("/signup")
     public String processSignup(SignUpForm signUpForm, HttpServletRequest request) {
-        if (isDuplicateUserInfo(signUpForm)) return "login_signup";
-        userDetailsService.saveUser(signUpForm.toUser(passwordEncoder, request));
+        if (isDuplicateUserInfo(signUpForm)) return "redirect:/user/signup";
+        User user = signUpForm.toUser(passwordEncoder, request);
+        userDetailsService.saveUser(user);
         return "redirect:/user/login";
     }
 
     private boolean isDuplicateUserInfo(SignUpForm signUpForm) {
-        return userDetailsService.loadUserByEmail(signUpForm.getEmail()) != null ||
-                userDetailsService.loadUserByNickname(signUpForm.getNickname()) != null;
+        try {
+            userDetailsService.loadUserByEmail(signUpForm.getEmail());
+            userDetailsService.loadUserByNickname(signUpForm.getNickname());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     @GetMapping("/mypage")
