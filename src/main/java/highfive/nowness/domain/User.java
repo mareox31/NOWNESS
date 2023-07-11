@@ -26,6 +26,7 @@ public class User implements UserDetails {
     private final LocalDateTime createdDateTime;
     private final boolean admin;
     private final String lastLoginIp;
+    private final boolean verifiedEmail;
 
     public User(UserDTO userDto) {
         id = userDto.getId();
@@ -36,6 +37,7 @@ public class User implements UserDetails {
         createdDateTime = userDto.getCreatedDateTime();
         admin = userDto.isAdmin();
         lastLoginIp = userDto.getLastLoginIp();
+        verifiedEmail = userDto.isVerifiedEmail();
     }
 
     @Override

@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RequestMapping("/user")
 @Controller
@@ -40,7 +41,10 @@ public class UserController {
         if (isDuplicateUserInfo(signUpForm)) return "redirect:/user/signup";
         User user = signUpForm.toUser(passwordEncoder, request);
         userDetailsService.saveUser(user);
-        return "redirect:/user/login";
+        String code = UserUtil.getRandomUUID().toString();
+        userDetailsService.sendVerificationEmail(user, "http://localhost:8080", code);
+        userDetailsService.saveUnverifiedEmail(code, user.getEmail());
+        return "welcome_signup";
     }
 
     private boolean isDuplicateUserInfo(SignUpForm signUpForm) {
@@ -48,10 +52,41 @@ public class UserController {
             userDetailsService.loadUserByEmail(signUpForm.getEmail());
             userDetailsService.loadUserByNickname(signUpForm.getNickname());
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
         return true;
+    }
+
+    /**
+     * ID/PW 를 사용하여 회원가입한 사용자가 이메일 검증을 위해 발송된 이메일을 통해 접근하는 경로입니다.
+     * @param code 사용자가 회원가입 시 받은 인증 코드
+     * @return 저장된 code 가 있다면 email 확인이 완료되었다는 문구가 작성된 화면을 반환하고, 그렇지 않은 경우 다른 화면을 반환합니다.
+     */
+    @GetMapping("/verify")
+    public String showVerificationPage(@RequestParam String code) {
+        if (userDetailsService.verifyEmail(code)) return "email_verified";
+        else return "redirect:/";
+    }
+
+    // 테스트용
+    @GetMapping("/welcome")
+    public String showWelcomePage() {
+        return "welcome_signup";
+    }
+
+    // 테스트용
+    @GetMapping("/testmail")
+    public String testMail() {
+        String code = UserUtil.getRandomUUID().toString();
+        String email = "--@gmail.com";
+        userDetailsService.sendVerificationEmail(User.builder()
+                        .email(email)
+                        .nickname("tester")
+                        .build(),
+                "http://localhost:8080",
+                        code);
+        userDetailsService.saveUnverifiedEmail(code, email);
+        return "welcome_signup";
     }
 
     @GetMapping("/mypage")

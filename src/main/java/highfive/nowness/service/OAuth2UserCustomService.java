@@ -55,6 +55,7 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
         Map<String, Object> userInfo = convertAttributesToUnifiedFormat(clientName, oAuth2User.getAttributes());
         String email = userInfo.get(FORMATTED_EMAIL_KEY_NAME).toString();
         UserDTO userDto = loadUserByEmail(email);
+        if (!userDto.isVerifiedEmail()) userDto.setVerifiedEmail(true);
         saveOrUpdateUser(userDto);
         userInfo.put("id", userDto.getId());
         userInfo.put("nickname", userDto.getNickname());

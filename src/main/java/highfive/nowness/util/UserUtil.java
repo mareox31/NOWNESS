@@ -3,6 +3,8 @@ package highfive.nowness.util;
 import highfive.nowness.domain.User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+import java.util.UUID;
+
 public class UserUtil {
     public static User convertOAuth2UserToUser(OAuth2User oAuth2User) {
         return User.builder()
@@ -14,6 +16,10 @@ public class UserUtil {
 
     public static boolean isNotLogin(User user, OAuth2User oAuth2User) {
         return user == null && oAuth2User == null;
+    }
+
+    public static UUID getRandomUUID() {
+        return UUID.randomUUID();
     }
 
 }
