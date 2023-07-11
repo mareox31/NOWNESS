@@ -16,4 +16,5 @@ public class UserDTO {
     private LocalDateTime createdDateTime;
     private boolean admin;
     private String lastLoginIp;
+    private boolean verifiedEmail;
 }

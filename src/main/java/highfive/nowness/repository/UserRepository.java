@@ -4,6 +4,7 @@ import highfive.nowness.dto.UserDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Mapper
@@ -14,4 +15,6 @@ public interface UserRepository {
     void save(UserDTO userDTO);
     int countByEmail(String email);
     int countByNickname(String nickname);
+    void saveUnverifiedEmail(String code, String email);
+    void verifyEmail(Map<String, Object> params);
 }

@@ -22,8 +22,8 @@
     </select>
 
     <insert id="save" parameterType="UserDTO">
-        INSERT INTO users (email, password, nickname, last_updated_ip)
-        VALUES (#{email}, #{password}, #{nickname}, #{lastLoginIp})
+        INSERT INTO users (email, password, nickname, last_updated_ip, verified)
+        VALUES (#{email}, #{password}, #{nickname}, #{lastLoginIp}, #{verifiedEmail})
         ON DUPLICATE KEY UPDATE last_updated_ip = #{lastLoginIp}
     </insert>
 
@@ -33,5 +33,14 @@
 
     <select id="countByNickname" resultType="int">
         SELECT count(id) FROM users WHERE nickname = #{nickname}
+    </select>
+
+    <insert id="saveUnverifiedEmail">
+        INSERT INTO unverified_emails
+        VALUES (#{arg0}, #{arg1});
+    </insert>
+
+    <select id="verifyEmail" statementType="CALLABLE" parameterType="map">
+        {CALL verify_email(#{code, mode=IN, jdbcType=VARCHAR}, #{deletedRows, mode=OUT, jdbcType=INTEGER})}
     </select>
 </mapper>
