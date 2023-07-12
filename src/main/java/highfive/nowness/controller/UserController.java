@@ -42,7 +42,7 @@ public class UserController {
         User user = signUpForm.toUser(passwordEncoder, request);
         userDetailsService.saveUser(user);
         String code = UserUtil.getRandomUUID().toString();
-        userDetailsService.sendVerificationEmail(user, "http://localhost:8080", code);
+        userDetailsService.sendVerificationEmail(user, "http://%s".formatted(request.getHeader("host")), code);
         userDetailsService.saveUnverifiedEmail(code, user.getEmail());
         return "welcome_signup";
     }
@@ -87,6 +87,17 @@ public class UserController {
                         code);
         userDetailsService.saveUnverifiedEmail(code, email);
         return "welcome_signup";
+    }
+
+    @GetMapping("/find-password")
+    public String showFindPasswordForm() {
+        return "find_password";
+    }
+
+    @GetMapping("/reset-password")
+    public String showChangePasswordForm(@RequestParam String code) {
+        if (userDetailsService.isExistPasswordResetCode(code)) return "reset_password";
+        else return "reset_password_code_expired";
     }
 
     @GetMapping("/mypage")

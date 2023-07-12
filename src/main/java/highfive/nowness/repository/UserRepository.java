@@ -17,4 +17,7 @@ public interface UserRepository {
     int countByNickname(String nickname);
     void saveUnverifiedEmail(String code, String email);
     void verifyEmail(Map<String, Object> params);
+    void savePasswordResetEmail(String code, String email);
+    int countPasswordResetEmail(String code);
+    void resetPassword(Map<String, Object> params);
 }
