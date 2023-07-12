@@ -1,14 +1,52 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:lang="ko">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.w3.org/1999/xhtml" th:lang="ko">
 <head>
     <meta charset="UTF-8">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <title>NOWNESS</title>
 </head>
 <body>
+
+<div th:insert="~{header :: header}"></div>
+
 <h1>RANKBOARD</h1>
+<!--
 <ul>
     <li>test<span th:text="${data}"></span></li>
 </ul>
+-->
+
+<div layout:fragment="content" class="content">
+    <h2>This is Content</h2>
+    <hr>
+    <table border="1">
+        <tr>
+            <th>id</th>
+            <th>user_id</th>
+            <th>nickname</th>
+            <th>date</th>
+            <th>views</th>
+            <th>contents</th>
+            <th>title</th>
+            <th>likecount</th>
+        </tr>
+
+        <th:block th:each="rank: ${RankList}">
+            <tr>
+                <td th:text="${ rank.id }"></td>
+                <td th:text="${ rank.user_id }"></td>
+                <td th:text="${ rank.nickname }"></td>
+                <td th:text="${ rank.date }"></td>
+                <td th:text="${ rank.views }"></td>
+                <td th:text="${ rank.contents }"></td>
+                <td th:text="${ rank.title }"></td>
+                <td th:text="${ rank.likeCount }"></td>
+            </tr>
+        </th:block>
+    </table>
+</div>
+
+<div th:insert="~{footer :: footer}"></div>
+<script th:src="@{/static/js/bootstrap.min.js}"></script>
 </body>
 </html>
