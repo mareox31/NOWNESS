@@ -5,6 +5,8 @@
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <link th:href="@{/css/styles.css}" rel="stylesheet" type="text/css">
     <script th:src="@{/js/jquery-3.7.0.min.js}"></script>
+    <script th:src="@{/js/popper.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
     <script th:src="@{/js/user/login_signup.js}"></script>
     <title>NOWNESS</title>
 </head>
@@ -50,7 +52,7 @@
                     </div>
                 </div>
                 <div th:if="${#ctx.springRequestContext.requestUri} == '/user/login'" class="row justify-content-between flex-nowrap">
-                    <div class="form-check col-5 m-3 text-start">
+                    <div class="form-check col-5 m-3 text-start" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="공용 컴퓨터에서는 절대 체크하지 마세요.">
                         <input class="form-check-input" type="checkbox" name="remember-me" id="remember-me">
                         <label class="form-check-label text-nowrap text-secondary" for="remember-me">
                             로그인 상태 유지
