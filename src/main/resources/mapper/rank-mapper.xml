@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="highfive.nowness.repository.RankBoardRepository">
+
+<!--
+    <select id="getRank" resultType="RankBoard">
+        select t_contents.id, t_contents.user_id, t_users.nickname, t_contents.created_datetime,
+               t_contents.views, t_contents.contents, t_contents.title, count(t_likes.id) as count
+        from t_contents
+        inner join t_likes on t_contents.id = t_likes.contents_id
+        inner join t_users on t_contents.user_id = t_users.id
+        where t_contents.blind = 0
+        group by t_contents.id;
+    </select>
+-->
+    <select id="getRank" resultType="RankBoard">
+        select contents.id, contents.user_id, users.nickname, contents.created_datetime,
+               contents.views, contents.contents, contents.title, count(likes.id) as count
+        from contents
+            inner join likes on contents.id = likes.contents_id
+            inner join users on contents.user_id = users.id
+        where contents.blind = 0
+        group by contents.id;
+    </select>
+
+    <!--
+    <insert id="addTest">
+        insert into test (id, name) values (#{id}, #{name})
+    </insert>
+
+    <delete id="deleteTest">
+        delete from test where id=#{id}
+    </delete>
+    -->
+
+</mapper>
