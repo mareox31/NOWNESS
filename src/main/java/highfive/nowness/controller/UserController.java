@@ -104,7 +104,6 @@ public class UserController {
     public String showMypage(@AuthenticationPrincipal User user,
                              @AuthenticationPrincipal OAuth2User oAuth2User,
                              Model model) {
-        if (UserUtil.isNotLogin(user, oAuth2User)) return "redirect:/user/login";
         if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
         model.addAttribute("id", user.getId());
         model.addAttribute("email", user.getEmail());
