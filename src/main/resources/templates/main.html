@@ -4,11 +4,55 @@
     <meta charset="UTF-8">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <title>NOWNESS</title>
+
+    <style>
+        @font-face {
+            font-family: 'NeoDunggeunmoPro-Regular';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/NeoDunggeunmoPro-Regular.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+        body {
+            font-family: 'NeoDunggeunmoPro-Regular', sans-serif;
+        }
+        .user-link {
+            font-size: 15px;
+        }
+        .board-link {
+            font-size: 25px;
+        }
+        .logo-position {
+            margin-right: 0px;
+        }
+    </style>
 </head>
 <body>
-<h1>MAIN</h1>
+<div th:insert="~{header :: header}"></div>
+
+<div class="container-fluid">
+    <div id="map" style="width:500px; height:400px;"></div>
+</div>
+
+
+
+
 <ul>
     <li>test<span th:text="${data}"></span></li>
 </ul>
+
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=2c6f332b6c158e54b8050e3a29fa2a2d"></script>
+<script>
+    var container = document.getElementById('map');
+    var options = {
+        center: new kakao.maps.LatLng(33.450701, 126.570667),
+        level: 3
+    };
+    var map = new kakao.maps.Map(container, options);
+    // 교통정보 추가
+    map.addOverlayMapTypeId(kakao.maps.MapTypeId.TRAFFIC);
+</script>
+<div th:insert="~{footer :: footer}"></div>
+<script th:src="@{/static/js/bootstrap.min.js}"></script>
 </body>
 </html>
