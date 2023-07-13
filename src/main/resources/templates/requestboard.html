@@ -3,12 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <title>NOWNESS</title>
-</head>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <script th:src="@{/assets/js/main.js}"></script>
+    <style>
+        body{
+            font-size: 14px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+
+        .request_list{
+            margin: 0 auto;
+            width: 70%;
+            height: 80%;
+
+        }
+
+
+    </style>
+
+
+
+    <script>
+
+        //테스트용
+        //ajax 이용 , 카테고리별 나누려는 테스트중. -작동안하는거같음.
+        function updateRequestList(boardType, page) {
+            var url = "/list/request?boardType=" + boardType + "&page=" + page;
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function(response) {
+                    var requestList = response;
+                    var tableBody = $('#requestListTableBody');
+                    tableBody.empty();
+
+                    var totalCount = response.totalCount; // Total count of requests
+                    var pageSize = response.pageSize; // Number of requests per page
+                    var currentPage = response.currentPage; // Current page
+
+                    var startIndex = (currentPage - 1) * pageSize + 1; // Calculate the starting post number for the current page
+
+                    $.each(requestList, function(index, request) {
+                        var postNumber = startIndex + index;
+                        var row = $('<tr>').addClass('text-center');
+                        $('<th>').attr('scope', 'row').text(postNumber).appendTo(row);
+                        $('<th>').attr('scope', 'row').text(request.id).appendTo(row);
+                        $('<td>').append(
+                            $('<a>').attr('href', '/request/post/' + request.id).text(request.title)
+                        ).appendTo(row);
+                        $('<td>').text(request.userId).appendTo(row);
+                        $('<td>').text(request.createdDatetime).appendTo(row);
+                        row.appendTo(tableBody);
+                    });
+
+                    updatePagination(page, response.totalPages, boardType);
+        },
+            error: function(e) {
+            alert('Error occurred while retrieving request list.' + JSON.stringify(e));
+            console.log(JSON.stringify(e));
+        }
+        });
+        }
+
+
+        <!--페이지네이션 바뀌는 부분. -->
+            function updatePagination(currentPage, totalPages, boardType) {
+            var paginationDiv = $('.pagination');
+            paginationDiv.empty();
+
+            paginationDiv.append(
+            $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=1').text('First')
+            );
+
+            if (currentPage > 1) {
+            paginationDiv.append(
+            $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=' + (currentPage - 1)).text('Previous')
+            );
+        }
+
+            for (var i = 1; i <= totalPages; i++) {
+            paginationDiv.append(
+            $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=' + i).text(i)
+            );
+        }
+
+            if (currentPage < totalPages) {
+            paginationDiv.append(
+            $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=' + (currentPage + 1)).text('Next')
+            );
+        }
+
+
+            paginationDiv.append(
+            $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=' + totalPages).text('Last')
+            );
+        }
+
+            $('.boardTypeBtn').click(function() {
+            $('.boardTypeBtn').removeClass('active');
+            $(this).addClass('active');
+            var boardType = $(this).data('board-type');
+            updateRequestList(boardType, ${boardType});
+        });
+
+            $(document).on('click', '.pagination a', function(e) {
+            e.preventDefault();
+            var page = $(this).attr('href').split('page=')[1];
+            var boardType = $('.boardTypeBtn.active').data('board-type');
+            updateRequestList(boardType, page);
+        });
+
+
+
+
+    </script>
+
+
+
 <body>
-<h1>REQUESTBOARD</h1>
-<ul>
-    <li>test<span th:text="${data}"></span></li>
-</ul>
+
+<!--게시판보드 이름 누르면 게시판리스트 링크-->
+<a href="/request/list">
+    <h1>REQUESTBOARD</h1>
+</a>
+
+<hr>
+
+<!--카테고리별 분류 테스트버튼 *현재작동XX*-->
+<button class="btn btn-primary boardTypeBtn active" data-board-type="1">Board Type 1</button>
+<button class="btn btn-primary boardTypeBtn" data-board-type="2">Board Type 2</button>
+
+<hr>
+
+
+<!--게시판 리스트 목차, 기본 구성-->
+<div class="request_list">
+    <table class="table">
+        <thead class="thead-light">
+        <tr class="text-center">
+            <th scope="col">게시글순서</th>
+            <th scope="col">게시글원래번호(id)</th>
+            <th scope="col">제목</th>
+            <th scope="col">작성자</th>
+            <th scope="col">조회수</th>
+            <th scope="col">작성일</th>
+        </tr>
+        </thead>
+        <tbody id="requestListTableBody">
+        <tr class="text-center" th:each="request, index : ${lists}">
+            <th scope="row">
+                <span th:text="${(20 * (totalPages - currentPage +1)) - index.index }"></span>
+            </th>
+            <th scope="row">
+                <span th:text="${request.id}"></span>
+            </th>
+            <td>
+                <a th:href="@{'/request/post/' + ${request.id}}">
+                    <span th:text="${request.title}"></span>
+                </a>
+            </td>
+            <td>
+                <span th:text="${request.userId}"></span>
+            </td>
+            <td>
+                <span th:text="${request.views}"></span>
+            </td>
+            <td>
+                <span th:text="${request.createdDatetime}"></span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+
+
+
+<!--맨처음 게시판 페이지네이션 나타나는곳-->
+<div class="pagination">
+    <a class="btn btn-primary" th:href="@{/request/list(page=1, boardType=${boardType})}" role="button">First</a>
+    <a class="btn btn-primary" th:if="${currentPage > 1}" th:href="@{/request/list(page=${currentPage - 1}, boardType=${boardType})}" role="button">Previous</a>
+    <div th:each="pageNumber : ${#numbers.sequence(1, totalPages)}">
+        <a class="btn btn-primary" th:href="@{/request/list(page=${pageNumber}, boardType=${boardType})}" th:text="${pageNumber}" role="button"></a>
+    </div>
+    <a class="btn btn-primary" th:if="${currentPage < totalPages}" th:href="@{/request/list(page=${currentPage + 1}, boardType=${boardType})}" role="button">Next</a>
+    <a class="btn btn-primary" th:href="@{/request/list(page=${totalPages}, boardType=${boardType})}" role="button">Last</a>
+</div>
+
 </body>
 </html>
