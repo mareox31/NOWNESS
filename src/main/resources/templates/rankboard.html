@@ -7,28 +7,64 @@
 </head>
 <body>
 
+<!--
 <div th:insert="~{header :: header}"></div>
 
 <h1>RANKBOARD</h1>
-<!--
+
 <ul>
     <li>test<span th:text="${data}"></span></li>
 </ul>
 -->
+<fieldset>
+    <h1>최신순으로 보기</h1>
+    <label>
+        <input type="radio" name="serachtime" value="day" checked />
+        <span>일</span>
+    </label>
+
+    <label>
+        <input type="radio" name="serachtime" value="week"/>
+        <span>주</span>
+    </label>
+
+    <label>
+        <input type="radio" name="serachtime" value="month"/>
+        <span>월</span>
+    </label>
+
+    <label>
+        <input type="radio" name="serachtime" value="year"/>
+        <span>년</span>
+    </label>
+</fieldset>
+
+<fieldset>
+    <h1>정렬 방법(내림차순)</h1>
+    <label>
+        <input type="radio" name="sortmethod" value="day" checked />
+        <span>좋아요 순</span>
+    </label>
+
+    <label>
+        <input type="radio" name="sortmethod" value="week"/>
+        <span>조회수 순</span>
+    </label>
+</fieldset>
 
 <div layout:fragment="content" class="content">
     <h2>This is Content</h2>
     <hr>
     <table border="1">
         <tr>
-            <th>id</th>
-            <th>user_id</th>
-            <th>nickname</th>
-            <th>date</th>
-            <th>views</th>
-            <th>contents</th>
-            <th>title</th>
-            <th>likecount</th>
+            <th>아이디</th>
+            <th>아이디번호</th>
+            <th>닉네임</th>
+            <th>게시날짜(수정예정)</th>
+            <th>확인 횟수</th>
+            <th>내용</th>
+            <th>이름</th>
+            <th>좋아요횟수</th>
         </tr>
 
         <th:block th:each="rank: ${RankList}">
@@ -46,7 +82,11 @@
     </table>
 </div>
 
+<!--
+
 <div th:insert="~{footer :: footer}"></div>
-<script th:src="@{/static/js/bootstrap.min.js}"></script>
+
+-->
+
 </body>
 </html>
