@@ -1,15 +1,29 @@
 $(document).ready(function() {
 
-    const nicknameModal = document.getElementById('nicknameModal');
-    nicknameModal.addEventListener('show.bs.modal', event => {
+    const nicknameModal = $('#modal');
 
-        const button = event.relatedTarget;// 닉네임 변경 버튼
-        const nickname = button.getAttribute('data-bs-whatever');
-        const modalTitle = nicknameModal.querySelector('.modal-title');
-        const modalBodyInput = nicknameModal.querySelector('.modal-body input');
+    nicknameModal.on('show.bs.modal', function(event) {
 
-        modalTitle.textContent = `닉네임 변경하기`;
-        modalBodyInput.value = nickname;
+        const button = $(event.relatedTarget);
+        const value = button.attr('data-bs-whatever');
+        const modalTitle = nicknameModal.find('.modal-title');
+        const modalBodyInput = nicknameModal.find('.modal-body input');
+
+        const isPasswordChange = value === 'password-change';
+
+        const nicknameForm = nicknameModal.find('#nicknameForm');
+        const passwordForm = nicknameModal.find('#passwordForm');
+
+        if (isPasswordChange) {
+            nicknameForm.hide();
+            passwordForm.show();
+        } else {
+            nicknameForm.show();
+            passwordForm.hide();
+        }
+
+        modalTitle.text(isPasswordChange ? '비밀번호 변경하기' : '닉네임 변경하기');
+        modalBodyInput.val(isPasswordChange ? '' : value);
     });
 
 });

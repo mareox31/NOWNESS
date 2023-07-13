@@ -16,7 +16,7 @@
     <title>NOWNESS</title>
 </head>
 <body>
-<h1>MYPAGE</h1>
+<div th:insert="~{header :: header}"></div>
 <div class="container mt-5">
     <div class="row justify-content-between">
         <aside class="col-lg-3">
@@ -28,20 +28,31 @@
                 <div class="row m-4 mb-0 mt-0"><hr></div>
                 <div class="row justify-content-start">
                     <h5 class="text-center pb-2">계정 관리 메뉴</h5>
-                    <button href="#" class="btn-outline-secondary container-fluid p-3 pt-1 pb-1 pt-0"
-                       data-bs-toggle="modal" data-bs-target="#nicknameModal" th:attr="data-bs-whatever=${nickname}">닉네임 변경</button>
-                    <div class="modal fade" id="nicknameModal" tabindex="-1" aria-labelledby="nicknameModalLabel" aria-hidden="true">
+
+                    <button class="btn-outline-secondary text-dark container-fluid p-3 pt-1 pb-1 pt-0"
+                       data-bs-toggle="modal" data-bs-target="#modal" th:attr="data-bs-whatever=${nickname}">닉네임 변경</button>
+                    <button class="btn-outline-secondary text-dark container-fluid mt-2 p-3 pt-1 pb-1 pt-0"
+                            data-bs-toggle="modal" data-bs-target="#modal" data-bs-whatever="password-change">비밀번호 변경</button>
+                    <button class="btn-outline-secondary text-dark container-fluid mt-2 p-3 pt-1 pb-1 pt-0">회원 탈퇴</button>
+
+                    <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="nicknameModalLabel">닉네임 변경</h1>
+                                    <h1 class="modal-title fs-5" id="modalLabel"></h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <form>
                                         <div class="mb-3">
-                                            <label for="nickname" class="col-form-label">변경할 닉네임</label>
-                                            <input type="text" class="form-control" id="nickname" name="nickname">
+                                            <div id="nicknameForm" type="hidden">
+                                                <label for="nickname" class="col-form-label">변경할 닉네임</label>
+                                                <input type="text" class="form-control" id="nickname">
+                                            </div>
+                                            <div id="passwordForm">
+                                                <label for="password" class="col-form-label">변경할 비밀번호</label>
+                                                <input type="password" class="form-control" id="password">
+                                            </div>
                                         </div>
                                     </form>
                                 </div>
@@ -52,7 +63,6 @@
                             </div>
                         </div>
                     </div>
-                    <button class="btn-outline-secondary container-fluid mt-2 p-3 pt-1 pb-1 pt-0">회원 탈퇴</button>
                 </div>
             </div>
         </aside>
@@ -80,6 +90,7 @@
         </section>
     </div>
 </div>
+<div th:insert="~{footer :: footer}"></div>
 
 <!-- thymeleaf prefix 를 사용한 form 이므로 자동으로 hidden type 의 input 태그에 csrf 토큰 값이 자동으로 생성됨-->
 <form method="POST" th:action="@{/user/logout}">
