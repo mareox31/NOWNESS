@@ -27,9 +27,8 @@ public class RankBoardController {
         List<RankBoard> RankList = rankBoardService.getRank();
         ran.addObject("RankList", RankList);
 
-        log.info(RankList.get(0).getContents());
-        log.info(RankList.get(0).getTitle());
-        log.info("잘 작동하는지?");
+        //log.info(RankList.get(0).getContents());
+        //log.info(RankList.get(0).getTitle());
         ran.setViewName("rankboard.html");
         return ran;
     }

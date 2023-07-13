@@ -16,8 +16,6 @@ class RankRepositoryTest {
 
     @Test
     void getTest() {
-        //highfive.nowness.dto.RankBoardDTO rankTest  = new highfive.nowness.dto.RankBoardDTO; ;
-
         List<highfive.nowness.domain.RankBoard> test = rankBoardRepository.getRank();
         System.out.println(test.get(0).getId());
         System.out.println(test.get(0).getDate());

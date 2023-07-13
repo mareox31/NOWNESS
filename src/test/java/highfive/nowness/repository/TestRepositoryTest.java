@@ -24,8 +24,6 @@ class TestRepositoryTest {
         assertThat(test.get(0).getId()).isEqualTo(1);
         assertThat(test.get(0).getName()).isEqualTo("test");
 
-        System.out.println(test.get(0).getName());
-
         testRepository.deleteTest(1L);
     }
 }
