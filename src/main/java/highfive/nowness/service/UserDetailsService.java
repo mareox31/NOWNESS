@@ -18,8 +18,8 @@ import java.util.Map;
 @Service
 public class UserDetailsService implements UserService {
 
-    UserRepository userRepository;
-    JavaMailSender javaMailSender;
+    private final UserRepository userRepository;
+    private final JavaMailSender javaMailSender;
 
     @Autowired
     UserDetailsService(UserRepository userRepository, JavaMailSender javaMailSender) {
@@ -89,6 +89,31 @@ public class UserDetailsService implements UserService {
         return userRepository.countByNickname(nickname) == 1;
     }
 
+    public void sendPasswordResetEmail(User user, String siteURL, String resetCode) {
+        String toAddress = user.getEmail();
+        String fromAddress = "nowness@nowness.com";
+        String senderName = "Nowness";
+        String subject = "요청하신 비밀번호 재설정 링크입니다.";
+        String content
+                = "<p>안녕하세요 [[name]]님, 요청하신 비밀번호 재설정 링크를 보내드립니다.</p><br>"
+                + "<p>아래 링크 클릭하셔서 비밀번호를 변경해 주세요.</p><br>"
+                + "<h3><a href=\"[[URL]]\">비밀번호 재설정 하기</a></h3>"
+                + "<p>보안을 위해 3일 후에는 링크를 통해 비밀번호 재설정이 불가능하며, 비밀번호 찾기 메뉴에서 다시 요청하셔야 합니다.</p><br>"
+                + "감사합니다.<br>"
+                + "Nowness Team";
+
+        content = content.replace("[[name]]", user.getNickname());
+
+        String resetURL = siteURL + "/user/reset-password?code=" + resetCode;
+        content = content.replace("[[URL]]", resetURL);
+
+        var email = new Email(toAddress, fromAddress, senderName, subject, content);
+
+        var helper = new MimeMessageHelper(javaMailSender.createMimeMessage());
+
+        javaMailSender.send(convertEmailToMimeMessage(email, helper));
+    }
+
     public void sendVerificationEmail(User user, String siteURL, String verifyCode) {
         String toAddress = user.getEmail();
         String fromAddress = "nowness@nowness.com";
@@ -137,13 +162,31 @@ public class UserDetailsService implements UserService {
      * @param code 회원 이메일 인증을 위한 식별자
      * @return 이메일 인증이 완료된 경우 true, 완료되지 않은 경우 false 를 반환
      */
-
     @Transactional
     public boolean verifyEmail(String code) {
         Map<String, Object> params = new HashMap<>();
         params.put("code", code);
         userRepository.verifyEmail(params);
         return (int) params.get("deletedRows") == 1;
+    }
+
+    @Transactional
+    public void savePasswordResetEmail(String code, String email) {
+        userRepository.savePasswordResetEmail(code, email);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isExistPasswordResetCode(String code) {
+        return userRepository.countPasswordResetEmail(code) > 0;
+    }
+
+    @Transactional
+    public boolean resetPasswordByResetCode(String code, String password) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("code", code);
+        params.put("newPassword", password);
+        userRepository.resetPassword(params);
+        return (int) params.get("updatedRows") == 1;
     }
 
 }

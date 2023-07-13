@@ -43,4 +43,17 @@
     <select id="verifyEmail" statementType="CALLABLE" parameterType="map">
         {CALL verify_email(#{code, mode=IN, jdbcType=VARCHAR}, #{deletedRows, mode=OUT, jdbcType=INTEGER})}
     </select>
+
+    <insert id="savePasswordResetEmail">
+        INSERT INTO password_reset_lists (code, email)
+        VALUES (#{arg0}, #{arg1});
+    </insert>
+
+    <select id="countPasswordResetEmail" resultType="int">
+        SELECT count(code) FROM password_reset_lists WHERE code = #{code}
+    </select>
+
+    <select id="resetPassword" statementType="CALLABLE" parameterType="map">
+        {CALL reset_password(#{code, mode=IN, jdbcType=VARCHAR}, #{newPassword, mode=IN, jdbcType=VARCHAR}, #{updatedRows, mode=OUT, jdbcType=INTEGER})}
+    </select>
 </mapper>

@@ -3,20 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/styles.css}" rel="stylesheet" type="text/css">
     <script th:src="@{/js/jquery-3.7.0.min.js}"></script>
     <script th:src="@{/js/user/login_signup.js}"></script>
-    <style>
-        @font-face {
-            font-family: 'NeoDunggeunmoPro-Regular';
-            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/NeoDunggeunmoPro-Regular.woff2') format('woff2');
-            font-weight: normal;
-            font-style: normal;
-        }
-
-        body {
-            font-family: 'NeoDunggeunmoPro-Regular', sans-serif;
-        }
-    </style>
     <title>NOWNESS</title>
 </head>
 <body>
@@ -68,7 +57,7 @@
                         </label>
                     </div>
                     <div class="col-5 m-3 text-end">
-                        <a href="#" class="link-dark text-nowrap">비밀번호 찾기</a>
+                        <a th:href="@{/user/find-password}" class="link-dark text-nowrap">비밀번호 찾기</a>
                     </div>
                 </div>
                 <div class="row">
@@ -88,15 +77,36 @@
                 <div class="row m-4 mb-0 mt-0">
                     <hr>
                 </div>
-                <div class="row">
-                    <a th:href="@{/oauth2/authorization/google}" class="btn btn-block">
-                        <img th:src="@{/images/login/btn_google_signin.png}" class="img-fluid" alt="구글 로그인 버튼">
+                <div class="row m-2">
+                    <a th:href="@{/oauth2/authorization/google}" class="btn btn-block p-3 mb-3 card text-start">
+                        <div class="row">
+                            <div class="col-1">
+                                <img th:src="@{/images/login/icon_google.svg}" style="width: 24px;" alt="구글 아이콘">
+                            </div>
+                            <div class="col-11">
+                                <span class="p-1">구글 계정으로 로그인</span>
+                            </div>
+                        </div>
                     </a>
-                    <a th:href="@{/oauth2/authorization/kakao}" class="btn btn-block">
-                        <img th:src="@{/images/login/btn_kakao_login.png}" class="img-fluid" alt="카카오 로그인 버튼">
+                    <a th:href="@{/oauth2/authorization/kakao}" class="btn btn-block p-3 mb-3 card text-start">
+                        <div class="row">
+                            <div class="col-1">
+                                <img th:src="@{/images/login/icon_kakao.svg}" style="width: 24px" alt="카카오 아이콘">
+                            </div>
+                            <div class="col-11">
+                                <span class="p-1">카카오 계정으로 로그인</span>
+                            </div>
+                        </div>
                     </a>
-                    <a th:href="@{/oauth2/authorization/naver}" class="btn btn-block">
-                        <img th:src="@{/images/login/btn_naver_login.png}" class="img-fluid" alt="네이버 로그인 버튼">
+                    <a th:href="@{/oauth2/authorization/naver}" class="btn btn-block p-3 card text-start">
+                        <div class="row">
+                            <div class="col-1">
+                                <img th:src="@{/images/login/icon_naver.svg}" style="width: 24px" alt="네이버 아이콘">
+                            </div>
+                            <div class="col-11">
+                                <span class="p-1">네이버 계정으로 로그인</span>
+                            </div>
+                        </div>
                     </a>
                 </div>
             </div>
