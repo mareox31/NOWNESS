@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="request"> <!--highfive.nowness.repository.TestRepository-->
+
+    <resultMap id="repliesResultMap" type="RepliesDTO">
+        <id property="id" column="id" />
+        <result property="contents_id" column="contents_id" />
+        <result property="user_id" column="user_id" />
+        <result property="reply" column="reply" />
+        <result property="created_datetime" column="created_datetime" />
+        <result property="deleted" column="deleted" />
+        <result property=" parent_id" column="parent_id" />
+    </resultMap>
+
+
+    <!--글 전체 DTO-->
+    <select id="findAll" resultType="requestDTO">
+        select * from contents order by id desc
+        where deleted=0
+    </select>
+
+    <!--해당 번호 게시글 상세내용 DTO-->
+    <select id="getBoard" resultType="requestDTO">
+        SELECT
+            *
+        FROM contents where id= #{id}
+                        AND deleted = 0
+    </select>
+
+
+    <!-- 게시글 전체 (개수) -->
+    <select id="getTotalRequestCount" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM contents
+        where deleted=0
+    </select>
+
+
+    <!-- 조회수 1증가 -->
+    <update id="updateContentViews" parameterType="java.lang.Integer">
+        UPDATE contents
+        SET views = views + 1
+        WHERE id = #{id}
+    </update>
+
+
+    <!--해당 게시글 닉네임 찾기 -->
+    <select id="getNicknameById" parameterType="requestDTO" resultType="String">
+        select users.nickname as id
+        from users join contents
+                        on contents.user_id = users.id
+        where contents.id= #{id}
+    </select>
+
+    <!--해당 게시글 좋아요 (총 개수)  -->
+    <select id="getLikes" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM Likes
+        where contents_id = #{id}
+    </select>
+
+
+    <!-- 게시글 삭제 deleted =1로. -->
+    <update id="deleteContents" parameterType="java.lang.Integer">
+        UPDATE contents
+        SET deleted = 1
+        WHERE id = #{id}
+    </update>
+
+
+    <!--카테고리계열  //미완 페이징 불완전. 아직 더 추가해야함.-->
+    <!--보드타입으로 분류된 글 갯수-->
+    <select id="getRequestsByBoardTypeCount" resultType="java.lang.Integer">
+        SELECT count(*) FROM contents WHERE board_type = #{boardType}
+        AND deleted = 0
+    </select>
+
+    <!--페이징 - '맵' 사용. DTO-->
+    <select id="boardPagingList" resultType="requestDTO" parameterType="java.util.Map">
+        SELECT * FROM contents WHERE board_type = #{boardType}
+        AND  deleted=0
+        ORDER BY id DESC LIMIT #{pageIndex}, #{pageSize}
+
+    </select>
+
+    <!--댓글 조회-->
+    <select id="getReply" resultType="repliesDTO">
+        SELECT * FROM replies
+        WHERE contents_id = #{id}
+        AND deleted=0
+        order by parent_id asc
+    </select>
+
+
+
+
+<!--    // idx(댓글 번호), board_idx(글 번호), reply_idx(상위 댓글번호), contents(댓글 내용)-->
+<!--    // id, contents_id,parent_id,reply-->
+<!--    //id, contents_id, user_id,String reply,created_datetime, deleted,parent_id-->
+
+    <!--    id, contents_id , user_id, reply,  created_datetime, deleted,parent_id-->
+    <!--    댓글 테스트중-->
+
+        <!--부모값null 메인 코멘트-->
+<!--    <insert id="addReply" parameterType="java.util.ArrayList">-->
+<!--        INSERT INTO Replies (contents_id, user_id, reply)-->
+<!--        VALUES (#{list[0]}, #{list[1]}, #{list[2]})-->
+<!--    </insert>-->
+
+
+    <insert id="addReply" parameterType="replyDATA">
+        INSERT INTO Replies (contents_id, user_id, reply)
+        VALUES (#{contentsId}, #{userId}, #{reply})
+    </insert>
+
+</mapper>
+
