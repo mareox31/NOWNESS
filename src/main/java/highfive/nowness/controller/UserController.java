@@ -41,7 +41,7 @@ public class UserController {
         if (isDuplicateUserInfo(signUpForm)) return "redirect:/user/signup";
         User user = signUpForm.toUser(passwordEncoder, request);
         userDetailsService.saveUser(user);
-        String code = UserUtil.getRandomUUID().toString();
+        String code = UserUtil.getRandomCode();
         userDetailsService.sendVerificationEmail(user, "http://%s".formatted(request.getHeader("host")), code);
         userDetailsService.saveUnverifiedEmail(code, user.getEmail());
         return "welcome_signup";
@@ -77,7 +77,7 @@ public class UserController {
     // 테스트용
     @GetMapping("/testmail")
     public String testMail() {
-        String code = UserUtil.getRandomUUID().toString();
+        String code = UserUtil.getRandomCode();
         String email = "--@gmail.com";
         userDetailsService.sendVerificationEmail(User.builder()
                         .email(email)

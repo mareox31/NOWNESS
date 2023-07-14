@@ -18,8 +18,8 @@ public class UserUtil {
         return user == null && oAuth2User == null;
     }
 
-    public static UUID getRandomUUID() {
-        return UUID.randomUUID();
+    public static String getRandomCode() {
+        return UUID.randomUUID().toString();
     }
 
 }

@@ -45,10 +45,10 @@ public class UserApiController {
     public ResponseEntity<Boolean> findPassword(HttpServletRequest request, @RequestBody FindPasswordForm findPasswordForm) {
         AtomicReference<ResponseEntity<Boolean>> responseEntity = new AtomicReference<>(ResponseEntity.ok(true));
         getUserInfo(findPasswordForm.email()).ifPresentOrElse(user -> {
-            String resetCode = UserUtil.getRandomUUID().toString();
-            userDetailsService.sendPasswordResetEmail(user, "http://%s".formatted(request.getHeader("host")), resetCode);
-            userDetailsService.savePasswordResetEmail(resetCode, findPasswordForm.email());
-            },
+                    String resetCode = UserUtil.getRandomCode();
+                    userDetailsService.sendPasswordResetEmail(user, "http://%s".formatted(request.getHeader("host")), resetCode);
+                    userDetailsService.savePasswordResetEmail(resetCode, findPasswordForm.email());
+                },
                 () -> responseEntity.set(ResponseEntity.noContent().build()));
         return responseEntity.get();
     }
