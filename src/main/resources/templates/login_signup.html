@@ -39,7 +39,7 @@
                                aria-describedby="passwordValidationFeedback" required>
                         <label for="floatingPassword">비밀번호</label>
                         <div id="passwordValidationFeedback" class="invalid-feedback">
-                            비밀번호를 확인해주세요.
+                            비밀번호는 영문자, 숫자, 특수문자 조합으로 8글자 이상 작성하여야 합니다.
                         </div>
                     </div>
                     <div th:if="${#ctx.springRequestContext.requestUri} == '/user/signup'" class="form-floating mt-3 mb-3">
