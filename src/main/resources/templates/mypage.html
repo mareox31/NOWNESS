@@ -34,7 +34,7 @@
                     <th:block th:unless="${verifiedUser}">
                     <button id="btnVerifyMailSend" class="btn-secondary btn-warning text-dark container-fluid mb-2 p-3 pt-1 pb-1 pt-0"
                             data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="아직 인증되지 않았어요!">인증 이메일 재발송</button>
-                    <button id="btnEmailSending" class="btn-secondary btn-warning text-dark container-fluid mb-2 p-3 pt-1 pb-1 pt-0"
+                    <button id="btnEmailSendingMessage" class="btn-secondary btn-warning text-dark container-fluid mb-2 p-3 pt-1 pb-1 pt-0"
                             style="display: none"
                             type="button" disabled>
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -59,18 +59,33 @@
                                         <div class="mb-3">
                                             <div id="nicknameForm" type="hidden">
                                                 <label for="nickname" class="col-form-label">변경할 닉네임</label>
-                                                <input type="text" class="form-control" id="nickname">
+                                                <input type="text" class="form-control" id="nickname"
+                                                       aria-describedby="nicknameValidationFeedback">
+                                                <div id="nicknameValidationFeedback" class="invalid-feedback"
+                                                     style="text-overflow: initial; overflow: visible; white-space: initial;">
+                                                    한글, 영어(대/소문자), 숫자로만 입력할 수 있으며 3~8글자만 입력 가능합니다.
+                                                </div>
                                             </div>
                                             <div id="passwordForm">
                                                 <label for="password" class="col-form-label">변경할 비밀번호</label>
-                                                <input type="password" class="form-control" id="password">
+                                                <input type="password" class="form-control" id="password"
+                                                       aria-describedby="passwordValidationFeedback">
+                                                <div id="passwordValidationFeedback" class="invalid-feedback"
+                                                style="text-overflow: initial; overflow: visible; white-space: initial;">
+                                                    영문자, 숫자, 특수문자 조합으로 8글자 이상 작성하여야 합니다.
+                                                </div>
                                             </div>
                                         </div>
                                     </form>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
-                                    <button type="button" class="btn btn-primary">변경요청</button>
+                                    <button id="btnChangeRequest" type="button" class="btn btn-primary" disabled>변경요청</button>
+                                    <button id="btnChangingInfoMessage" class="btn btn-primary"
+                                            style="display: none" type="button" disabled>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        변경 중...
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -81,7 +96,7 @@
         <section class="col-lg-9">
             <div class="card container mb-2">
                 <div class="row mt-3 justify-content-center">
-                    <h4>작성한 글</h4>
+                    <h4>최근 작성 글</h4>
                     <p class="text-center">글1</p>
                     <p class="text-center">글2</p>
                     <p class="text-center">글3</p>
@@ -91,7 +106,7 @@
             </div>
             <div class="card container">
                 <div class="row mt-3 justify-content-center">
-                    <h4>작성한 댓글</h4>
+                    <h4>최근 작성 댓글</h4>
                     <p class="text-center">댓글1</p>
                     <p class="text-center">댓글2</p>
                     <p class="text-center">댓글3</p>

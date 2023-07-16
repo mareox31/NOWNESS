@@ -176,12 +176,16 @@ public class UserDetailsService implements UserService {
     }
 
     @Transactional
-    public boolean resetPasswordByResetCode(String code, String password) {
+    public boolean resetPasswordByResetCode(String code, String newPassword) {
         Map<String, Object> params = new HashMap<>();
         params.put("code", code);
-        params.put("newPassword", password);
+        params.put("newPassword", newPassword);
         userRepository.resetPassword(params);
         return (int) params.get("updatedRows") == 1;
     }
 
+    @Transactional
+    public boolean changePassword(String email, String newPassword) {
+        return userRepository.changePasswordByEmail(email, newPassword) == 1;
+    }
 }

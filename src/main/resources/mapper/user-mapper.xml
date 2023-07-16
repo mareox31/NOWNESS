@@ -57,4 +57,8 @@
     <select id="resetPassword" statementType="CALLABLE" parameterType="map">
         {CALL reset_password(#{code, mode=IN, jdbcType=VARCHAR}, #{newPassword, mode=IN, jdbcType=VARCHAR}, #{updatedRows, mode=OUT, jdbcType=INTEGER})}
     </select>
+
+    <update id="changePasswordByEmail" parameterType="String">
+        UPDATE users SET password = #{arg1}, last_password_changed = now() WHERE email = #{arg0}
+    </update>
 </mapper>

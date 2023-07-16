@@ -83,6 +83,29 @@ public class UserApiController {
 
     private record ResetPasswordForm(String code, String password) {}
 
+    @PatchMapping("/password")
+    public ResponseEntity<Boolean> changePassword(@AuthenticationPrincipal User user,
+                                                  @AuthenticationPrincipal OAuth2User oAuth2User,
+                                                  @RequestBody ChangePasswordForm changePasswordForm) {
+        if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
+        String email = changePasswordForm.email();
+        if (!isQualifiedUser(user, email)) return ResponseEntity.badRequest().build();
+
+        String password = passwordEncoder.encode(changePasswordForm.newPassword());
+        boolean isPasswordUpdated = userDetailsService.changePassword(email, password);
+        if (isPasswordUpdated) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    private record ChangePasswordForm(String email, String newPassword) { }
+
+    private boolean isQualifiedUser(User user, String email) {
+        return user.getEmail().equals(email);
+    }
+
     @PostMapping("/unverified-email")
     public ResponseEntity<Boolean> sendVerificationEmail(
             @RequestBody ResendingVerificationEmailForm resendingVerificationEmailForm) {
