@@ -37,7 +37,7 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public String processSignup(SignUpForm signUpForm, HttpServletRequest request) {
+    public String processIdPwSignup(SignUpForm signUpForm, HttpServletRequest request) {
         if (isDuplicateUserInfo(signUpForm)) return "redirect:/user/signup";
         User user = signUpForm.toUser(passwordEncoder, request);
         userDetailsService.saveUser(user);

@@ -18,6 +18,7 @@ public class UserApiController {
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
+
     @Autowired
     UserApiController(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         this.userDetailsService = userDetailsService;
@@ -41,6 +42,12 @@ public class UserApiController {
         return ResponseEntity.ok().body(isExist);
     }
 
+    /**
+     * 비밀번호 찾기 메뉴를 통해 입력받은 정보로 비밀번호 초기화 메일을 발송합니다.
+     * @param request 사용자 요청에 대한 정보를 갖고 있습니다.
+     * @param findPasswordForm 사용자가 비밀번호를 재설정하기 위해 입력한 메일 정보를 갖고 있습니다.
+     * @return 존재하는 이메일일 경우 200 OK, 그렇지 않을 경우 204 No Content 반환
+     */
     @PostMapping("/password")
     public ResponseEntity<Boolean> findPassword(HttpServletRequest request, @RequestBody FindPasswordForm findPasswordForm) {
         AtomicReference<ResponseEntity<Boolean>> responseEntity = new AtomicReference<>(ResponseEntity.ok(true));
@@ -57,12 +64,11 @@ public class UserApiController {
         try {
             return Optional.of((User) userDetailsService.loadUserByEmail(email));
         } catch (Exception e) {
-            e.printStackTrace();
             return Optional.empty();
         }
     }
 
-    private record FindPasswordForm(String email) {}
+    private record FindPasswordForm(String email) { }
 
     @PutMapping("/password")
     public ResponseEntity<Boolean> resetPassword(@RequestBody ResetPasswordForm resetPasswordForm) {

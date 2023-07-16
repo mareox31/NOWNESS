@@ -64,11 +64,6 @@ public class UserDetailsService implements UserService {
         return new User(userDto);
     }
 
-    /**
-     * 저장소에 신규 사용자 정보를 저장합니다.
-     * @param user 사용자 도메인 클래스
-     * @author 정성국
-     */
     @Transactional
     public void saveUser(User user) {
         userRepository.save(UserDTO.builder()
@@ -142,10 +137,10 @@ public class UserDetailsService implements UserService {
 
     private MimeMessage convertEmailToMimeMessage(Email email, MimeMessageHelper helper) {
         try {
-            helper.setFrom(email.fromAddress, email.senderName);
-            helper.setTo(email.toAddress);
-            helper.setSubject(email.subject);
-            helper.setText(email.content, true);
+            helper.setFrom(email.fromAddress(), email.senderName());
+            helper.setTo(email.toAddress());
+            helper.setSubject(email.subject());
+            helper.setText(email.content(), true);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
