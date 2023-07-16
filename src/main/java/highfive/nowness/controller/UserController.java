@@ -42,7 +42,7 @@ public class UserController {
         User user = signUpForm.toUser(passwordEncoder, request);
         userDetailsService.saveUser(user);
         String code = UserUtil.getRandomCode();
-        userDetailsService.sendVerificationEmail(user, "http://%s".formatted(request.getHeader("host")), code);
+        userDetailsService.sendVerificationEmail(user, UserUtil.getHost(), code);
         userDetailsService.saveUnverifiedEmail(code, user.getEmail());
         return "welcome_signup";
     }

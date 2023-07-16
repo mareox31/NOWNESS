@@ -51,16 +51,16 @@ public class UserApiController {
     @PostMapping("/password")
     public ResponseEntity<Boolean> findPassword(HttpServletRequest request, @RequestBody FindPasswordForm findPasswordForm) {
         AtomicReference<ResponseEntity<Boolean>> responseEntity = new AtomicReference<>(ResponseEntity.ok(true));
-        getUserInfo(findPasswordForm.email()).ifPresentOrElse(user -> {
+        getUserInfoByEmail(findPasswordForm.email()).ifPresentOrElse(user -> {
                     String resetCode = UserUtil.getRandomCode();
-                    userDetailsService.sendPasswordResetEmail(user, "http://%s".formatted(request.getHeader("host")), resetCode);
+                    userDetailsService.sendPasswordResetEmail(user, UserUtil.getHost(), resetCode);
                     userDetailsService.savePasswordResetEmail(resetCode, findPasswordForm.email());
                 },
                 () -> responseEntity.set(ResponseEntity.noContent().build()));
         return responseEntity.get();
     }
 
-    private Optional<User> getUserInfo(String email) {
+    private Optional<User> getUserInfoByEmail(String email) {
         try {
             return Optional.of((User) userDetailsService.loadUserByEmail(email));
         } catch (Exception e) {
@@ -82,4 +82,26 @@ public class UserApiController {
     }
 
     private record ResetPasswordForm(String code, String password) {}
+
+    @PostMapping("/unverified-email")
+    public ResponseEntity<Boolean> sendVerificationEmail(
+            @RequestBody ResendingVerificationEmailForm resendingVerificationEmailForm) {
+
+        AtomicReference<ResponseEntity<Boolean>> responseEntity = new AtomicReference<>(ResponseEntity.ok(true));
+
+        getUserInfoByEmail(resendingVerificationEmailForm.email()).ifPresentOrElse(user -> {
+            if (user.isVerifiedEmail()) {
+                responseEntity.set(ResponseEntity.badRequest().build());
+            } else {
+                String verificationCode = UserUtil.getRandomCode();
+                userDetailsService.sendVerificationEmail(user, UserUtil.getHost(), verificationCode);
+                userDetailsService.saveUnverifiedEmail(verificationCode, user.getEmail());
+            }
+        }, () -> responseEntity.set(ResponseEntity.noContent().build()));
+
+        return responseEntity.get();
+
+    }
+
+    private record ResendingVerificationEmailForm(String email) { }
 }

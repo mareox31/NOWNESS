@@ -31,4 +31,8 @@ public class UserUtil {
         return UUID.randomUUID().toString();
     }
 
+    public static String getHost() {
+        return "http://localhost:8080";
+    }
+
 }
