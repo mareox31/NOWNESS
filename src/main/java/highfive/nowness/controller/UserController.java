@@ -105,9 +105,7 @@ public class UserController {
                              @AuthenticationPrincipal OAuth2User oAuth2User,
                              Model model) {
         if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
-        model.addAttribute("id", user.getId());
-        model.addAttribute("email", user.getEmail());
-        model.addAttribute("nickname", user.getNickname());
+        UserUtil.addPublicUserInfoToModel(model, user);
         return "mypage";
     }
 
