@@ -11,6 +11,7 @@
         <result property="createdDateTime" column="created" />
         <result property="admin" column="admin" />
         <result property="lastLoginIp" column="last_updated_ip" />
+        <result property="verifiedEmail" column="verified" />
     </resultMap>
 
     <select id="findByEmail" resultMap="userResultMap">
