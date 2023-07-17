@@ -37,12 +37,12 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public String processSignup(SignUpForm signUpForm, HttpServletRequest request) {
+    public String processIdPwSignup(SignUpForm signUpForm, HttpServletRequest request) {
         if (isDuplicateUserInfo(signUpForm)) return "redirect:/user/signup";
         User user = signUpForm.toUser(passwordEncoder, request);
         userDetailsService.saveUser(user);
-        String code = UserUtil.getRandomUUID().toString();
-        userDetailsService.sendVerificationEmail(user, "http://%s".formatted(request.getHeader("host")), code);
+        String code = UserUtil.getRandomCode();
+        userDetailsService.sendVerificationEmail(user, UserUtil.getHost(), code);
         userDetailsService.saveUnverifiedEmail(code, user.getEmail());
         return "welcome_signup";
     }
@@ -77,7 +77,7 @@ public class UserController {
     // 테스트용
     @GetMapping("/testmail")
     public String testMail() {
-        String code = UserUtil.getRandomUUID().toString();
+        String code = UserUtil.getRandomCode();
         String email = "--@gmail.com";
         userDetailsService.sendVerificationEmail(User.builder()
                         .email(email)
@@ -105,10 +105,18 @@ public class UserController {
                              @AuthenticationPrincipal OAuth2User oAuth2User,
                              Model model) {
         if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
-        model.addAttribute("id", user.getId());
-        model.addAttribute("email", user.getEmail());
-        model.addAttribute("nickname", user.getNickname());
+        UserUtil.addPublicUserInfoToModel(model, user);
+        addRecentContentsAndRepliesToModel(model, user);
         return "mypage";
+    }
+
+    private void addRecentContentsAndRepliesToModel(Model model, User user) {
+        var contents = userDetailsService.getRecentContentsAndReplies(user.getId()).stream().filter(row ->
+                row.get("type").equals("contents")).toList();
+        var replies = userDetailsService.getRecentContentsAndReplies(user.getId()).stream().filter(row ->
+                row.get("type").equals("replies")).toList();
+        model.addAttribute("contents", contents);
+        model.addAttribute("replies", replies);
     }
 
 }

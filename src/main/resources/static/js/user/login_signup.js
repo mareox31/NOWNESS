@@ -1,4 +1,5 @@
 $(document).ready(() => {
+
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
@@ -141,7 +142,6 @@ function duplicationCheck(type, value) {
     const data = {
         [type]: value,
     }
-    console.log(data);
     request('/api/v1/user/duplicate', 'POST', data, $('input[name="_csrf"]').val())
 }
 
@@ -158,7 +158,7 @@ function request(url, method, data, csrfToken) {
         success: function(response) {
             if(response === true) {
                 disableSubmitButton();
-                if (data.hasOwnProperty("email")) {
+                if (data.hasOwnProperty('email')) {
                     $('#floatingEmail').addClass('is-invalid');
                     $('#emailValidationFeedback').text('중복된 이메일 입니다.');
                 } else {
@@ -168,7 +168,7 @@ function request(url, method, data, csrfToken) {
             }
         },
         error: function(xhr, status, error) {
-            alert("중복 검사 중 오류가 발생하였습니다. 나중에 다시 시도해주세요.");
+            alert('중복 검사 중 오류가 발생하였습니다. 나중에 다시 시도해주세요.');
         }
     });
 }

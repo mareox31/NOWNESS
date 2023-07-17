@@ -5,7 +5,7 @@ $(document).ready(() => {
         if (!email.hasClass('is-invalid')) requestToServer('duplicate', email);
     });
 
-    email.on("keydown", function(event) {
+    email.keydown((event)=> {
         if (event.key === "Enter" && $(this).is(':focus') && $(this).hasClass('is-valid')) {
             requestPasswordResetEmail(email);
         }

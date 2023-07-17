@@ -2,6 +2,7 @@ package highfive.nowness.service;
 
 import highfive.nowness.domain.User;
 import highfive.nowness.dto.UserDTO;
+import highfive.nowness.repository.BoardRepository;
 import highfive.nowness.repository.UserRepository;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,17 +14,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
 public class UserDetailsService implements UserService {
 
     private final UserRepository userRepository;
+    private final BoardRepository boardRepository;
     private final JavaMailSender javaMailSender;
 
     @Autowired
-    UserDetailsService(UserRepository userRepository, JavaMailSender javaMailSender) {
+    UserDetailsService(UserRepository userRepository, JavaMailSender javaMailSender, BoardRepository boardRepository) {
         this.userRepository = userRepository;
+        this.boardRepository = boardRepository;
         this.javaMailSender = javaMailSender;
     }
 
@@ -64,11 +68,6 @@ public class UserDetailsService implements UserService {
         return new User(userDto);
     }
 
-    /**
-     * 저장소에 신규 사용자 정보를 저장합니다.
-     * @param user 사용자 도메인 클래스
-     * @author 정성국
-     */
     @Transactional
     public void saveUser(User user) {
         userRepository.save(UserDTO.builder()
@@ -142,10 +141,10 @@ public class UserDetailsService implements UserService {
 
     private MimeMessage convertEmailToMimeMessage(Email email, MimeMessageHelper helper) {
         try {
-            helper.setFrom(email.fromAddress, email.senderName);
-            helper.setTo(email.toAddress);
-            helper.setSubject(email.subject);
-            helper.setText(email.content, true);
+            helper.setFrom(email.fromAddress(), email.senderName());
+            helper.setTo(email.toAddress());
+            helper.setSubject(email.subject());
+            helper.setText(email.content(), true);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -181,12 +180,26 @@ public class UserDetailsService implements UserService {
     }
 
     @Transactional
-    public boolean resetPasswordByResetCode(String code, String password) {
+    public boolean resetPasswordByResetCode(String code, String newPassword) {
         Map<String, Object> params = new HashMap<>();
         params.put("code", code);
-        params.put("newPassword", password);
+        params.put("newPassword", newPassword);
         userRepository.resetPassword(params);
         return (int) params.get("updatedRows") == 1;
     }
 
+    @Transactional
+    public boolean changePassword(String email, String newPassword) {
+        return userRepository.changePasswordByEmail(email, newPassword) == 1;
+    }
+
+    @Transactional
+    public boolean changeNickname(String email, String newNickname) {
+        return userRepository.changeNicknameByEmail(email, newNickname) == 1;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, String>> getRecentContentsAndReplies(long userId) {
+        return boardRepository.loadRecentContentsAndReplies(userId);
+    }
 }

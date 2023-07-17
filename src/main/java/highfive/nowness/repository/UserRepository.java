@@ -20,4 +20,6 @@ public interface UserRepository {
     void savePasswordResetEmail(String code, String email);
     int countPasswordResetEmail(String code);
     void resetPassword(Map<String, Object> params);
+    int changePasswordByEmail(String email, String newPassword);
+    int changeNicknameByEmail(String email, String newNickname);
 }

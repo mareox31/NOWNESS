@@ -2,6 +2,7 @@ package highfive.nowness.util;
 
 import highfive.nowness.domain.User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.ui.Model;
 
 import java.util.UUID;
 
@@ -11,15 +12,27 @@ public class UserUtil {
                 .id(oAuth2User.getAttribute("id"))
                 .email(oAuth2User.getAttribute("email"))
                 .nickname(oAuth2User.getAttribute("nickname"))
+                .verifiedEmail(true)
                 .build();
+    }
+
+    public static void addPublicUserInfoToModel(Model model, User user) {
+        model.addAttribute("id", user.getId());
+        model.addAttribute("email", user.getEmail());
+        model.addAttribute("nickname", user.getNickname());
+        model.addAttribute("verifiedUser", user.isVerifiedEmail());
     }
 
     public static boolean isNotLogin(User user, OAuth2User oAuth2User) {
         return user == null && oAuth2User == null;
     }
 
-    public static UUID getRandomUUID() {
-        return UUID.randomUUID();
+    public static String getRandomCode() {
+        return UUID.randomUUID().toString();
+    }
+
+    public static String getHost() {
+        return "http://localhost:8080";
     }
 
 }
