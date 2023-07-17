@@ -6,7 +6,12 @@ import highfive.nowness.util.UserUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -89,11 +94,12 @@ public class UserApiController {
                                                   @RequestBody ChangePasswordForm changePasswordForm) {
         if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
         String email = changePasswordForm.email();
-        if (!isQualifiedUser(user, email)) return ResponseEntity.badRequest().build();
+        if (isNotQualifiedUser(user, email)) return ResponseEntity.badRequest().build();
 
         String password = passwordEncoder.encode(changePasswordForm.newPassword());
         boolean isPasswordUpdated = userDetailsService.changePassword(email, password);
         if (isPasswordUpdated) {
+            changePasswordToAuthenticatedUser(user, password);
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.badRequest().build();
@@ -102,8 +108,16 @@ public class UserApiController {
 
     private record ChangePasswordForm(String email, String newPassword) { }
 
-    private boolean isQualifiedUser(User user, String email) {
-        return user.getEmail().equals(email);
+    private boolean isNotQualifiedUser(User user, String email) {
+        return !user.getEmail().equals(email);
+    }
+
+    private void changePasswordToAuthenticatedUser(User user, String password) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        User changedUser = (userDetailsService.loadUserByNickname(user.getNickname()));
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(
+                changedUser, changedUser.getPassword(), user.getAuthorities()));
+        SecurityContextHolder.setContext(context);
     }
 
     @PostMapping("/unverified-email")
@@ -127,4 +141,41 @@ public class UserApiController {
     }
 
     private record ResendingVerificationEmailForm(String email) { }
+
+    @GetMapping("/nickname")
+    public ResponseEntity<Boolean> checkDuplicateNickname(@RequestParam(name = "newNickname") String nickname) {
+        boolean isDuplicate = userDetailsService.isExistNickname(nickname);
+        return ResponseEntity.ok(isDuplicate);
+    }
+
+    @PatchMapping("/nickname")
+    public ResponseEntity<String> changeNickname(@AuthenticationPrincipal User user,
+                                                 @AuthenticationPrincipal OAuth2User oAuth2User,
+                                                 @RequestBody ChangeNicknameForm form) {
+
+        if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
+        String email = form.email();
+        if (isNotQualifiedUser(user, email)) return ResponseEntity.badRequest().build();
+
+        String nickname = form.newNickname();
+        boolean isNicknameUpdated = userDetailsService.changeNickname(email, nickname);
+        if (isNicknameUpdated) {
+            changeNicknameToAuthenticatedUser(user, nickname);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+
+    }
+
+    public record ChangeNicknameForm (String email, String newNickname) {}
+
+    private void changeNicknameToAuthenticatedUser(User user, String nickname) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        User changedUser = (userDetailsService.loadUserByNickname(nickname));
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(
+                changedUser, user.getPassword(), user.getAuthorities()));
+        SecurityContextHolder.setContext(context);
+    }
+
 }

@@ -188,4 +188,9 @@ public class UserDetailsService implements UserService {
     public boolean changePassword(String email, String newPassword) {
         return userRepository.changePasswordByEmail(email, newPassword) == 1;
     }
+
+    @Transactional
+    public boolean changeNickname(String email, String newNickname) {
+        return userRepository.changeNicknameByEmail(email, newNickname) == 1;
+    }
 }

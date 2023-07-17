@@ -61,4 +61,8 @@
     <update id="changePasswordByEmail" parameterType="String">
         UPDATE users SET password = #{arg1}, last_password_changed = now() WHERE email = #{arg0}
     </update>
+
+    <update id="changeNicknameByEmail" parameterType="String">
+        UPDATE users SET nickname = #{arg1} WHERE email = #{arg0}
+    </update>
 </mapper>

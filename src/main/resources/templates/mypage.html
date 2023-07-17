@@ -23,7 +23,7 @@
             <div class="card container mb-2 pb-2 pt-2">
 
                 <div class="row mt-3 justify-content-center">
-                    <h4 class="text-center" th:text="${nickname}">nickname</h4>
+                    <h4 id="nickname" class="text-center" th:text="${nickname}">nickname</h4>
                     <p id="email" class="text-center" th:text="${email}">example@example.com</p>
                 </div>
 
@@ -41,9 +41,9 @@
                         이메일 발송 중...
                     </button>
                     </th:block>
-                    <button class="btn-outline-secondary text-dark container-fluid mb-2 p-3 pt-1 pb-1 pt-0"
+                    <button id="btnChangeNickname" class="btn-outline-secondary text-dark container-fluid mb-2 p-3 pt-1 pb-1 pt-0"
                        data-bs-toggle="modal" data-bs-target="#modal" th:attr="data-bs-whatever=${nickname}">닉네임 변경</button>
-                    <button class="btn-outline-secondary text-dark container-fluid mb-2 p-3 pt-1 pb-1 pt-0"
+                    <button id="btnChangePassword" class="btn-outline-secondary text-dark container-fluid mb-2 p-3 pt-1 pb-1 pt-0"
                             data-bs-toggle="modal" data-bs-target="#modal" data-bs-whatever="password-change">비밀번호 변경</button>
                     <button class="btn-outline-secondary text-dark container-fluid p-3 pt-1 pb-1 pt-0">회원 탈퇴</button>
 
@@ -58,17 +58,15 @@
                                     <form>
                                         <div class="mb-3">
                                             <div id="nicknameForm" type="hidden">
-                                                <label for="nickname" class="col-form-label">변경할 닉네임</label>
-                                                <input type="text" class="form-control" id="nickname"
+                                                <label for="nicknameInput" class="col-form-label">변경할 닉네임</label>
+                                                <input type="text" class="form-control" id="nicknameInput" name="nickname"
                                                        aria-describedby="nicknameValidationFeedback">
                                                 <div id="nicknameValidationFeedback" class="invalid-feedback"
-                                                     style="text-overflow: initial; overflow: visible; white-space: initial;">
-                                                    한글, 영어(대/소문자), 숫자로만 입력할 수 있으며 3~8글자만 입력 가능합니다.
-                                                </div>
+                                                     style="text-overflow: initial; overflow: visible; white-space: initial;"></div>
                                             </div>
                                             <div id="passwordForm">
-                                                <label for="password" class="col-form-label">변경할 비밀번호</label>
-                                                <input type="password" class="form-control" id="password"
+                                                <label for="passwordInput" class="col-form-label">변경할 비밀번호</label>
+                                                <input type="password" class="form-control" id="passwordInput" name="password"
                                                        aria-describedby="passwordValidationFeedback">
                                                 <div id="passwordValidationFeedback" class="invalid-feedback"
                                                 style="text-overflow: initial; overflow: visible; white-space: initial;">
