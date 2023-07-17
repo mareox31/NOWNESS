@@ -95,21 +95,53 @@
             <div class="card container mb-2">
                 <div class="row mt-3 justify-content-center">
                     <h4>최근 작성 글</h4>
-                    <p class="text-center">글1</p>
-                    <p class="text-center">글2</p>
-                    <p class="text-center">글3</p>
-                    <p class="text-center">글4</p>
-                    <p class="text-center">글5</p>
+                    <table class="table table-hover">
+                        <colgroup>
+                            <col style="width: 5%">
+                            <col style="width: 75%">
+                            <col style="width: 20%">
+                        </colgroup>
+                        <thead>
+                        <tr class="text-center">
+                            <th scope="col">#</th>
+                            <th scope="col">제목</th>
+                            <th scope="col">작성일시</th>
+                        </tr>
+                        </thead>
+                        <tbody class="table-group-divider">
+                        <tr class="text-center" th:each="content, c : ${contents}" th:object="${content}">
+                            <th scope="row">[[${c.count}]]</th>
+                            <td><a th:href="|/request/post/${content.get('contentsId')}|" class="text-dark" th:text="${content.get('contents')}">내용</a></td>
+                            <td th:text="${#strings.replace(content.get('datetime'), 'T', ' ')}">날짜</td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <div class="card container">
                 <div class="row mt-3 justify-content-center">
                     <h4>최근 작성 댓글</h4>
-                    <p class="text-center">댓글1</p>
-                    <p class="text-center">댓글2</p>
-                    <p class="text-center">댓글3</p>
-                    <p class="text-center">댓글4</p>
-                    <p class="text-center">댓글5</p>
+                    <table class="table table-hover">
+                        <colgroup>
+                            <col style="width: 5%">
+                            <col style="width: 75%">
+                            <col style="width: 20%">
+                        </colgroup>
+                        <thead>
+                        <tr class="text-center">
+                            <th scope="col">#</th>
+                            <th scope="col">제목</th>
+                            <th scope="col">작성일시</th>
+                        </tr>
+                        </thead>
+                        <tbody class="table-group-divider">
+                        <tr class="text-center" th:each="reply, r : ${replies}" th:object="${reply}">
+                            <th scope="row">[[${r.count}]]</th>
+                            <td><a th:href="|/request/post/${reply.get('contentsId')}|" class="text-dark" th:text="${reply.get('contents')}">내용</a></td>
+                            <td th:text="${#strings.replace(reply.get('datetime'), 'T', ' ')}">날짜</td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>

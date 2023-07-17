@@ -2,6 +2,7 @@ package highfive.nowness.service;
 
 import highfive.nowness.domain.User;
 import highfive.nowness.dto.UserDTO;
+import highfive.nowness.repository.BoardRepository;
 import highfive.nowness.repository.UserRepository;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,17 +14,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
 public class UserDetailsService implements UserService {
 
     private final UserRepository userRepository;
+    private final BoardRepository boardRepository;
     private final JavaMailSender javaMailSender;
 
     @Autowired
-    UserDetailsService(UserRepository userRepository, JavaMailSender javaMailSender) {
+    UserDetailsService(UserRepository userRepository, JavaMailSender javaMailSender, BoardRepository boardRepository) {
         this.userRepository = userRepository;
+        this.boardRepository = boardRepository;
         this.javaMailSender = javaMailSender;
     }
 
@@ -192,5 +196,10 @@ public class UserDetailsService implements UserService {
     @Transactional
     public boolean changeNickname(String email, String newNickname) {
         return userRepository.changeNicknameByEmail(email, newNickname) == 1;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, String>> getRecentContentsAndReplies(long userId) {
+        return boardRepository.loadRecentContentsAndReplies(userId);
     }
 }

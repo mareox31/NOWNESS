@@ -106,7 +106,17 @@ public class UserController {
                              Model model) {
         if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
         UserUtil.addPublicUserInfoToModel(model, user);
+        addRecentContentsAndRepliesToModel(model, user);
         return "mypage";
+    }
+
+    private void addRecentContentsAndRepliesToModel(Model model, User user) {
+        var contents = userDetailsService.getRecentContentsAndReplies(user.getId()).stream().filter(row ->
+                row.get("type").equals("contents")).toList();
+        var replies = userDetailsService.getRecentContentsAndReplies(user.getId()).stream().filter(row ->
+                row.get("type").equals("replies")).toList();
+        model.addAttribute("contents", contents);
+        model.addAttribute("replies", replies);
     }
 
 }
