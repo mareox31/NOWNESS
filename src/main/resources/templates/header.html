@@ -1,30 +1,45 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="ko">
 <head>
     <meta charset="UTF-8">
 </head>
 <body>
 <div th:fragment="header">
-
-    <div class="container-fluid">
+    <th:block th:insert="~{tooltip_script}"></th:block>
+    <div class="container-fluid p-0">
         <nav class="navbar navbar-expand-lg bg-light">
             <div class="container-fluid">
                 <div class="row w-100">
-
                     <div class="col-12 d-flex justify-content-end">
                         <ul class="navbar-nav">
-                            <li class="nav-item">
-                                <a class="nav-link text-dark user-link" href="login">로그인</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark user-link" href="signup">회원가입</a>
-                            </li>
+                            <th:block th:if="${userId == null}">
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark user-link" href="/user/login">로그인</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark user-link" href="/user/signup">회원가입</a>
+                                </li>
+                            </th:block>
+                            <th:block th:if="${userId != null}">
+                                <li class="nav-item">
+                                    <p class="nav-link text-dark" th:text="|${nickname}님 안녕하세요!|">닉네임</p>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link user-link"
+                                       th:classappend="${verifiedUser} ? 'text-dark' : 'text-warning'"
+                                       th:attr="data-bs-toggle=${verifiedUser ? '' : 'tooltip'}, data-bs-placement=${verifiedUser ? '' : 'top'}, data-bs-title=${verifiedUser ? '' : '아직 인증되지 않았어요!'}"
+                                       href="/user/mypage">회원정보</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark user-link" href="/user/logout">로그아웃</a>
+                                </li>
+                            </th:block>
                         </ul>
                     </div>
 
                     <div class="col-12 d-flex justify-content-center my-5">
-                        <a class="navbar-brand d-flex align-items-center justify-content-center logo-position" href="main">
-                            <img src="images/logo.png" alt="Logo" width="150" height="120">
+                        <a class="navbar-brand d-flex align-items-center justify-content-center logo-position" href="/main">
+                            <img th:src="@{/images/logo.png}" alt="Logo" width="150" height="120">
                         </a>
                     </div>
 
@@ -46,7 +61,6 @@
             </div>
         </nav>
     </div>
-
 </div>
 </body>
 </html>
