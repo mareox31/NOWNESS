@@ -10,10 +10,9 @@
         <nav class="navbar navbar-expand-lg bg-light">
             <div class="container-fluid">
                 <div class="row w-100">
-
                     <div class="col-12 d-flex justify-content-end">
                         <ul class="navbar-nav">
-                            <th:block th:if="${userid == 'null'}">
+                            <th:block th:if="${userId == null}">
                                 <li class="nav-item">
                                     <a class="nav-link text-dark user-link" href="/user/login">로그인</a>
                                 </li>
@@ -21,14 +20,14 @@
                                     <a class="nav-link text-dark user-link" href="/user/signup">회원가입</a>
                                 </li>
                             </th:block>
-                            <th:block th:if="${userid != 'null'}">
+                            <th:block th:if="${userId != null}">
                                 <li class="nav-item">
                                     <p class="nav-link text-dark" th:text="|${nickname}님 안녕하세요!|">닉네임</p>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link user-link"
                                        th:classappend="${verifiedUser} ? 'text-dark' : 'text-warning'"
-                                       th:attr="data-bs-toggle=${verifiedUser ? null : 'tooltip'}, data-bs-placement=${verifiedUser ? null : 'top'}, data-bs-title=${verifiedUser ? null : '아직 인증되지 않았어요!'}"
+                                       th:attr="data-bs-toggle=${verifiedUser ? '' : 'tooltip'}, data-bs-placement=${verifiedUser ? '' : 'top'}, data-bs-title=${verifiedUser ? '' : '아직 인증되지 않았어요!'}"
                                        href="/user/mypage">회원정보</a>
                                 </li>
                                 <li class="nav-item">
