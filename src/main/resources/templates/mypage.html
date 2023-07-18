@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <link th:href="@{/css/styles.css}" rel="stylesheet" type="text/css">
-    <script th:src="@{/js/jquery-3.7.0.min.js}"></script>
     <script th:src="@{/js/user/mypage.js}"></script>
-    <script th:src="@{/js/popper.min.js}"></script>
-    <script th:src="@{/js/bootstrap.min.js}"></script>
     <style>
         body * {
             text-overflow: ellipsis; overflow: hidden; white-space:nowrap;
@@ -16,7 +13,7 @@
     <title>NOWNESS</title>
 </head>
 <body>
-<div th:insert="~{header :: header}"></div>
+<th:block th:insert="~{header :: header}"></th:block>
 <div class="container mt-5">
     <div class="row justify-content-between">
         <aside class="col-lg-3">
