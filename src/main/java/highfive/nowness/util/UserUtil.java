@@ -17,7 +17,7 @@ public class UserUtil {
     }
 
     public static void addPublicUserInfoToModel(Model model, User user) {
-        model.addAttribute("id", user.getId());
+        model.addAttribute("userId", user.getId());
         model.addAttribute("email", user.getEmail());
         model.addAttribute("nickname", user.getNickname());
         model.addAttribute("verifiedUser", user.isVerifiedEmail());
