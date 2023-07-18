@@ -3,201 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/requestpost.css}" rel="stylesheet">
     <title>NOWNESS_detail</title>
     <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <meta name="_csrf" th:content="${_csrf.token}">
-    <style>
-        #backbtn {
-            background-color: white;
-            border-color: white ;
-            color: #3c3b3b;
-            font-family: "Raleway", Helvetica, sans-serif;
-            font-weight: 800;
-            letter-spacing: 0.25em;
-            line-height: 1.65;
-            margin: 0 0 1em 0;
-            text-transform: uppercase;
-        }
-    </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script th:inline="javascript">
 
-        //댓글 관련---------------------------------
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+            var boardId = /*[[${postdetail.id}]]*/;
+
+            // 페이지 로드 시 댓글 가져오기
+            getReplyList(boardId);
+
+            // 등록 버튼 클릭 이벤트 처리
+            $("#submitbtn").click(function(event) {
+                event.preventDefault();
+                var replyContents = $("#contents").val();
+
+                // 댓글 등록 AJAX 요청
+                $.ajax({
+                    url: "/request/writeReply",
+                    data: {
+                        "userid": /*[[${user.id}]]*/,
+                        "contentsid": boardId,
+                        "reply": replyContents
+                    },
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader(header, token);
+                    },
+                    type: "post",
+                    success: function(result) {
+                        if (result === "success") {
+                            // 댓글 입력칸 비우기
+                            $("#contents").val("");
+                            // 새로운 댓글 불러오기
+                            getReplyList(boardId);
+                        } else {
+                            alert("등록 실패");
+                        }
+                    },
+                    error: function() {
+                        alert("실패");
+                    }
+                });
+            });
+
+            // 댓글 삭제 버튼 클릭 이벤트 처리
+            $(document).on("click", ".deletereplybtn", function(event) {
+                event.preventDefault();
+                var replyId = $(this).data("replyid");
+                // 댓글 삭제 AJAX 요청
+                deleteReply(replyId);
+            });
+        });
+
+        // 댓글 삭제 AJAX 요청
+        function deleteReply(replyId) {
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+
+            $.ajax({
+                url: "/request/deleteReply",
+                data: {
+                    "replyId": replyId
+                },
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                type: "post",
+                success: function(result) {
+                    if (result === "success") {
+                        var boardId = /*[[${postdetail.id}]]*/;
+                        getReplyList(boardId);
+                    } else {
+                    }
+                },
+                error: function() {
+                }
+            });
+        }
+
+
+        // 댓글 리스트 가져오기
+        function getReplyList(boardId) {
+            $.ajax({
+                url: "/request/getComments",
+                data: {
+                    "contentsid": boardId
+                },
+                type: "get",
+                success: function(result) {
+                    // 댓글 보여주기
+                    drawReply(result);
+                },
+                error: function() {
+                }
+            });
+        }
+
+
+        // 댓글 보여주는 기능
         function drawReply(replys) {
-            //댓글창 시작-
-            //COMMENT - (이 글의 댓글갯수)표시
-            $("#cnt").text("Comments - (" + replys.length+")");
             var html = '';
 
-            //해당 게시글의 댓글 등록하는곳.
-            // html += '<form class="form-inline" action="/request/writeReply" method="post">';
-            html += ' <form className="form-inline" th:action="@{/request/writeReply}" method="post">';
-            html += '<input type="hidden" name="contentsid" th:value="${postdetail.id}">';//글번호
-            html += '<input type="hidden" name="userid" th:value="4">';//임의 , 로그인유저 값 가져올것.
-            console.log("널 전");
-
-            // html += '<input type="hidden" name="parent_id" value="null">'; //이게..null이라 문제인가.....
-            console.log("널 후");
-            html += '<input type="text" class="form-control mb-2 mr-sm-2" id="contents" placeholder="답글" name="reply">';
-            html += '<button type="submit" class="btn btn-primary mb-2">등록</button>';
-            html += '</form>';
-
-
             replys.forEach(function(reply) {
-
-
                 if (reply.parentid == 0) {
-                //     //대댓글 갯수세기. - 현재필요없어보임..
-                //     var rc = 0;
-                //     replys.forEach(function(i) {
-                //         if (reply.id == i.parentid) rc++;
-                //     });
-
-
-                    //게시글의 댓글 보여줌(parent_id=null)
-                    //**null이라, 문제가 좀 있는거같음. mysql은 0으로 설정하면 안되고, null은 인텔리제이서 문제생김
-                    //***Null 처리 어디서 해야하는지 생각해봐야할거같음.
-                    //↓ 게시글의 댓글의 댓글같음 ★
                     html += '<div class="row"><div class="col-sm-12">';
-                    // html += '<form class="form-inline" action="/writeReply" method="post">';
-                    html += '  <form className="form-inline" th:action="@{/request/writeReply}" method="post">';
-                    html += '<label for="pwd" class="mr-sm-2">' + reply.reply + '</label>';
-                    // html += '<label for="pwd" class="mr-sm-2">' + reply.reply + '(' + rc + ')' + '</label>'; 댓글에 대댓글갯수붙인거(댓글갯수없는거로 씀)
-                    //대댓글 부분에 써야함.. 우선 둘 것..
-                    // html += '<input type="hidden" name="id" th:value="${postdetail.id}">'; //자동증가 댓글고유id
-                    html += '<input type="hidden" name="contentsid" th:value="${postdetail.id}">';//글번호
-                    html += '<input type="hidden" name="userid" th:value="999">'; //댓글쓴사람id(로그인한사람불러올것)-임의999
-                    html += '<input type="hidden" name="parentid" th:value="' + 3 + '">'; //reply.id//저장되는지 임의확인 999
-
+                    html += '<form class="form-inline" action="/writeReply" method="post">';
+                    html += '<label for="pwd" class="mr-sm-2">' + "[작성자 : " + reply.id + " ] " +'</label>';
+                    html += '<label for="pwd" class="mr-sm-2">'  +  reply.reply + '</label>';
+                    html += '<label for="pwd" class="mr-sm-2">' + "( " + reply.createddatetime + ")"+ '</label>';
+                    html += '<button type="button" class="btn btn-primary mb-2 deletereplybtn" data-replyid="' + reply.id + '">❌</button>';
+                    html += '<input type="hidden" name="id" th:value="${postdetail.id}">';
+                    html += '<input type="hidden" name="parentid" th:value="' + reply.id + '">';
                     html += '</form>';
                     html += '<hr>';
-
-                    //댓글에 댓글달때 뜨는 댓글입력란--------
-                    // html += '<input type="text" class="form-control mb-2 mr-sm-2" id="contents" placeholder="댓글을 입력하세요" name="reply">';
-                    // html += '<button type="submit" class="btn btn-primary mb-2">등록</button>';
-                    // html += '</form>';
-
-                    //대댓글 달리는곳
                     html += '<div class="row"><div class="col-sm-12 sub' + reply.id + '"></div></div></div></div>';
                 }
             });
 
-            $("#replyArea").append(html);
+            $("#replyArea").html(html);
 
-
-            //대댓글부분--
             replys.forEach(function(reply) {
                 if (reply.parentid != 0) {
-
-                    //대댓글 개수 세는거 현재 필요없어보임.
-                    // var rc = 0;
-                    // replys.forEach(function(i) {
-                    //     if (reply.id == i.parent_id) rc++;
-                    // });
-
                     var subHtml = '';
-
                     subHtml = '<div class="row"><div class="col-sm-12 subReply">';
-                    subHtml += '<form class="form-inline" action="/writeReply" method="post">';
-                    subHtml += '          ㄴ <label for="pwd" class="mr-sm-2">' + reply.reply +  '</label>';
-                    subHtml += '<input type="hidden" name="id" th:value="${postdetail.id}">';
-                    subHtml += '<input type="hidden" name="parent_id" th:value="' + reply.id + '">';
-                    //대댓글의 대댓글..은 안하는것이 좋지 않을까. 대댓글까지로.. ..
-                    // subHtml += '<input type="text" class="form-control mb-2 mr-sm-2" id="contents" placeholder="답글" name="reply">';
-                    // subHtml += '<button type="submit" class="btn btn-primary mb-2">등록</button>';
-                    subHtml += '</form>';
+                    subHtml += 'ㄴ <label for="pwd" class="col-sm-12 sub">'+ "[작성자 : " + reply.id + " ] "  + reply.reply + "( " + reply.createddatetime + ")"+  '</label>';
+                    subHtml += '<button type="button" class="col-sm-12 sub deletereplybtn" data-replyid="' + reply.id + '">❌</button>';
+                    subHtml += '<hr>';
                     subHtml += '<div class="row"><div class="col-sm-12 sub' + reply.id + '"></div></div></div></div>';
-
                     $(".sub" + reply.parentid).append(subHtml);
                 }
             });
         }
-
-
-        //페이지 들어오면 댓글창 생성.
-        $(document).ready(function(){
-            var replys = /*[[${comments}]]*/;
-            drawReply(replys);
-
-        });
-
-
     </script>
+
 </head>
 
+
+
+
 <body>
-<!--왼쪽 상단 누르면 리쿼스트보드 리스트로 감-->
-<a href="/request/list">
-    <h1>REQUESTBOARD</h1>
-</a>
-<hr>
+<!--헤더-->
+<div th:insert="~{header :: header}"></div>
+
+<!--바디-본문-->
 
 <!--게시글 세부내용 본문-->
 <div class="container">
-    <!--뒤로가기 버튼-->
-    <a class="btn btn-primary btn-back" id="backbtn" href="javascript:history.back()">Back to Request Board</a>
+
     <!--게시글 상세내용-->
     <div id="main">
         <article class="post">
-            <!-- 게시글 내부 header : 진짜 헤더랑 겹칠거같음..?? 나중에 이름바꿀것.-->
+            <!-- 게시글 내부 header : 진짜 헤더랑 겹칠거같음..??-->
             <header>
                 <div class="title">
-                    <h2><h2 th:text="${postdetail.title}"></h2></h2>
+                    <h2 th:text="${postdetail.title}"></h2>
                 </div>
 
                 <!--오른쪽부분 날짜와 닉네임-->
                 <div class="meta">
-                    <time class="published" datetime="2015-11-01"><p th:text="${postdetail.createdDatetime}"></p></time>
-                    <a href="#" class="author"><span class="name"> <p th:text="${nickname}"></p></span><img src="images/avatar.jpg" alt="" /></a>
+                    <time class="published" datetime="2015-11-01" th:text="${postdetail.createdDatetime}"></time>
+                    <a href="#" class="author"><span class="name" th:text="${nickname}"></span><img src="images/avatar.jpg" alt="" /></a>
                 </div>
             </header>
 
             <!-- 글 본문 자리-->
-            <p th:text="${postdetail.contents}"></p>
+            <p th:utext="${postdetail.contents}"></p>
+
 
             <!--게시글 내부 footer : 나중에 겹치는지?? 바꿔야야할듯..-->
             <footer>
                 <ul class="stats">
                     <li><a href="#" class="icon solid fa-viewt">view <span th:text="${postdetail.views}"></span></a></li>
                     <li><a href="#" class="icon solid fa-heart"><span th:text="${likes}"></span></a></li>
-                    <li><a href="#" class="icon solid fa-comment"><span th:text="${comments.size()}"></span></a></li>
+                    <li><a href="#" class="icon solid fa-comment">comment <span th:text="${comments.size()}"></span></a></li>
                     <li><a href="#" class="icon solid fa-modify">modify</a></li>
                     <li><a th:href="@{'/request/post/' + ${id} + '/delete'}" class="icon solid fa-delete">delete</a></li>
                     <li><a href="#" class="icon solid fa-report">report</a></li>
                 </ul>
+                <ul class="hash">
+                    <li></li>
+                </ul>
+
             </footer>
         </article>
     </div> <!--게시글내용 div end-->
 
 
+    <!--댓글등록-->
+    <form id="commentForm" class="form-inline" th:action="@{/request/writeReply}" method="post">
+        <input type="hidden" name="userid"  th:value="${user.id}">
+        <input type="hidden" name="contentsid" th:value="${postdetail.id}">
+        <input type="text" class="form-control mb-2 mr-sm-2" id="contents" placeholder="댓글을 입력하세요" name="reply" required>
+        <button type="button" class="btn btn-primary mb-2" id="submitbtn">등록</button>
+    </form>
+
+
     <!--댓글 보여주는 곳 -->
     <div class="comments">
-<!--        <h3>Comments</h3>-->
         <h2 id="cnt"></h2>
         <div id="replyArea"></div>
     </div>
 
 
-<!--저장됨 근데 위에 버튼에서 해야되므로 보류-->
-    <p th:text="${postdetail.id}"></p>
-
-
-<form class="form-inline" th:action="@{/request/writeReply}" method="post">
-
-    <input type="hidden" name="userid" value=3>
-    <input type="hidden" name="contentsid" th:value="${postdetail.id}">
-    <input type="text" className="form-control mb-2 mr-sm-2" id="contents" placeholder="댓글을 입력하세요" name="reply">
-    <button type="submit" className="btn btn-primary mb-2">등록</button>
-
-</form>
+    <!--    <span th:text="${user}"></span>-->
+    <!--    <br>-->
+    <!--    <span th:text="${user.id}"></span>-->
 
 
 
-
-
-</div><!--div container end 게시글본문 전체 div-->
+    <div th:insert="~{footer :: footer}"></div>
+    <script th:src="@{/static/js/bootstrap.min.js}"></script>
+</div>
 </body>
 </html>
-
 
 
