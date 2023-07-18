@@ -1,13 +1,12 @@
 package highfive.nowness.service;
 
+import highfive.nowness.dto.PostData;
 import highfive.nowness.dto.RepliesDTO;
 import highfive.nowness.dto.ReplyData;
 import highfive.nowness.dto.RequestDTO;
 import highfive.nowness.repository.RequestBoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -50,25 +49,26 @@ public class RequestBoardService {
     public List<RepliesDTO> getReply(int id) { return requestBoardRepository.getReply(id); }
 
 
+    //댓글 등록
+    public boolean addReply(ReplyData replyData) {
+        return requestBoardRepository.addReply(replyData);
+    }
 
-    //테스트중--카테고리 --
+
+    //댓글삭제
+    public boolean deleteReply(int replyId) {
+        return requestBoardRepository.deleteReply(replyId) > 0;
+    }
+
+
+    //게시글 리스트 가져올때(게시글0개여도 가능)
     public int getRequestsByBoardTypeCount(int boardType) {
-        return requestBoardRepository.getRequestsByBoardTypeCount(boardType);
+        int count = requestBoardRepository.getRequestsByBoardTypeCount(boardType);
+        return Math.max(count, 0);
     }
 
-        //테스트중 : 댓글 등록 테스트
-//    public boolean addReply(ArrayList list) { return requestBoardRepository.addReply(list); }
-//        public void addReply(ArrayList<Object> list) { requestBoardRepository.addReply(list);
-//        }
-
-
-    public void addReply(ReplyData replyData) {
-        requestBoardRepository.addReply(replyData);
-    }
-
+    //글저장
+    public void addPost(PostData postData) { requestBoardRepository.addPost(postData); }
 
 }
-
-
-
 

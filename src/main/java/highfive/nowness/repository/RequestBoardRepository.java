@@ -1,4 +1,5 @@
 package highfive.nowness.repository;
+import highfive.nowness.dto.PostData;
 import highfive.nowness.dto.RepliesDTO;
 import highfive.nowness.dto.ReplyData;
 import highfive.nowness.dto.RequestDTO;
@@ -55,10 +56,27 @@ public class RequestBoardRepository {
     //글삭제 -(deleted=1해서 안보이도록 처리)
     public void deleteContents(int id){ sql.selectOne("request.deleteContents",id); }
 
+
     //댓글조회 - 콘텐츠이름.
     public List<RepliesDTO> getReply(int id) { return sql.selectList("request.getReply",id); }
 
 
+    //댓글 등록
+    public boolean addReply(ReplyData replyData) {
+        return sql.insert("request.addReply", replyData) == 1;
+    }
+
+    //댓글 삭제
+    public int deleteReply(int replyId) {
+        Integer result = sql.selectOne("request.deleteReply", replyId);
+        return result != null ? result.intValue() : 1;
+    }
+
+
+    //글쓰기 저장
+    public void addPost(PostData postData) {
+        sql.insert("request.addPost", postData);
+    }
 
 
     //테스트중 ---------카테고리-----
@@ -66,16 +84,6 @@ public class RequestBoardRepository {
         return sql.selectOne("request.getRequestsByBoardTypeCount", boardType);
     }
 
-    //테스트중 : 댓글등록
-//    public boolean addReply(Arraylist list) { return sql.selectOne("request.addReply",list); }
-//    public void addReply(ArrayList<Object> list) { sql.insert("request.addReply", list);
-//    }
-
-    public void addReply(ReplyData replyData) {
-        sql.insert("request.addReply", replyData);
-    }
-
-
-
 }
+
 
