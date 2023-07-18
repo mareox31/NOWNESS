@@ -10,7 +10,7 @@
     <script th:src="@{/assets/js/main.js}"></script>
     <style>
         body{
-            font-size: 14px;
+            font-size: 16px;
         }
 
         .pagination {
@@ -25,6 +25,16 @@
             width: 70%;
             height: 80%;
 
+        }
+
+        @font-face {
+            font-family: 'NeoDunggeunmoPro-Regular';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/NeoDunggeunmoPro-Regular.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+        body {
+            font-family: 'NeoDunggeunmoPro-Regular', sans-serif;
         }
 
 
@@ -66,56 +76,56 @@
                     });
 
                     updatePagination(page, response.totalPages, boardType);
-        },
-            error: function(e) {
-            alert('Error occurred while retrieving request list.' + JSON.stringify(e));
-            console.log(JSON.stringify(e));
-        }
-        });
+                },
+                error: function(e) {
+                    alert('Error occurred while retrieving request list.' + JSON.stringify(e));
+                    console.log(JSON.stringify(e));
+                }
+            });
         }
 
 
         <!--페이지네이션 바뀌는 부분. -->
-            function updatePagination(currentPage, totalPages, boardType) {
+        function updatePagination(currentPage, totalPages, boardType) {
             var paginationDiv = $('.pagination');
             paginationDiv.empty();
 
             paginationDiv.append(
-            $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=1').text('First')
+                $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=1').text('First')
             );
 
             if (currentPage > 1) {
-            paginationDiv.append(
-            $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=' + (currentPage - 1)).text('Previous')
-            );
-        }
+                paginationDiv.append(
+                    $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=' + (currentPage - 1)).text('Previous')
+                );
+            }
 
             for (var i = 1; i <= totalPages; i++) {
-            paginationDiv.append(
-            $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=' + i).text(i)
-            );
-        }
+                paginationDiv.append(
+                    $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=' + i).text(i)
+                );
+            }
 
             if (currentPage < totalPages) {
-            paginationDiv.append(
-            $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=' + (currentPage + 1)).text('Next')
-            );
-        }
+                paginationDiv.append(
+                    $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=' + (currentPage + 1)).text('Next')
+                );
+            }
 
 
             paginationDiv.append(
-            $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=' + totalPages).text('Last')
+                $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=' + totalPages).text('Last')
             );
         }
 
-            $('.boardTypeBtn').click(function() {
+        $('.boardTypeBtn').click(function() {
             $('.boardTypeBtn').removeClass('active');
             $(this).addClass('active');
             var boardType = $(this).data('board-type');
             updateRequestList(boardType, ${boardType});
         });
 
-            $(document).on('click', '.pagination a', function(e) {
+        $(document).on('click', '.pagination a', function(e) {
             e.preventDefault();
             var page = $(this).attr('href').split('page=')[1];
             var boardType = $('.boardTypeBtn.active').data('board-type');
@@ -130,17 +140,44 @@
 
 
 <body>
+<div th:insert="~{header :: header}"></div>
 
-<!--게시판보드 이름 누르면 게시판리스트 링크-->
-<a href="/request/list">
-    <h1>REQUESTBOARD</h1>
-</a>
 
-<hr>
+<!--&lt;!&ndash;게시판보드 이름 누르면 게시판리스트 링크&ndash;&gt;-->
+<!--<a href="/request/list">-->
+<!--    <h1>REQUESTBOARD</h1>-->
+<!--</a>-->
+
 
 <!--카테고리별 분류 테스트버튼 *현재작동XX*-->
-<button class="btn btn-primary boardTypeBtn active" data-board-type="1">Board Type 1</button>
-<button class="btn btn-primary boardTypeBtn" data-board-type="2">Board Type 2</button>
+<!--<button class="btn btn-primary boardTypeBtn active" data-board-type="1">Board Type 1</button>-->
+<!--<button class="btn btn-primary boardTypeBtn" data-board-type="2">Board Type 2</button>-->
+
+<br>
+<div class="container text-center">
+    <div class="row">
+        <div class="col">
+            중분류1
+        </div>
+        <div class="col">
+            중분류2
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            하위카테고리1
+        </div>
+        <div class="col">
+            하위카테고리2
+        </div>
+        <div class="col">
+            하위카테고리3
+        </div>
+    </div>
+</div>
+
+
+
 
 <hr>
 
@@ -199,5 +236,12 @@
     <a class="btn btn-primary" th:href="@{/request/list(page=${totalPages}, boardType=${boardType})}" role="button">Last</a>
 </div>
 
+<!--글쓰기버튼-->
+<a th:href="@{'/request/writer'}">
+    글쓰기
+</a>
+
+<div th:insert="~{footer :: footer}"></div>
+<script th:src="@{/static/js/bootstrap.min.js}"></script>
 </body>
 </html>
