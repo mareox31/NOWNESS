@@ -73,8 +73,11 @@ public class RequestBoardService {
         return Math.max(count, 0);
     }
 
-    //글저장
+    //글저장(insert)
     public void addPost(PostData postData) { requestBoardRepository.addPost(postData); }
+
+    //글"수정" 저장(update)
+    public void updatePost(PostData postData) { requestBoardRepository.updatePost(postData); }
 
 }
 
