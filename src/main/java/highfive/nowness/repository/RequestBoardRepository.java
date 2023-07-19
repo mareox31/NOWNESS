@@ -46,6 +46,12 @@ public class RequestBoardRepository {
         return sql.selectOne("request.getNicknameById", id);
     }
 
+    //리플쓴 유저id로 해당하는 닉네임 가져오기
+    public String getNickname(int id) {
+        return sql.selectOne("request.getNickname", id);
+    }
+
+
     //해당 게시글 좋아요(갯수) 가져오기
     public int getLikes(int id) { return sql.selectOne("request.getLikes", id); }
 
