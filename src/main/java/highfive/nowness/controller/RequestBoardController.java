@@ -39,19 +39,26 @@ public class RequestBoardController {
                                  @AuthenticationPrincipal OAuth2User oAuth2User,
                                  Model model
     ) {
-        //수정해야함.
-        if (UserUtil.isNotLogin(user, oAuth2User)) System.out.println("Not Login");
-        model.addAttribute(user);
+        //수정중--
+        if (!UserUtil.isNotLogin(user, oAuth2User)) {
+            if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
+            UserUtil.addPublicUserInfoToModel(model, user);
+        }
+
+        model.addAttribute("user", user);
+        System.out.println(user);
 
         return "requestWriter";
     }
+
+
+
 
 
     //글쓰기 저장.
     @PostMapping("/writer")
     public String boardWriteForm(@RequestParam int userId, @RequestParam String contents, @RequestParam String title,
                                  @RequestParam int boardType, @RequestParam int locale, @RequestParam int subcategory) {
-
 
         PostData postData = new PostData();
         postData.setUserId(userId);
@@ -60,7 +67,6 @@ public class RequestBoardController {
         postData.setBoardType(boardType);
         postData.setLocale(locale);
         postData.setSubcategory(subcategory);
-
 
         requestBoardService.addPost(postData);
 
@@ -75,14 +81,12 @@ public class RequestBoardController {
     @ResponseBody
     public List<RepliesDTO> getComments(@RequestParam("contentsid") int contentsId) {
         List<RepliesDTO> comments = requestBoardService.getReply(contentsId);
-        System.out.println("어디까지" + comments);
-
 
         return comments;
     }
 
 
-    //댓글등록----------우선 유저ID로 저장가능.(수정해야함)
+    //댓글등록
     @RequestMapping(value = "/writeReply", method = RequestMethod.POST)
     public ResponseEntity<String> writeReply(@RequestParam("userid") int userId,
                                              @RequestParam("contentsid") int contentsId,
@@ -116,6 +120,13 @@ public class RequestBoardController {
     }
 
 
+    //(해당댓글)닉네임가져오기
+    @GetMapping("/getNickname/{id}")
+    @ResponseBody
+    public String getNickname(@PathVariable int id) {
+        return requestBoardService.getNickname(id);
+    }
+
 
 
     // 게시글 - 개별 글 세부내용
@@ -125,8 +136,12 @@ public class RequestBoardController {
                               @AuthenticationPrincipal OAuth2User oAuth2User
     ) {
 
-        if (UserUtil.isNotLogin(user, oAuth2User)) System.out.println("Not Login");
-        System.out.println(user);
+        //수정중--
+        if (!UserUtil.isNotLogin(user, oAuth2User)) {
+            if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
+            UserUtil.addPublicUserInfoToModel(model, user);
+        }
+//        System.out.println(user); 확인용
 
 
 
@@ -204,8 +219,10 @@ public class RequestBoardController {
                                      @AuthenticationPrincipal User user,
                                      @AuthenticationPrincipal OAuth2User oAuth2User) {
 
-        if (UserUtil.isNotLogin(user, oAuth2User)) {
-            System.out.println("Not Login");
+        //수정중-
+        if (!UserUtil.isNotLogin(user, oAuth2User)) {
+            if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
+            UserUtil.addPublicUserInfoToModel(model, user);
         }
         System.out.println(user);
 
@@ -243,7 +260,19 @@ public class RequestBoardController {
     @ResponseBody
     public List<RequestDTO> getRequestList(Model model,
                                            @RequestParam(value = "boardType", required = false, defaultValue = "1") String boardType,
-                                           @RequestParam(value = "page", required = false, defaultValue = "1") int page) {
+                                           @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                                           @AuthenticationPrincipal User user,
+                                           @AuthenticationPrincipal OAuth2User oAuth2User) {
+
+        //수정중-
+        if (!UserUtil.isNotLogin(user, oAuth2User)) {
+            if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
+            UserUtil.addPublicUserInfoToModel(model, user);
+        }
+        System.out.println("어디로"+ user);
+
+
+
         int totalRequestCount = requestBoardService.getRequestsByBoardTypeCount(Integer.parseInt(boardType));
         int pageSize = 10;
         int totalPages = (int) Math.ceil((double) totalRequestCount / pageSize);
@@ -300,5 +329,4 @@ public class RequestBoardController {
 //지도 : 미구현--->해야함
 
 //API유해콘텐츠 : 미구현--->해야함
-
 
