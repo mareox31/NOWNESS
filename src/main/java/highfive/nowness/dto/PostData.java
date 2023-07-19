@@ -19,6 +19,8 @@ public class PostData {
     private int boardType;
     private int locale;
     private int subcategory;
+
+    private int id;//글번호 ,글수정때문에 추가.
     
 }
 
