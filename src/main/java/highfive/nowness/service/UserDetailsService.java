@@ -70,7 +70,7 @@ public class UserDetailsService implements UserService {
 
     @Transactional
     public void saveUser(User user) {
-        userRepository.save(UserDTO.builder()
+        userRepository.saveOrUpdateUser(UserDTO.builder()
                 .email(user.getUsername())
                 .password(user.getPassword())
                 .nickname(user.getNickname())
@@ -80,7 +80,7 @@ public class UserDetailsService implements UserService {
 
     @Transactional(readOnly = true)
     public boolean isExistEmail(String email) {
-        return userRepository.countByEmail(email) == 1;
+        return userRepository.findIdByEmail(email) > 0;
     }
 
     @Transactional(readOnly = true)

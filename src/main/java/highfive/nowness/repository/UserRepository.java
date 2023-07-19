@@ -12,8 +12,8 @@ import java.util.Optional;
 public interface UserRepository {
     Optional<UserDTO> findByEmail(String email);
     Optional<UserDTO> findByNickname(String nickname);
-    void save(UserDTO userDTO);
-    int countByEmail(String email);
+    void saveOrUpdateUser(UserDTO userDTO);
+    long findIdByEmail(String email);
     int countByNickname(String nickname);
     void saveUnverifiedEmail(String code, String email);
     void verifyEmail(Map<String, Object> params);
