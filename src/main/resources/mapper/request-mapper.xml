@@ -126,6 +126,13 @@
     </insert>
 
 
+    <!--    게시글 수정등록 -->
+    <insert id="updatePost" parameterType="postDATA">
+        UPDATE Contents
+        SET  `contents` =#{contents}, `title` = #{title}, `board_type` = #{boardType}, `locale` = #{locale}, `subcategory` = #{subcategory}, edit_datetime =now()
+        WHERE `id` = #{id};
+    </insert>
+
 </mapper>
 
 

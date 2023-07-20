@@ -6,6 +6,7 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <meta name="_csrf" th:content="${_csrf.token}">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <script th:src="@{/js/jquery-3.7.0.min.js}"></script>
     <link rel="stylesheet" th:href="@{/css/summernote/summernote-lite.css}">
 </head>
 <body>
@@ -19,53 +20,54 @@
 
 
 
-    <form action="/request/writer" method="post">
+    <form action="/request/updatepost" method="post">
         <input type="hidden" name="userId"  th:value="${userId}">
         <input type="hidden" name="_csrf" th:value="${_csrf.token}">
 
+        <input type="hidden" name="id"  th:value="${modifypost.id}">
+
         게시판을 선택하세요(공유/요청)
         <select name="boardType" id="boardType">
-            <option value="1">공유</option>
-            <option value="2">요청</option>
+            <option value="1" th:selected="${modifypost.boardType == 1}">공유</option>
+            <option value="2" th:selected="${modifypost.boardType == 2}">요청</option>
         </select>
 
         <hr>
 
         지역을 선택하세요
         <select name="locale" id="locale">
-            <option value="1">서울</option>
-            <option value="2">경기</option>
-            <option value="3">인천</option>
-            <option value="4">부산</option>
-            <option value="5">광주</option>
-            <option value="6">대구</option>
-            <option value="7">대전</option>
-            <option value="8">울산</option>
-            <option value="9">제주</option>
-            <option value="10">경상</option>
-            <option value="11">전라</option>
-            <option value="12">충청</option>
+            <option value="1" th:selected="${modifypost.locale == 1}">서울</option>
+            <option value="2" th:selected="${modifypost.locale == 2}">경기</option>
+            <option value="3" th:selected="${modifypost.locale == 3}">인천</option>
+            <option value="4" th:selected="${modifypost.locale == 4}">부산</option>
+            <option value="5" th:selected="${modifypost.locale == 5}">광주</option>
+            <option value="6" th:selected="${modifypost.locale == 6}">대구</option>
+            <option value="7" th:selected="${modifypost.locale == 7}">대전</option>
+            <option value="8" th:selected="${modifypost.locale == 8}">울산</option>
+            <option value="9" th:selected="${modifypost.locale == 9}">제주</option>
+            <option value="10" th:selected="${modifypost.locale == 10}">경상</option>
+            <option value="11" th:selected="${modifypost.locale == 11}">전라</option>
+            <option value="12" th:selected="${modifypost.locale == 12}">충청</option>
 
         </select>
 
         <hr>
         분류를 선택하세요.
         <select name="subcategory" id="subcategory">
-            <option value="1">혼잡도</option>
-            <option value="2">교통</option>
-            <option value="3">날씨</option>
-            <option value="4">주변</option>
-            <option value="5">사건사고</option>
-            <option value="6">행사</option>
-
+            <option value="1" th:selected="${modifypost.subcategory == 1}">혼잡도</option>
+            <option value="2" th:selected="${modifypost.subcategory == 2}">교통</option>
+            <option value="3" th:selected="${modifypost.subcategory == 3}">날씨</option>
+            <option value="4" th:selected="${modifypost.subcategory == 4}">주변</option>
+            <option value="5" th:selected="${modifypost.subcategory == 5}">사건사고</option>
+            <option value="6" th:selected="${modifypost.subcategory == 6}">행사</option>
         </select>
 
-        <input type="text" placeholder="제목을 입력해주세요." id="postTitle" name="title"  required/>
-
+        <input type="text" placeholder="제목을 입력해주세요." id="postTitle" name="title" required th:value="${modifypost.title}">
 
         <!--썸머노트-->
         <div>
             <textarea id="summernote" name="contents"></textarea>
+<!--            <textarea id="summernote" name="contents" th:text="${modifypost.contents}"></textarea>-->
         </div>
 
 
@@ -81,9 +83,12 @@
 
     <div th:insert="~{footer :: footer}"></div>
 </div>
-<script>
+<script th:inline="javascript">
     $(document).ready(function() {
+
+        //$여러번안쓰게 정의미리해둠.
         const summernote = $('#summernote');
+
         summernote.summernote({
             // 에디터 높이
             height: 300,
@@ -131,21 +136,23 @@
         // 서머노트 쓰기 활성화
         summernote.summernote('enable');
 
-
         // 서머노트 리셋
         summernote.summernote('reset');
-
 
         // 마지막으로 한 행동 취소 ( 뒤로가기 )
         summernote.summernote('undo');
         // 앞으로가기
         summernote.summernote('redo');
-    });
 
+
+        var markupStr =  [[${modifypost.contents}]];
+        console.log(markupStr);
+        summernote.summernote('code', markupStr);
+
+    });
 </script>
 <script th:src="@{/js/summernote/summernote-lite.js}"></script>
 <script th:src="@{/js/summernote/lang/summernote-ko-KR.js}"></script>
-
 
 
 </body>

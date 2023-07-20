@@ -205,6 +205,34 @@ public class RequestBoardController {
 
 
 
+    //글 수정하는 페이지
+    @GetMapping("/modify/{id}")
+    public String postModify(@PathVariable("id") Integer id, Model model){
+        model.addAttribute("modifypost", requestBoardService.getBoard(id));
+
+        return "requestmodifypost";
+    }
+
+    //글수정저장
+    @PostMapping("/updatepost")
+    public String updatepost(@RequestParam String contents, @RequestParam String title, @RequestParam int id,
+                                 @RequestParam int boardType, @RequestParam int locale, @RequestParam int subcategory) {
+
+        PostData postData = new PostData();
+        postData.setContents(contents);
+        postData.setTitle(title);
+        postData.setBoardType(boardType);
+        postData.setLocale(locale);
+        postData.setSubcategory(subcategory);
+        postData.setId(id);
+
+
+        requestBoardService.updatePost(postData);
+
+        System.out.println(postData);
+
+        return "redirect:/request/list";
+    }
 
 
 
@@ -302,25 +330,13 @@ public class RequestBoardController {
 
 
 
-
-
-
-
 }
 
 //구현해야할 목록 --------------
 
-//게시글 등록 : 부분구현
-
-//게시글 수정 : 미구현 --->해야함
-
-//게시글 삭제 : 버튼클릭시 삭제O // 사용자=글작성자 확인처리 미구현--->해야함
-
 //게시판리스트 : 수정필요.(카테고리별 미구현)--->해야함
 
-//게시글 세부내용 : 세부내용, 댓글 조회까지 o
-
-//코멘트 : 조회O, 등록o, 삭제o // 대댓글 +작성자만삭제가능. --->해야함
+//대댓글 등록: 미구현
 
 //좋아요 : 미구현--->해야함
 
@@ -329,4 +345,16 @@ public class RequestBoardController {
 //지도 : 미구현--->해야함
 
 //API유해콘텐츠 : 미구현--->해야함
+
+//---------부분구현
+//게시글 등록 : 부분구현.(이미지멀티미디어 아직)
+
+//게시글 수정 : 부분구현.(이미지멀티미디어 아직)
+
+//게시글 세부내용 : 세부내용, 댓글 조회까지 o(신고, 좋아요,미구현)
+
+//코멘트 : 조회O, 등록o, 삭제o,작성자만 삭제가능o --->대댓글 미구현.
+
+//---------완료
+//게시글 삭제 : 구현O
 

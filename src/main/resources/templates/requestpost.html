@@ -294,7 +294,8 @@
                     <li><a href="#" class="icon solid fa-comment">comment <span th:text="${comments.size()}"></span></a></li>
                     <li><a href="#" class="icon solid fa-report">report</a></li>
                 <th:block th:if="${userId == postdetail.userId }">
-                    <li><a href="#" class="icon solid fa-modify">modify</a></li>
+<!--                    <li><a href="#" class="icon solid fa-modify">modify</a></li>-->
+                    <li><a th:href="@{/request/modify/{id}(id = ${postdetail.id})}" class="icon solid fa-modify">modify</a></li>
                     <li><a th:href="@{'/request/post/' + ${id} + '/delete'}" class="icon solid fa-delete" id="postdeletebtn">delete</a></li>
                 </th:block>
 
@@ -315,7 +316,7 @@
         <input type="hidden" name="userid"  th:value="${userId}">
         <input type="hidden" name="contentsid" th:value="${postdetail.id}">
 <!--        <input type="text" class="form-control mb-2 mr-sm-2" id="contents" placeholder="로그인을 해야 댓글을 사용할 수 있습니다." name="reply" required>-->
-        <textarea class="form-control mb-2 mr-sm-2" id="contents" placeholder="로그인을 해야 댓글을 사용할 수 있습니다." name="reply" required></textarea>
+        <textarea class="form-control mb-2 mr-sm-2" id="contents" placeholder="댓글을 입력해주세요.(인증된 로그인 유저만 사용가능합니다.)" name="reply" required></textarea>
         <button type="button" class="btn btn-primary mb-2" id="submitbtn">등록</button>
     </form>
 
