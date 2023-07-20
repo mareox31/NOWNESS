@@ -12,7 +12,9 @@
     <title>NOWNESS</title>
 </head>
 <body>
-<th:block th:insert="~{header :: header}"></th:block>
+<header>
+    <th:block th:insert="~{header :: header}"></th:block>
+</header>
 <div class="container mt-5">
     <div class="row justify-content-between">
         <aside class="col-lg-3">
@@ -143,8 +145,7 @@
         </section>
     </div>
 </div>
-<div th:insert="~{footer :: footer}"></div>
-<input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+<footer th:insert="~{footer :: footer}"></footer>
 <script th:src="@{/js/user/mypage.js}"></script>
 </body>
 </html>
