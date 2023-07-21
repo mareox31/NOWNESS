@@ -19,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,22 +38,16 @@ public class RequestBoardController {
     @GetMapping("/writer")
     public String boardWriteForm(@AuthenticationPrincipal User user,
                                  @AuthenticationPrincipal OAuth2User oAuth2User,
-                                 Model model
-    ) {
-        //수정중--
+                                 Model model) {
         if (!UserUtil.isNotLogin(user, oAuth2User)) {
             if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
             UserUtil.addPublicUserInfoToModel(model, user);
         }
 
         model.addAttribute("user", user);
-        System.out.println(user);
 
         return "requestWriter";
     }
-
-
-
 
 
     //글쓰기 저장.
@@ -72,7 +67,6 @@ public class RequestBoardController {
 
         return "redirect:/request/list";
     }
-
 
 
 
@@ -133,17 +127,12 @@ public class RequestBoardController {
     @RequestMapping("/post/{id}")
     public String requestPost(@PathVariable("id") int id, Model model, HttpServletRequest request, HttpServletResponse response,
                               @AuthenticationPrincipal User user,
-                              @AuthenticationPrincipal OAuth2User oAuth2User
-    ) {
+                              @AuthenticationPrincipal OAuth2User oAuth2User) {
 
-        //수정중--
         if (!UserUtil.isNotLogin(user, oAuth2User)) {
             if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
             UserUtil.addPublicUserInfoToModel(model, user);
         }
-//        System.out.println(user); 확인용
-
-
 
         // 조회수 증가 (하루에 한 번만 조회수 증가하도록 쿠키 사용)
         String viewCountCookie = getCookieValue(request, "viewCount_" + id);
@@ -195,11 +184,11 @@ public class RequestBoardController {
     }
 
 
-    //게시글 삭제 - deleted 1로 변경 // **현재 사용자==글사용자 확인 구현X (클릭해서지워지기만함)
+    //게시글 삭제 - deleted 1로 변경
     @GetMapping("/post/{id}/delete")
     public String deleteContents(@PathVariable("id") int id) {
         requestBoardService.deleteContents(id);
-        return "redirect:/request/list"; //삭제 후 리스트로 돌아감
+        return "redirect:/request/list";
     }
 
 
@@ -213,7 +202,7 @@ public class RequestBoardController {
         return "requestmodifypost";
     }
 
-    //글수정저장
+    //글수정저장-수정 후 다시 원래페이지로 돌아감.
     @PostMapping("/updatepost")
     public String updatepost(@RequestParam String contents, @RequestParam String title, @RequestParam int id,
                                  @RequestParam int boardType, @RequestParam int locale, @RequestParam int subcategory) {
@@ -226,45 +215,42 @@ public class RequestBoardController {
         postData.setSubcategory(subcategory);
         postData.setId(id);
 
-
         requestBoardService.updatePost(postData);
 
-        System.out.println(postData);
-
-        return "redirect:/request/list";
+        return "redirect:/request/post/"+id;
     }
 
 
 
 
-    //게시판리스트--------아직제대로 되지않음. (카테고리)
-    //카테고리 다시손봐야함..------------- 게시글0개일때 원본.
-    //다시수정....------------------클릭으로 들어와지도록.
-    //게시글 0개일때 리스트 보이도록 수정.
+
+    //게시판 첫페이지 --기본.
     @GetMapping("/list")
-    public String ajaxPagingTestPost(Model model, @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+    public String requestboardlist(Model model, @RequestParam(value = "page", required = false, defaultValue = "1") int page,
                                      @RequestParam(value = "boardType", required = false, defaultValue = "1") String boardType,
+                                     @RequestParam(value = "locale", required = false, defaultValue = "1") int locale,
+                                     @RequestParam(value = "subcategory", required = false, defaultValue = "1") int subcategory,
                                      @AuthenticationPrincipal User user,
                                      @AuthenticationPrincipal OAuth2User oAuth2User) {
 
-        //수정중-
+        //유저 로그인여부판단 후 user에 등록. //비로그인user = null
         if (!UserUtil.isNotLogin(user, oAuth2User)) {
             if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
             UserUtil.addPublicUserInfoToModel(model, user);
         }
-        System.out.println(user);
+
 
         int totalRequestCount = requestBoardService.getRequestsByBoardTypeCount(Integer.parseInt(boardType));
         int pageSize = 10;
         int totalPages = totalRequestCount > 0 ? (int) Math.ceil((double) totalRequestCount / pageSize) : 1;
+        int pageIndex = (page - 1) * pageSize;
 
+        //강제로들어올때, 페이지 번호보정.
         if (page <= 0) {
             page = 1;
         } else if (page > totalPages) {
             page = totalPages;
         }
-
-        int pageIndex = (page - 1) * pageSize;
 
         Map<String, Integer> pagingParams = new HashMap<>();
         pagingParams.put("boardType", Integer.parseInt(boardType));
@@ -272,60 +258,125 @@ public class RequestBoardController {
         pagingParams.put("pageSize", pageSize);
         List<RequestDTO> list = requestBoardService.requestboardPagingList(pagingParams);
 
-        // Add the necessary attributes to the model
-        model.addAttribute("lists", list);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("totalRequestCount", totalRequestCount);
+
+        model.addAttribute("lists", list); //페이징처리된 게시글 DTO
+        model.addAttribute("currentPage", page); //해당 페이지가 몇번째 페이지인지.
+        model.addAttribute("totalPages", totalPages);//총 페이지가 몇번째 까지 있는가.
+        model.addAttribute("totalRequestCount", totalRequestCount);//총 갯수.
         model.addAttribute("user", user);
 
         return "requestboard";
     }
 
 
+    //ajax이후 화면
+    @GetMapping("/listtest")
+    public String ajaxafterlist(Model model, @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                                     @RequestParam(value = "boardType", required = false, defaultValue = "1") String boardType,
+                                     @RequestParam(value = "locale", required = false, defaultValue = "1") int locale,
+                                     @RequestParam(value = "subcategory", required = false, defaultValue = "1") int subcategory,
+                                     @AuthenticationPrincipal User user,
+                                     @AuthenticationPrincipal OAuth2User oAuth2User) {
 
-    @GetMapping("/request/list")
-    @ResponseBody
-    public List<RequestDTO> getRequestList(Model model,
-                                           @RequestParam(value = "boardType", required = false, defaultValue = "1") String boardType,
-                                           @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-                                           @AuthenticationPrincipal User user,
-                                           @AuthenticationPrincipal OAuth2User oAuth2User) {
-
-        //수정중-
+        //유저 로그인여부판단 후 user에 등록. //비로그인user = null
         if (!UserUtil.isNotLogin(user, oAuth2User)) {
             if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
             UserUtil.addPublicUserInfoToModel(model, user);
         }
-        System.out.println("어디로"+ user);
 
+        Map<String, Integer> categoryListParams = new HashMap<>();
+        int pageSize = 10;//한페이지몇개보여줄래
+        int pageIndex = (page - 1) * pageSize;//페이징 인덱스.
+        categoryListParams.put("locale", locale);
+        categoryListParams.put("subcategory", subcategory);
+        categoryListParams.put("pageIndex", pageIndex);
+        categoryListParams.put("pageSize", pageSize);
 
-
-        int totalRequestCount = requestBoardService.getRequestsByBoardTypeCount(Integer.parseInt(boardType));
-        int pageSize = 10;
+        //전체 게시글 갯수
+        int totalRequestCount = requestBoardService.categoryListMapCount(categoryListParams);
         int totalPages = (int) Math.ceil((double) totalRequestCount / pageSize);
 
+        //강제로들어올때, 페이지 번호보정.
         if (page <= 0) {
             page = 1;
         } else if (page > totalPages) {
             page = totalPages;
         }
 
+        Map<String, Integer> pagingParams = new HashMap<>();
+        pagingParams.put("boardType", Integer.parseInt(boardType));
+        pagingParams.put("pageIndex", pageIndex);
+        pagingParams.put("pageSize", pageSize);
+
+        List<RequestDTO> list = requestBoardService.categoryPagingList(categoryListParams);
+
+        model.addAttribute("lists", list); //페이징처리된 게시글 DTO
+        model.addAttribute("currentPage", page); //해당 페이지가 몇번째 페이지인지.
+        model.addAttribute("totalPages", totalPages);//총 페이지가 몇번째 까지 있는가.
+        model.addAttribute("totalRequestCount", totalRequestCount);//총 갯수.
+        model.addAttribute("user", user);
+        model.addAttribute("locale", locale);
+        model.addAttribute("subcategory", subcategory);
+
+
+        return "requestboard";
+    }
+
+
+
+
+    //다시테스트중.
+    @GetMapping("/ajaxlist")
+    @ResponseBody
+    public Map<String, Object> usingajax(
+                                    @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                                    @RequestParam(value = "boardType", required = false, defaultValue = "1") String boardType,
+                                    @RequestParam(value = "locale", required = false, defaultValue = "1") int locale,
+                                    @RequestParam(value = "subcategory", required = false, defaultValue = "1") int subcategory
+                                     ) {
+
+        Map<String, Object> response = new HashMap<>();
+        int pageSize = 10;
         int pageIndex = (page - 1) * pageSize;
 
+
+        //페이징 : mapper- boardPagingList 게시판타입, 시작인덱스, 갯수(1페이지당)
+        //반환값: 페이징처리된 DTO 리스트로 받아옴.
+        Map<String, Integer> categoryListParams = new HashMap<>();
+        categoryListParams.put("locale", locale);
+        categoryListParams.put("subcategory", subcategory);
+        categoryListParams.put("pageIndex", pageIndex);
+        categoryListParams.put("pageSize", pageSize);
+
+        //토탈 갯수-게시글(카테고리별)
+        int totalRequestCount = requestBoardService.categoryListMapCount(categoryListParams);
+        int totalPages = (int) Math.ceil((double) totalRequestCount / pageSize);
+
+        //강제로들어올때, 페이지 번호보정.
+        if (page <= 0) {
+            page = 1;
+        } else if (page > totalPages) {
+            page = totalPages;
+        }
 
         Map<String, Integer> pagingParams = new HashMap<>();
         pagingParams.put("boardType", Integer.parseInt(boardType));
         pagingParams.put("pageIndex", pageIndex);
         pagingParams.put("pageSize", pageSize);
-        List<RequestDTO> list = requestBoardService.requestboardPagingList(pagingParams);
 
-        model.addAttribute("lists", list);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", totalPages);
 
-        return list;
+        List<RequestDTO> list = requestBoardService.categoryPagingList(categoryListParams);
+
+
+        response.put("requestList", list);
+        response.put("currentPage", page);
+        response.put("totalPages", totalPages);
+        response.put("totalRequestCount", totalRequestCount);
+
+        return response;
     }
+
+
 
 
 
@@ -334,7 +385,9 @@ public class RequestBoardController {
 
 //구현해야할 목록 --------------
 
-//게시판리스트 : 수정필요.(카테고리별 미구현)--->해야함
+//검색
+
+//해시태그
 
 //대댓글 등록: 미구현
 
@@ -355,6 +408,7 @@ public class RequestBoardController {
 
 //코멘트 : 조회O, 등록o, 삭제o,작성자만 삭제가능o --->대댓글 미구현.
 
+//게시판리스트 :카테고리별구현O
+
 //---------완료
 //게시글 삭제 : 구현O
-

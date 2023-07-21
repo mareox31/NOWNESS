@@ -133,7 +133,55 @@
         WHERE `id` = #{id};
     </insert>
 
+    <!--ajax테스트중-->
+    <!--카테고리분류별 게시글가져오기 DTO //필요파라메터 지역, 섭카테고리-->
+    <select id="categoryList" resultType="requestDTO">
+        select * from contents
+        where board_type=1
+          and locale = #{locale}
+          and subcategory =#{subcategory}
+          and deleted=0
+        order by id desc;
+    </select>
+
+    <!--맵사용 테스트용 카테고리-->
+    <select id="categoryListMap" resultType="requestDTO" parameterType="java.util.Map">
+        select * from contents
+        where board_type=1
+          and locale = #{locale}
+          and subcategory =#{subcategory}
+          and deleted=0
+        order by id desc;
+    </select>
+
+
+    <!--맵사용 테스트용 카테고리 갯수-->
+    <select id="categoryListMapCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+        select count(*) from contents
+        where board_type=1
+          and locale = #{locale}
+          and subcategory =#{subcategory}
+          and deleted=0
+    </select>
+
+
+
+<!--&lt;!&ndash;    동적쿼리&ndash;&gt;-->
+    <select id="categoryPagingList" resultType="requestDTO" parameterType="java.util.Map">
+        SELECT * FROM contents
+        where board_type=1
+
+            <if test="#{locale} != null">
+                and locale = #{locale}
+            </if>
+            <if test="#{subcategory} != null">
+                and subcategory =#{subcategory}
+            </if>
+          and deleted=0
+        ORDER BY id DESC LIMIT #{pageIndex}, #{pageSize}
+    </select>
+
+
+
 </mapper>
-
-
 

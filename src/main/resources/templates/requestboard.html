@@ -1,16 +1,38 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:lang="ko">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" th:lang="ko">
 <head>
     <meta charset="UTF-8">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <script th:src="@{/js/jquery-3.7.0.min.js}"></script>
-<!--    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <!--    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>-->
     <title>NOWNESS</title>
     <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <meta name="_csrf" th:content="${_csrf.token}">
     <style>
         body{
             font-size: 16px;
+        }
+
+        .table a {
+            text-decoration: none;
+            color : black;
+        }
+
+
+        .table th,
+        .table td {
+            width: 150px;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+
+        #categorySelect{
+            margin: 0 auto;
+            text-align: right;
         }
 
         .pagination {
@@ -27,272 +49,353 @@
 
         }
 
-        @font-face {
-            font-family: 'NeoDunggeunmoPro-Regular';
-            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/NeoDunggeunmoPro-Regular.woff2') format('woff2');
-            font-weight: normal;
-            font-style: normal;
+        #post_bottom {
+            /* Add any other styles you need for the #post_bottom container */
         }
+
+        .post_bottom-container {
+            display: flex;
+            justify-content: space-between; /* This will align left and right */
+            /* Add any other styles you need for the container */
+        }
+
+        #post_bottom_left,
+        #post_bottom_right {
+            /* Add any other styles you need for the .post_bottom elements */
+        }
+
+
+
+
+
+        /*@font-face {*/
+        /*    font-family: 'NeoDunggeunmoPro-Regular';*/
+        /*    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/NeoDunggeunmoPro-Regular.woff2') format('woff2');*/
+        /*    font-weight: normal;*/
+        /*    font-style: normal;*/
+        /*}*/
         body {
             font-family: 'NeoDunggeunmoPro-Regular', sans-serif;
         }
 
 
     </style>
+    <script th:inline="javascript">
+
+        var history = window.history || {};
+
+        var regionNames = ['', '서울', '경기', '인천', '부산', '광주', '대구', '대전', '울산', '제주', '경상', '전라', '충청'];
+        var subcategoryNames = ['', '혼잡도', '교통', '날씨', '주변', '사건사고', '행사'];
+
+
+        $(document).ready(function() {
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+            $(document).ajaxSend(function(e, xhr, options) { xhr.setRequestHeader(header, token); });
+
+            var loginuser = [[${userId}]];
+            var verifiedUser = [[${verifiedUser}]];
+
+
+            // 글쓰기 버튼 클릭 이벤트
+            $("#writebtn").click(function(event) {
+                event.preventDefault();
+
+                if (loginuser !== null) {
+                    if(verifiedUser == true){
+                        //로그인O, 이메일인증O
+                        window.location.href = "/request/writer";
+                    }else{
+                        //로그인은했고, 이메일인증X인경우
+                        alert("이메일 인증을 완료해주시기 바랍니다.")
+                    }
+                } else {
+                    //로그인아이디가없는경우
+                    alert("로그인을 해주세요");
+                }//로그인유무end
+            });
 
 
 
+            //ajax-게시판리스트 요청.
+            function updateRequestList(locale, subcategory, page) {
+                $.ajax({
+                    type: "get",
+                    url: "/request/ajaxlist",
+                    data: { locale: locale, subcategory: subcategory, page: page },
+                    success: function (response) {
+                        var requestList = response.requestList;
+                        var tableBody = $('#requestListTableBody');
+                        tableBody.empty();
+                        $('#pagination').empty();
 
- <script th:inline="javascript">
 
+                        //ajax로 재구성된 게시물리스트출력
+                        $.each(requestList, function (index, request) {
 
+                            var row = $('<tr>').addClass('text-center');
+                            var formattedDate = moment(request.createdDatetime).format('MM-DD');
 
+                            $('<th>').attr('scope', 'row').text( response.totalRequestCount - ((response.currentPage) -1)*10 -index ).appendTo(row);
+                            $('<th>').attr('scope', 'row').text(regionNames[request.locale]).appendTo(row);
+                            $('<th>').attr('scope', 'row').text(subcategoryNames[request.subcategory]).appendTo(row);
+                            // $('<th>').attr('scope', 'row').text(request.id).appendTo(row);
+                            $('<td>').addClass('title-column').append($('<a>').attr('href', '/request/post/' + request.id).text(request.title)).appendTo(row);
+                            $('<td>').addClass('title-column').text(request.userId).appendTo(row);
+                            $('<td>').addClass('title-column').text(request.views).appendTo(row);
+                            $('<td>').addClass('title-column').text(formattedDate).appendTo(row);
 
+                            row.appendTo(tableBody);
+                        });
 
+                        updatePagination(response.currentPage, response.totalPages, locale, subcategory);
 
+                        var newURL = '/request/listtest?page=' + page + '&locale=' + locale + '&subcategory=' + subcategory;
+                        history.pushState({ page: page, locale: locale, subcategory: subcategory }, '', newURL);
+                    },
+                    error: function (e) {
+                        alert('Error occurred while retrieving request list.' + JSON.stringify(e));
+                        console.log(JSON.stringify(e));
+                    }
+                });
+            }
 
-
-
-
-
-     //테스트용
-        //ajax 이용 , 카테고리별 나누려는 테스트중. -작동안하는거같음.
-        function updateRequestList(boardType, page) {
-            var url = "/list/request?boardType=" + boardType + "&page=" + page;
-            $.ajax({
-                type: "GET",
-                url: url,
-                success: function(response) {
-                    var requestList = response;
-                    var tableBody = $('#requestListTableBody');
-                    tableBody.empty();
-
-                    var totalCount = response.totalCount; // Total count of requests
-                    var pageSize = response.pageSize; // Number of requests per page
-                    var currentPage = response.currentPage; // Current page
-
-                    var startIndex = (currentPage - 1) * pageSize + 1; // Calculate the starting post number for the current page
-
-                    $.each(requestList, function(index, request) {
-                        var postNumber = startIndex + index;
-                        var row = $('<tr>').addClass('text-center');
-                        $('<th>').attr('scope', 'row').text(postNumber).appendTo(row);
-                        $('<th>').attr('scope', 'row').text(request.id).appendTo(row);
-                        $('<td>').append(
-                            $('<a>').attr('href', '/request/post/' + request.id).text(request.title)
-                        ).appendTo(row);
-                        $('<td>').text(request.userId).appendTo(row);
-                        $('<td>').text(request.createdDatetime).appendTo(row);
-                        row.appendTo(tableBody);
-                    });
-
-                    updatePagination(page, response.totalPages, boardType);
-                },
-                error: function(e) {
-                    alert('Error occurred while retrieving request list.' + JSON.stringify(e));
-                    console.log(JSON.stringify(e));
+            $(window).on('popstate', function(event) {
+                var state = event.originalEvent.state;
+                if (state) {
+                    var locale = state.locale;
+                    var subcategory = state.subcategory;
+                    var page = state.page;
+                    updateRequestList(locale, subcategory, page);
                 }
             });
-        }
 
 
-        <!--페이지네이션 바뀌는 부분. -->
-        function updatePagination(currentPage, totalPages, boardType) {
-            var paginationDiv = $('.pagination');
-            paginationDiv.empty();
 
-            paginationDiv.append(
-                $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=1').text('First')
-            );
 
-            if (currentPage > 1) {
+            //ajax요청시 재구성할 페이지네이션
+            function updatePagination(currentPage, totalPages) {
+
+                var paginationDiv = $('.pagination');
+                paginationDiv.empty();
+
+                var locale = $('#localeSelect').val();
+                var subcategory = $('#subcategorySelect').val()
+
                 paginationDiv.append(
-                    $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=' + (currentPage - 1)).text('Previous')
+                    $('<a>').addClass('btn btn-light').attr('href', '/request/listtest?page='+ '&locale=' +locale+ '&subcategory='+ subcategory).text('First')
+                );
+
+                if (currentPage > 1) {
+                    paginationDiv.append(
+                        $('<a>').addClass('btn btn-light').attr('href', '/request/listtest?page=' + (currentPage - 1)+ '&locale=' +locale+ '&subcategory='+ subcategory).text('Previous')
+                    );
+                }
+
+                for (var i = 1; i <= totalPages; i++) {
+                    paginationDiv.append(
+                        $('<a>').addClass('btn btn-light').attr('href', '/request/listtest?page=' + i + '&locale=' +locale+ '&subcategory='+ subcategory).text(i)
+                    );
+                }
+
+                if (currentPage < totalPages) {
+                    paginationDiv.append(
+                        $('<a>').addClass('btn btn-light').attr('href', '/request/listtest?page=' + (currentPage + 1)+ '&locale=' +locale+ '&subcategory='+ subcategory).text('Next')
+                    );
+                }
+
+                if (totalPages > 0)paginationDiv.append(
+                    $('<a>').addClass('btn btn-light').attr('href', '/request/listtest?page=' + totalPages+ '&locale=' +locale+ '&subcategory='+ subcategory).text('Last')
                 );
             }
 
-            for (var i = 1; i <= totalPages; i++) {
-                paginationDiv.append(
-                    $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=' + i).text(i)
-                );
-            }
+            //지역/분류 선택 후 검색버튼 눌렀을때
+            $('#submitBtn').click(function() {
+                var locale = $('#localeSelect').val();
+                var subcategory = $('#subcategorySelect').val();
+                var page = 1;
+                updateRequestList(locale, subcategory, page);
+            });
 
-            if (currentPage < totalPages) {
-                paginationDiv.append(
-                    $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=' + (currentPage + 1)).text('Next')
-                );
-            }
+        });
 
-
-            paginationDiv.append(
-                $('<a>').addClass('btn btn-primary').attr('href', '/request/list?boardType=' + boardType + '&page=' + totalPages).text('Last')
-            );
-        }
-
-        // $('.boardTypeBtn').click(function() {
-        //     $('.boardTypeBtn').removeClass('active');
-        //     $(this).addClass('active');
-        //     var boardType = $(this).data('board-type');
-        //     updateRequestList(boardType, ${boardType});
-        // });
-        //
-        // $(document).on('click', '.pagination a', function(e) {
-        //     e.preventDefault();
-        //     var page = $(this).attr('href').split('page=')[1];
-        //     var boardType = $('.boardTypeBtn.active').data('board-type');
-        //     updateRequestList(boardType, page);
-        // });
-
-
-
-
- </script>
+    </script>
 
 </head>
 
 
 <body>
+<!--헤더-->
 <div th:insert="~{header :: header}"></div>
-
-
-<!--&lt;!&ndash;게시판보드 이름 누르면 게시판리스트 링크&ndash;&gt;-->
-<!--<a href="/request/list">-->
-<!--    <h1>REQUESTBOARD</h1>-->
-<!--</a>-->
-
-
-<!--카테고리별 분류 테스트버튼 *현재작동XX*-->
-<!--<button class="btn btn-primary boardTypeBtn active" data-board-type="1">Board Type 1</button>-->
-<!--<button class="btn btn-primary boardTypeBtn" data-board-type="2">Board Type 2</button>-->
-
-<br>
-<div class="container text-center">
-    <div class="row">
-        <div class="col">
-            중분류1
-        </div>
-        <div class="col">
-            중분류2
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            하위카테고리1
-        </div>
-        <div class="col">
-            하위카테고리2
-        </div>
-        <div class="col">
-            하위카테고리3
-        </div>
-    </div>
-</div>
-
-
-
-
-<hr>
 
 
 <!--게시판 리스트 목차, 기본 구성-->
 <div class="request_list">
+
+    <!-- 카테고리별-->
+    <div id="categorySelect">
+        <label for="localeSelect"> 지역 </label>
+        <select id="localeSelect" name="locale">
+            <option value="1" th:selected="${locale == 1}">서울</option>
+            <option value="2" th:selected="${locale == 2}">경기</option>
+            <option value="3" th:selected="${locale == 3}">인천</option>
+            <option value="4" th:selected="${locale == 4}">부산</option>
+            <option value="5" th:selected="${locale == 5}">광주</option>
+            <option value="6" th:selected="${locale == 6}">대구</option>
+            <option value="7" th:selected="${locale == 7}">대전</option>
+            <option value="8" th:selected="${locale == 8}">울산</option>
+            <option value="9" th:selected="${locale == 9}">제주</option>
+            <option value="10" th:selected="${locale == 10}">경상</option>
+            <option value="11" th:selected="${locale == 11}">전라</option>
+            <option value="12" th:selected="${locale == 12}">충청</option>
+        </select>
+
+        <label for="subcategorySelect"> 분류 </label>
+        <select id="subcategorySelect" name="subcategory">
+            <option value="1" th:selected="${subcategory == 1}">혼잡도</option>
+            <option value="2" th:selected="${subcategory == 2}">교통</option>
+            <option value="3" th:selected="${subcategory == 3}">날씨</option>
+            <option value="4" th:selected="${subcategory == 4}">주변</option>
+            <option value="5" th:selected="${subcategory == 5}">사건사고</option>
+            <option value="6" th:selected="${subcategory == 6}">행사</option>
+        </select>
+
+        <button type="submit" class="btn btn-outline-dark" id="submitBtn">검색</button>
+    </div>
+
+
+    <!--게시판 리스트 목차, 기본 구성-->
     <table class="table">
         <thead class="thead-light">
         <tr class="text-center">
-            <th scope="col">게시글순서</th>
-            <th scope="col">게시글원래번호(id)</th>
+            <th scope="col" style="width: 8%">게시글순서</th>
+            <th scope="col" style="width: 10%">지역</th>
+            <th scope="col" style="width: 10%">분류</th>
+<!--            <th scope="col">게시글원래번호(id)</th>-->
             <th scope="col">제목</th>
-            <th scope="col">작성자</th>
-            <th scope="col">조회수</th>
-            <th scope="col">작성일</th>
+            <th scope="col"style="width: 10%">작성자</th>
+            <th scope="col"style="width: 10%">조회수</th>
+            <th scope="col"style="width: 15%">작성일</th>
         </tr>
         </thead>
         <tbody id="requestListTableBody">
+
+        <!-- 게시물 리스트 출력-->
         <tr class="text-center" th:each="request, index : ${lists}">
             <th scope="row">
-                <span th:text="${(20 * (totalPages - currentPage +1)) - index.index }"></span>
+                <span th:text="${totalRequestCount - ((currentPage - 1) * 10) - index.index}"></span>
             </th>
             <th scope="row">
-                <span th:text="${request.id}"></span>
+                <span th:switch="${request.locale}">
+                            <span th:case="1">서울</span>
+                            <span th:case="2">경기</span>
+                            <span th:case="3">인천</span>
+                            <span th:case="4">부산</span>
+                            <span th:case="5">광주</span>
+                            <span th:case="6">대구</span>
+                            <span th:case="7">대전</span>
+                            <span th:case="8">울산</span>
+                            <span th:case="9">제주</span>
+                            <span th:case="10">경상</span>
+                            <span th:case="11">전라</span>
+                            <span th:case="12">충청</span>
+                        </span>
             </th>
-            <td>
+            <th scope="row">
+                <span th:switch="${request.subcategory}">
+                            <span th:case="1">혼잡도</span>
+                            <span th:case="2">교통</span>
+                            <span th:case="3">날씨</span>
+                            <span th:case="4">주변</span>
+                            <span th:case="5">사건사고</span>
+                            <span th:case="6">행사</span>
+                        </span>
+            </th>
+<!--            <th scope="row">-->
+<!--                <span th:text="${request.id}"></span>-->
+<!--            </th>-->
+            <td class="title-column">
                 <a th:href="@{'/request/post/' + ${request.id}}">
                     <span th:text="${request.title}"></span>
                 </a>
             </td>
-            <td>
+            <td class="title-column">
                 <span th:text="${request.userId}"></span>
             </td>
-            <td>
+            <td class="title-column">
                 <span th:text="${request.views}"></span>
-            </td>
-            <td>
-                <span th:text="${request.createdDatetime}"></span>
-            </td>
+            </td >
+
+            <td  class="title-column" th:text="${#temporals.format(request.createdDatetime,'MM-dd')}"></td>
+
+
         </tr>
         </tbody>
     </table>
-</div>
 
 
 
 
-<!--맨처음 게시판 페이지네이션 나타나는곳-->
+
+<!--페이지네이션 출력-->
 <div class="pagination">
-    <a class="btn btn-primary" th:href="@{/request/list(page=1, boardType=${boardType})}" role="button">First</a>
-    <a class="btn btn-primary" th:if="${currentPage > 1}" th:href="@{/request/list(page=${currentPage - 1}, boardType=${boardType})}" role="button">Previous</a>
+
+    <!--카테고리별 다르게 출력-->
+  <th:block th:if="${subcategory == null && locale==null }">
+      <a class="btn btn-light" th:href="@{/request/list(page=1)}" role="button">First</a>
+      <a class="btn btn-light" th:if="${currentPage > 1}" th:href="@{/request/list(page=${currentPage - 1})}" role="button">Previous</a>
+      <div th:each="pageNumber : ${#numbers.sequence(1, totalPages)}">
+          <a class="btn btn-light" th:href="@{/request/list(page=${pageNumber})}" th:text="${pageNumber}" role="button"></a>
+      </div>
+      <a class="btn btn-light" th:if="${currentPage < totalPages}" th:href="@{/request/list(page=${currentPage + 1})}" role="button">Next</a>
+      <a class="btn btn-light" th:href="@{/request/list(page=${totalPages})}" role="button">Last</a>
+  </th:block>
+
+
+  <th:block th:if="${subcategory != null && locale!=null }">
+    <a class="btn btn-light" th:href="@{/request/listtest(page=1, locale=${locale}, subcategory=${subcategory})}" role="button">First</a>
+    <a class="btn btn-light" th:if="${currentPage > 1}" th:href="@{/request/listtest(page=${currentPage - 1}, locale=${locale}, subcategory=${subcategory})}" role="button">Previous</a>
     <div th:each="pageNumber : ${#numbers.sequence(1, totalPages)}">
-        <a class="btn btn-primary" th:href="@{/request/list(page=${pageNumber}, boardType=${boardType})}" th:text="${pageNumber}" role="button"></a>
+        <a class="btn btn-light" th:href="@{/request/listtest(page=${pageNumber}, locale=${locale}, subcategory=${subcategory})}" th:text="${pageNumber}" role="button"></a>
     </div>
-    <a class="btn btn-primary" th:if="${currentPage < totalPages}" th:href="@{/request/list(page=${currentPage + 1}, boardType=${boardType})}" role="button">Next</a>
-    <a class="btn btn-primary" th:href="@{/request/list(page=${totalPages}, boardType=${boardType})}" role="button">Last</a>
+    <a class="btn btn-light" th:if="${currentPage < totalPages}" th:href="@{/request/listtest(page=${currentPage + 1}, locale=${locale}, subcategory=${subcategory})}" role="button">Next</a>
+    <a class="btn btn-light" th:href="@{/request/listtest(page=${totalPages}, locale=${locale}, subcategory=${subcategory})}" role="button">Last</a>
+   </th:block>
 </div>
 
-<!--글쓰기버튼-->
-<!--<a th:href="@{'/request/writer'}" id="writebtn">글쓰기</a>-->
-<button type="button" id="writebtn">글쓰기</button>
+
+<!--    미구현(구현예정 : 검색 기능)-->
+    <div id="post_bottom">
+        <div class="post_bottom-container">
+            <div id="post_bottom_left" class="post_bottom">
+                <select id="search" name="search">
+                    <option value="1" th:selected="${searchtitle == 1}">제목</option>
+                    <option value="2" th:selected="${searchcontents == 2}">내용</option>
+                    <option value="3" th:selected="${searchwriter == 3}">작성자</option>
+                </select>
+                <input type="text" name="inputsearch">
+                <button type="button" class="btn btn-outline-dark" id="searchbtn">검색</button>
+            </div>
 
 
+            <div id="post_bottom_right" class="post_bottom">
+                <button type="button" class="btn btn-outline-dark" id="writebtn">글쓰기</button>
+            </div>
+        </div>
+    </div>
 
+</div>
+
+
+<!--체크용-->
+<!--<span th:text="${totalRequestCount}"></span>-->
 
 <div th:insert="~{footer :: footer}"></div>
 <script th:src="@{/static/js/bootstrap.min.js}"></script>
 
 
-<script th:inline="javascript">
-    $(document).ready(function() {
-        var token = $("meta[name='_csrf']").attr("content");
-        var header = $("meta[name='_csrf_header']").attr("content");
-
-        var loginuser = [[${userId}]];
-        var verifiedUser = [[${verifiedUser}]];
-
-        // alert(loginuser);
-
-        // 글쓰기 버튼 클릭 이벤트
-        $("#writebtn").click(function(event) {
-            event.preventDefault();
-
-            // alert(verifiedUser);
-
-            if (loginuser !== null) {
-                if(verifiedUser == true){
-                    //로그인O, 이메일인증O
-                    window.location.href = "/request/writer";
-                }else{
-                    //로그인은했고, 이메일인증X인경우
-                    alert("이메일 인증을 완료해주시기 바랍니다.")
-                }
-            } else {
-                //로그인아이디가없는경우
-                alert("로그인을 해주세요");
-            }//로그인유무end
-        });
-    });
 
 
-
-</script>
 
 
 </body>
