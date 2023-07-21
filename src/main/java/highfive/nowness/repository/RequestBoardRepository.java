@@ -94,6 +94,24 @@ public class RequestBoardRepository {
         return sql.selectOne("request.getRequestsByBoardTypeCount", boardType);
     }
 
+    //테스트중ajax카테고리별게시물가져오기
+    public List<RequestDTO> categoryListMap(Map<String, Integer> categoryListParams) {
+        return sql.selectList("request.categoryListMap", categoryListParams);
+    }
+
+    //테스트중ajax카테고리별 페이징처리된 게시물가져오기
+    public List<RequestDTO> categoryPagingList(Map<String, Integer> categoryListParams) {
+        return sql.selectList("request.categoryPagingList", categoryListParams);
+    }
+
+
+    //테스트중ajax카테고리별게시물갯수.
+    public int categoryListMapCount(Map<String, Integer> categoryListParams) {
+        return sql.selectOne("request.categoryListMapCount", categoryListParams);
+    }
+
+
+
 }
 
 

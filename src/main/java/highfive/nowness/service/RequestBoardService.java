@@ -79,5 +79,26 @@ public class RequestBoardService {
     //글"수정" 저장(update)
     public void updatePost(PostData postData) { requestBoardRepository.updatePost(postData); }
 
+
+    //게시글ajax테스트-카테고리분류된 DTO끌고오기.
+    public List<RequestDTO> categoryListMap(Map<String, Integer> categoryListParams) {
+        return requestBoardRepository.categoryListMap(categoryListParams);
+    }
+
+    //게시글ajax테스트-카테고리분류 + 페이징처리된. DTO끌고오기.
+    public List<RequestDTO> categoryPagingList(Map<String, Integer> categoryListParams) {
+        return requestBoardRepository.categoryPagingList(categoryListParams);
+    }
+
+
+    //카테고리별ajax게시물갯수.
+    public int categoryListMapCount(Map<String, Integer> categoryListParams) {
+        int count = requestBoardRepository.categoryListMapCount(categoryListParams);
+        return Math.max(count, 0);
+    }
+
+
+
+
 }
 

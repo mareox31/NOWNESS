@@ -20,6 +20,17 @@
             display: inline;
         }
 
+        button.deletereplybtn {
+
+            border-color: transparent;
+            background-color: transparent;
+        }
+
+        a {
+            text-decoration: none;
+            color : black;
+        }
+
     </style>
 
     <script th:inline="javascript">
@@ -36,7 +47,6 @@
 
             // 페이지 로드 시 댓글 가져오기
             getReplyList(boardId);
-
 
             //댓글 textarea 엔터처리용.
             //enter => <br>
@@ -106,8 +116,6 @@
             $(document).on("click", "#postdeletebtn", function(event) {
                 event.preventDefault();
 
-                console.log("로그인아이디" + loginuser + "글 작성자 아이디" + postwriter );
-
                 if (loginuser == postwriter) {
                     if (confirm("글을 삭제하시겠습니까?")) {
                         window.location.href = $(this).attr("href");
@@ -127,7 +135,6 @@
                 var replyId = $(this).data("replyid");
                 var replyWriterId = $(this).data("replyuserid");
 
-                console.log("로그인아이디" + loginuser + "댓글작성자아이디" + replyWriterId );
 
                 if(loginuser == replyWriterId){
                     if (confirm("댓글을 삭제하시겠습니까?")) {
@@ -175,7 +182,6 @@
                 async: false,
                 success: function(result) {
                     nickname = result;
-                    console.log("nickname : 찾기힘드네" + nickname);
                 },
                 error: function() {
                     console.error("Error occurred while fetching nickname for id: " + id);
@@ -262,9 +268,10 @@
 <div th:insert="~{header :: header}"></div>
 
 <!--바디-본문-->
-<a class="btn btn-primary btn-back" id="backbtn" href="javascript:history.back()">뒤로가기</a>
+
 <!--게시글 세부내용 본문-->
 <div class="container">
+    <a class="btn btn-light" id="backbtn" href="javascript:history.back()">back</a>
 
     <!--게시글 상세내용-->
     <div id="main">
@@ -277,7 +284,7 @@
 
                 <!--오른쪽부분 날짜와 닉네임-->
                 <div class="meta">
-                    <time class="published" datetime="2015-11-01" th:text="${postdetail.createdDatetime}"></time>
+                    <time class="published" th:text="${#temporals.format(postdetail.createdDatetime,'yyyy-MM-dd HH:mm:ss')}"></time>
                     <a href="#" class="author"><span class="name" th:text="${nickname}"></span><img src="images/avatar.jpg" alt="" /></a>
                 </div>
             </header>
@@ -317,7 +324,7 @@
         <input type="hidden" name="contentsid" th:value="${postdetail.id}">
 <!--        <input type="text" class="form-control mb-2 mr-sm-2" id="contents" placeholder="로그인을 해야 댓글을 사용할 수 있습니다." name="reply" required>-->
         <textarea class="form-control mb-2 mr-sm-2" id="contents" placeholder="댓글을 입력해주세요.(인증된 로그인 유저만 사용가능합니다.)" name="reply" required></textarea>
-        <button type="button" class="btn btn-primary mb-2" id="submitbtn">등록</button>
+        <button type="button" class="btn btn-outline-dark" id="submitbtn">등록</button>
     </form>
 
 
