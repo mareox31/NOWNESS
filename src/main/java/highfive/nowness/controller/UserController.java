@@ -10,10 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/user")
 @Controller
@@ -117,6 +114,15 @@ public class UserController {
                 row.get("type").equals("replies")).toList();
         model.addAttribute("contents", contents);
         model.addAttribute("replies", replies);
+    }
+
+    @GetMapping("/withdrawal")
+    public String showWithdrawalPage(@AuthenticationPrincipal User user,
+                                     @AuthenticationPrincipal OAuth2User oAuth2User,
+                                     Model model) {
+        if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
+        UserUtil.addPublicUserInfoToModel(model, user);
+        return "withdrawal";
     }
 
 }

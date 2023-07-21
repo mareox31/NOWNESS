@@ -202,4 +202,9 @@ public class UserDetailsService implements UserService {
     public List<Map<String, String>> getRecentContentsAndReplies(long userId) {
         return boardRepository.loadRecentContentsAndReplies(userId);
     }
+
+    @Transactional
+    public boolean withdrawal(long userId) {
+        return userRepository.deleteUser(userId) == 1;
+    }
 }
