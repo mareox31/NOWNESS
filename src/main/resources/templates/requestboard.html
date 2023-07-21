@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script th:src="@{/js/jquery-3.7.0.min.js}"></script>
+<!--    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>-->
     <title>NOWNESS</title>
     <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <meta name="_csrf" th:content="${_csrf.token}">
-    <script th:src="@{/assets/js/main.js}"></script>
     <style>
         body{
             font-size: 16px;
@@ -42,9 +42,20 @@
 
 
 
-    <script>
 
-        //테스트용
+ <script th:inline="javascript">
+
+
+
+
+
+
+
+
+
+
+
+     //테스트용
         //ajax 이용 , 카테고리별 나누려는 테스트중. -작동안하는거같음.
         function updateRequestList(boardType, page) {
             var url = "/list/request?boardType=" + boardType + "&page=" + page;
@@ -118,25 +129,26 @@
             );
         }
 
-        $('.boardTypeBtn').click(function() {
-            $('.boardTypeBtn').removeClass('active');
-            $(this).addClass('active');
-            var boardType = $(this).data('board-type');
-            updateRequestList(boardType, ${boardType});
-        });
-
-        $(document).on('click', '.pagination a', function(e) {
-            e.preventDefault();
-            var page = $(this).attr('href').split('page=')[1];
-            var boardType = $('.boardTypeBtn.active').data('board-type');
-            updateRequestList(boardType, page);
-        });
-
-
+        // $('.boardTypeBtn').click(function() {
+        //     $('.boardTypeBtn').removeClass('active');
+        //     $(this).addClass('active');
+        //     var boardType = $(this).data('board-type');
+        //     updateRequestList(boardType, ${boardType});
+        // });
+        //
+        // $(document).on('click', '.pagination a', function(e) {
+        //     e.preventDefault();
+        //     var page = $(this).attr('href').split('page=')[1];
+        //     var boardType = $('.boardTypeBtn.active').data('board-type');
+        //     updateRequestList(boardType, page);
+        // });
 
 
-    </script>
 
+
+ </script>
+
+</head>
 
 
 <body>
@@ -237,11 +249,52 @@
 </div>
 
 <!--글쓰기버튼-->
-<a th:href="@{'/request/writer'}">
-    글쓰기
-</a>
+<!--<a th:href="@{'/request/writer'}" id="writebtn">글쓰기</a>-->
+<button type="button" id="writebtn">글쓰기</button>
+
+
+
 
 <div th:insert="~{footer :: footer}"></div>
 <script th:src="@{/static/js/bootstrap.min.js}"></script>
+
+
+<script th:inline="javascript">
+    $(document).ready(function() {
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+
+        var loginuser = [[${userId}]];
+        var verifiedUser = [[${verifiedUser}]];
+
+        // alert(loginuser);
+
+        // 글쓰기 버튼 클릭 이벤트
+        $("#writebtn").click(function(event) {
+            event.preventDefault();
+
+            // alert(verifiedUser);
+
+            if (loginuser !== null) {
+                if(verifiedUser == true){
+                    //로그인O, 이메일인증O
+                    window.location.href = "/request/writer";
+                }else{
+                    //로그인은했고, 이메일인증X인경우
+                    alert("이메일 인증을 완료해주시기 바랍니다.")
+                }
+            } else {
+                //로그인아이디가없는경우
+                alert("로그인을 해주세요");
+            }//로그인유무end
+        });
+    });
+
+
+
+</script>
+
+
 </body>
 </html>
+

@@ -9,56 +9,136 @@
     <meta name="_csrf" th:content="${_csrf.token}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+    <style>
+        .col-sm-12.sub.deletereplybtn {
+            width: 48.46px;
+            height: 38.48px;
+            display: inline;
+        }
+
+        .col-sm-12 sub{
+            display: inline;
+        }
+
+    </style>
+
     <script th:inline="javascript">
         $(document).ready(function() {
             var token = $("meta[name='_csrf']").attr("content");
             var header = $("meta[name='_csrf_header']").attr("content");
             var boardId = /*[[${postdetail.id}]]*/;
 
+            /*<![CDATA[*/
+            var loginuser = [[${userId}]];
+            var postwriter = [[${postdetail.userId}]];
+            /*]]>*/
+
+
             // 페이지 로드 시 댓글 가져오기
             getReplyList(boardId);
 
-            // 등록 버튼 클릭 이벤트 처리
+
+            //댓글 textarea 엔터처리용.
+            //enter => <br>
+            var text = $('textarea').val();
+            text = text.replace(/(?:\r\n|\r|\n)/g, '<br>');
+
+            //<br> => enter
+            var text = $('textarea').val();
+            text = text.split('<br>').join("\r\n");
+
+
+            // 댓글 등록  : 버튼 클릭 이벤트 처리(로그인유저가 맞는지 확인)
             $("#submitbtn").click(function(event) {
                 event.preventDefault();
                 var replyContents = $("#contents").val();
+                var verifiedUser = [[${verifiedUser}]];
 
-                // 댓글 등록 AJAX 요청
-                $.ajax({
-                    url: "/request/writeReply",
-                    data: {
-                        "userid": /*[[${user.id}]]*/,
-                        "contentsid": boardId,
-                        "reply": replyContents
-                    },
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader(header, token);
-                    },
-                    type: "post",
-                    success: function(result) {
-                        if (result === "success") {
-                            // 댓글 입력칸 비우기
-                            $("#contents").val("");
-                            // 새로운 댓글 불러오기
-                            getReplyList(boardId);
-                        } else {
-                            alert("등록 실패");
-                        }
-                    },
-                    error: function() {
-                        alert("실패");
+                //로그인여부 & 이메일인증 확인받음 & 빈칸이아니어야 등록가능.
+                if(loginuser!=null ){//로그인O
+
+                    if(verifiedUser ==true){//로그인O, 이메일검증O
+
+                        if (replyContents.trim() === "") {//빈칸인경우
+                            alert("댓글 내용을 입력해주세요");
+                            return;
+                        }else {//로그인O, 이메일검증O, 내용이입력된경우
+                            $.ajax({
+                                url: "/request/writeReply",
+                                data: {
+                                    "userid": /*[[${userId}]]*/,
+                                    "contentsid": boardId,
+                                    "reply": replyContents
+                                },
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader(header, token);
+                                },
+                                type: "post",
+                                success: function (result) {
+                                    if (result === "success") {
+                                        // 댓글 입력칸 비우기
+                                        $("#contents").val("");
+                                        // 새로운 댓글 불러오기
+                                        getReplyList(boardId);
+                                    } else {
+                                        alert("ERROR-1.");
+                                    }
+                                },
+                                error: function () {
+                                    alert("ERROR-2");
+                                }
+                            });//ajax end-댓글등록 end
+                        }//로그인O이메일검증O-end
                     }
-                });
+                    else{//로그인o이메일검증X
+                        alert("이메일인증을 완료해주시기 바랍니다.");
+                    }//로그인과 이메일검증여부-end
+                }else{
+                    //로그인X인경우
+                    alert("로그인을 하셔야 댓글을 이용하실 수 있습니다.")
+                }//로그인여부 end
+            });//댓글등록end
+
+
+
+
+            //글 삭제 :  본인이맞으면 버튼이 보이고, 클릭시 삭제여부 물음
+            $(document).on("click", "#postdeletebtn", function(event) {
+                event.preventDefault();
+
+                console.log("로그인아이디" + loginuser + "글 작성자 아이디" + postwriter );
+
+                if (loginuser == postwriter) {
+                    if (confirm("글을 삭제하시겠습니까?")) {
+                        window.location.href = $(this).attr("href");
+                    }
+                } else {
+                    alert("작성자 본인만 삭제 가능합니다.");
+                }
             });
 
-            // 댓글 삭제 버튼 클릭 이벤트 처리
+
+
+
+            //댓글 삭제 : 작성자와 로그인 유저가 맞는지 확인 , 삭제여부 확인 후 삭제.
             $(document).on("click", ".deletereplybtn", function(event) {
                 event.preventDefault();
+
                 var replyId = $(this).data("replyid");
-                // 댓글 삭제 AJAX 요청
-                deleteReply(replyId);
+                var replyWriterId = $(this).data("replyuserid");
+
+                console.log("로그인아이디" + loginuser + "댓글작성자아이디" + replyWriterId );
+
+                if(loginuser == replyWriterId){
+                    if (confirm("댓글을 삭제하시겠습니까?")) {
+                        deleteReply(replyId);
+                    }
+                 }else{
+                    alert("자신이 작성한 댓글만 삭제가 가능합니다.");
+                }
             });
         });
+
 
         // 댓글 삭제 AJAX 요청
         function deleteReply(replyId) {
@@ -86,6 +166,26 @@
             });
         }
 
+    //댓글 닉네임 가져오기
+        function getNicknameForComment(id) {
+            var nickname = '';
+
+            $.ajax({
+                url: "/request/getNickname/" + id,
+                async: false,
+                success: function(result) {
+                    nickname = result;
+                    console.log("nickname : 찾기힘드네" + nickname);
+                },
+                error: function() {
+                    console.error("Error occurred while fetching nickname for id: " + id);
+                }
+            });
+
+            return nickname;
+        }
+
+
 
         // 댓글 리스트 가져오기
         function getReplyList(boardId) {
@@ -111,13 +211,17 @@
 
             replys.forEach(function(reply) {
                 if (reply.parentid == 0) {
+                    var nickname = getNicknameForComment(reply.id);
                     html += '<div class="row"><div class="col-sm-12">';
                     html += '<form class="form-inline" action="/writeReply" method="post">';
-                    html += '<label for="pwd" class="mr-sm-2">' + "[작성자 : " + reply.id + " ] " +'</label>';
-                    html += '<label for="pwd" class="mr-sm-2">'  +  reply.reply + '</label>';
+                    html += '<label for="pwd" class="mr-sm-2">' + "[작성자 : " +nickname +  " ] " +'</label>';
                     html += '<label for="pwd" class="mr-sm-2">' + "( " + reply.createddatetime + ")"+ '</label>';
-                    html += '<button type="button" class="btn btn-primary mb-2 deletereplybtn" data-replyid="' + reply.id + '">❌</button>';
-                    html += '<input type="hidden" name="id" th:value="${postdetail.id}">';
+                    // html += '<button type="button" class="btn btn-primary mb-2 deletereplybtn" data-replyid="' + reply.id + '">❌</button>';
+                    html += '<button type="button" class="btn btn-primary mb-2 deletereplybtn" data-replyid="' + reply.id + '" data-replyuserid="' + reply.userid + '">❌</button>';
+                    html += '<br>';
+                    // html += '<label for="pwd" class="mr-sm-2">'  +  reply.reply + '</label>';
+                    html += '<label for="pwd" class="mr-sm-2">'  +  reply.reply.replace(/\n/g, '<br>') + '</label>';
+                   html += '<input type="hidden" name="id" th:value="${postdetail.id}">';
                     html += '<input type="hidden" name="parentid" th:value="' + reply.id + '">';
                     html += '</form>';
                     html += '<hr>';
@@ -129,12 +233,19 @@
 
             replys.forEach(function(reply) {
                 if (reply.parentid != 0) {
+                    var nickname = getNicknameForComment(reply.id);
                     var subHtml = '';
                     subHtml = '<div class="row"><div class="col-sm-12 subReply">';
-                    subHtml += 'ㄴ <label for="pwd" class="col-sm-12 sub">'+ "[작성자 : " + reply.id + " ] "  + reply.reply + "( " + reply.createddatetime + ")"+  '</label>';
-                    subHtml += '<button type="button" class="col-sm-12 sub deletereplybtn" data-replyid="' + reply.id + '">❌</button>';
+                    //안씀 subHtml += 'ㄴ <label for="pwd" class="col-sm-12 sub">'+ "[작성자 : " + nickname + " ] "  + reply.reply + "( " + reply.createddatetime + ")"+  '</label>';
+                    //안씀 subHtml += 'ㄴ <label for="pwd" class="col-sm-12 sub">'+ "[작성자 : " + nickname + " ] "  + reply.reply.replace(/\n/g, '<br>') + "( " + reply.createddatetime + ")"+  '</label>';
+                    subHtml += '<label for="pwd" class="col-sm-12 sub">'+ "ㄴ[작성자 : " + nickname + " ] " + "( " + reply.createddatetime + ")"+  '</label>';
+                    //안씀 subHtml += '<button type="button" class="col-sm-12 sub deletereplybtn" data-replyid="' + reply.id + '">❌</button>';
+                    subHtml += '<button type="button" class="col-sm-12 sub deletereplybtn" data-replyid="' + reply.id + '" data-replyuserid="' + reply.userid + '">❌</button>';
+                    subHtml += '<label for="pwd" class="col-sm-12 sub">'+ reply.reply.replace(/\n/g, '<br>') +  '</label>';
                     subHtml += '<hr>';
                     subHtml += '<div class="row"><div class="col-sm-12 sub' + reply.id + '"></div></div></div></div>';
+
+
                     $(".sub" + reply.parentid).append(subHtml);
                 }
             });
@@ -151,14 +262,14 @@
 <div th:insert="~{header :: header}"></div>
 
 <!--바디-본문-->
-
+<a class="btn btn-primary btn-back" id="backbtn" href="javascript:history.back()">뒤로가기</a>
 <!--게시글 세부내용 본문-->
 <div class="container">
 
     <!--게시글 상세내용-->
     <div id="main">
         <article class="post">
-            <!-- 게시글 내부 header : 진짜 헤더랑 겹칠거같음..??-->
+            <!-- 게시글 내부 상단 header : 진짜 헤더랑 겹칠거같음..??-->
             <header>
                 <div class="title">
                     <h2 th:text="${postdetail.title}"></h2>
@@ -175,16 +286,21 @@
             <p th:utext="${postdetail.contents}"></p>
 
 
-            <!--게시글 내부 footer : 나중에 겹치는지?? 바꿔야야할듯..-->
+            <!-- 로그인 유저 확인 후, 게시글 작성자와 일치하면 수정/삭제 버튼 생성-->
             <footer>
                 <ul class="stats">
                     <li><a href="#" class="icon solid fa-viewt">view <span th:text="${postdetail.views}"></span></a></li>
                     <li><a href="#" class="icon solid fa-heart"><span th:text="${likes}"></span></a></li>
                     <li><a href="#" class="icon solid fa-comment">comment <span th:text="${comments.size()}"></span></a></li>
-                    <li><a href="#" class="icon solid fa-modify">modify</a></li>
-                    <li><a th:href="@{'/request/post/' + ${id} + '/delete'}" class="icon solid fa-delete">delete</a></li>
                     <li><a href="#" class="icon solid fa-report">report</a></li>
+                <th:block th:if="${userId == postdetail.userId }">
+<!--                    <li><a href="#" class="icon solid fa-modify">modify</a></li>-->
+                    <li><a th:href="@{/request/modify/{id}(id = ${postdetail.id})}" class="icon solid fa-modify">modify</a></li>
+                    <li><a th:href="@{'/request/post/' + ${id} + '/delete'}" class="icon solid fa-delete" id="postdeletebtn">delete</a></li>
+                </th:block>
+
                 </ul>
+
                 <ul class="hash">
                     <li></li>
                 </ul>
@@ -196,9 +312,11 @@
 
     <!--댓글등록-->
     <form id="commentForm" class="form-inline" th:action="@{/request/writeReply}" method="post">
-        <input type="hidden" name="userid"  th:value="${user.id}">
+<!--        <input type="hidden" name="userid"  th:value="${user.id}">-->
+        <input type="hidden" name="userid"  th:value="${userId}">
         <input type="hidden" name="contentsid" th:value="${postdetail.id}">
-        <input type="text" class="form-control mb-2 mr-sm-2" id="contents" placeholder="댓글을 입력하세요" name="reply" required>
+<!--        <input type="text" class="form-control mb-2 mr-sm-2" id="contents" placeholder="로그인을 해야 댓글을 사용할 수 있습니다." name="reply" required>-->
+        <textarea class="form-control mb-2 mr-sm-2" id="contents" placeholder="댓글을 입력해주세요.(인증된 로그인 유저만 사용가능합니다.)" name="reply" required></textarea>
         <button type="button" class="btn btn-primary mb-2" id="submitbtn">등록</button>
     </form>
 
@@ -210,10 +328,17 @@
     </div>
 
 
-    <!--    <span th:text="${user}"></span>-->
-    <!--    <br>-->
-    <!--    <span th:text="${user.id}"></span>-->
+<!--로그인유저-->
 
+
+<!--            <span th:text="${postdetail}"></span>-->
+<!--        <br>-->
+<!--        <span th:text="${user.id}"></span>-->
+<!--    <hr>-->
+<!--    <span th:text="${userId}"></span>-->
+
+<!--    이메일인증-->
+<!--    <span th:text="${verifiedUser}"></span> -->
 
 
     <div th:insert="~{footer :: footer}"></div>
@@ -221,5 +346,3 @@
 </div>
 </body>
 </html>
-
-

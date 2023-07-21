@@ -36,6 +36,12 @@ public class RequestBoardService {
         return requestBoardRepository.getNicknameById(id);
     }
 
+    //리플쓴 유저id로 해당하는 닉네임 가져오기
+    public String getNickname(int id) {
+        return requestBoardRepository.getNickname(id);
+    }
+
+
     //해당 게시글 좋아요 (총 개수)
     public int getLikes(int id) { return requestBoardRepository.getLikes(id); }
 
@@ -67,8 +73,11 @@ public class RequestBoardService {
         return Math.max(count, 0);
     }
 
-    //글저장
+    //글저장(insert)
     public void addPost(PostData postData) { requestBoardRepository.addPost(postData); }
+
+    //글"수정" 저장(update)
+    public void updatePost(PostData postData) { requestBoardRepository.updatePost(postData); }
 
 }
 

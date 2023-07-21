@@ -53,6 +53,17 @@
         where contents.id= #{id}
     </select>
 
+    <!--리플쓴 유저id로  닉네임 찾기 -->
+    <select id="getNickname" parameterType="requestDTO" resultType="String">
+        select users.nickname as id
+        from users join replies
+                        on replies.user_id = users.id
+        where replies.id= #{id}
+    </select>
+
+
+
+
     <!--해당 게시글 좋아요 (총 개수)  -->
     <select id="getLikes" resultType="java.lang.Integer">
         SELECT COUNT(*) FROM Likes
@@ -114,6 +125,13 @@
         VALUES (#{userId}, #{contents}, #{title}, #{boardType}, #{locale}, #{subcategory})
     </insert>
 
+
+    <!--    게시글 수정등록 -->
+    <insert id="updatePost" parameterType="postDATA">
+        UPDATE Contents
+        SET  `contents` =#{contents}, `title` = #{title}, `board_type` = #{boardType}, `locale` = #{locale}, `subcategory` = #{subcategory}, edit_datetime =now()
+        WHERE `id` = #{id};
+    </insert>
 
 </mapper>
 
