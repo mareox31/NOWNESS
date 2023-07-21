@@ -2,42 +2,67 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="ko">
 <head>
     <meta charset="UTF-8">
-    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <title>NOWNESS</title>
-
-    <style>
-        @font-face {
-            font-family: 'NeoDunggeunmoPro-Regular';
-            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/NeoDunggeunmoPro-Regular.woff2') format('woff2');
-            font-weight: normal;
-            font-style: normal;
-        }
-        body {
-            font-family: 'NeoDunggeunmoPro-Regular', sans-serif;
-        }
-        .user-link {
-            font-size: 15px;
-        }
-        .board-link {
-            font-size: 25px;
-        }
-        .logo-position {
-            margin-right: 0px;
-        }
-    </style>
-    <link th:href="@{/css/main/map/map.css}" rel="stylesheet">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/main/main.css}" rel="stylesheet">
+    <link th:href="@{/css/main/map.css}" rel="stylesheet">
+    <link th:href="@{/css/main/chat.css}" rel="stylesheet">
 </head>
 <body>
 <div th:insert="~{header :: header}"></div>
 
+<div id="myCarousel" class="carousel slide" data-bs-ride="carousel" style="margin-top: 20px; margin-bottom: 20px;">
+    <div class="carousel-inner">
+        <div class="carousel-item active" style="height:200px; background: linear-gradient(to right, #FAFF36, white);"
+             data-bs-interval="2500">
+            <div class="d-flex align-items-center justify-content-center" style="height:100%;">
+                <div class="text-center">
+                    <h2 style="color: black; margin-bottom:20px;">요즘 뜨는 핫플레이스는?</h2>
+                    <a href="rankboard"
+                       style="font-size:22px; text-decoration:none; color:black; padding:3px; padding-top:7px; padding-bottom:7px; border:2px dashed black">확인하기</a>
+                </div>
+            </div>
+        </div>
+        <div class="carousel-item" style="height:200px; background: linear-gradient(to right, white, #00D2FF);"
+             data-bs-interval="2500">
+            <div class="d-flex align-items-center justify-content-center" style="height:100%;">
+                <div class="text-center">
+                    <h2 style="color: black; margin-bottom:20px;">현재 그 곳은 어떤가요?</h2>
+                    <a href="reportboard"
+                       style="font-size:22px; text-decoration:none; color:black; padding:3px; padding-top:7px; padding-bottom:7px; border:2px dashed black">공유하기</a>
+                </div>
+            </div>
+        </div>
+        <div class="carousel-item" style="height:200px; background: linear-gradient(to right, #00D2FF, white, #FAFF36);"
+             data-bs-interval="2500">
+            <div class="d-flex align-items-center justify-content-center" style="height:100%;">
+                <div class="text-center">
+                    <h2 style="color: black; margin-bottom:20px;">필요한 정보가 없으신가요?</h2>
+                    <a href="requestboard"
+                       style="font-size:22px; text-decoration:none; color:black; padding:3px; padding-top:7px; padding-bottom:7px; border:2px dashed black">요청하기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a class="carousel-control-prev" href="#myCarousel" role="button" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </a>
+    <a class="carousel-control-next" href="#myCarousel" role="button" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </a>
+</div>
+
+
 <div class="container-fluid">
     <div class="map_wrap">
-    <div id="map" style="width:500px; height:400px;"></div>
+        <div id="map" style="width:700px; height:500px;"></div>
         <div id="menu_wrap" class="bg_white">
             <div class="option">
                 <div>
                     <form onsubmit="searchPlaces(); return false;">
-                        <input type="text" value="" id="keyword" size="15">
+                        <input type="text" value="" id="keyword" size="14">
                         <button type="submit">검색</button>
                     </form>
                 </div>
@@ -46,23 +71,48 @@
             <ul id="placesList"></ul>
             <div id="pagination"></div>
         </div>
-    <p>
+    </div>
 
-    </p>
-        </div>
+    <div class="chat-container">
+        <ul class="chat-message-list" id="messageArea">
+        </ul>
+        <form id="messageForm" name="messageForm">
+            <div class="form-group">
+                <div class="input-group clearfix">
+                    <!-- 사용자 이름 입력 필드 추가 -->
+                    <input type="text" id="username" placeholder="이름" autocomplete="off" class="form-control">
+                    <!-- 메시지 입력 필드 -->
+                    <input type="text" id="message" placeholder="메시지" autocomplete="off" class="form-control">
+                    <button type="submit" class="primary">전송</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 
 
+<div style="margin-top: 40px; margin-bottom: 40px;">
+    <div class="rankboard text-center" style="margin-top: 20px; margin-bottom: 20px;">
+        인기 TOP3 (예정)
+    </div>
+    <div class="rankboard text-center" style="margin-top: 20px; margin-bottom: 20px;">
+        실시간 공유 (예정)
+    </div>
+    <div class="rankboard text-center" style="margin-top: 20px; margin-bottom: 20px;">
+        실시간 요청 (예정)
+    </div>
+</div>
 
-<ul>
-    <li>test<span th:text="${data}"></span></li>
-</ul>
-
-
-<script th:src="@{//dapi.kakao.com/v2/maps/sdk.js?appkey=2c6f332b6c158e54b8050e3a29fa2a2d}" type="text/javascript"></script>
-<script th:src="@{js/main/map/map.js}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/main/chat.js}"></script>
+<script th:src="@{//dapi.kakao.com/v2/maps/sdk.js?appkey=2c6f332b6c158e54b8050e3a29fa2a2d}"
+        type="text/javascript"></script>
+<script th:src="@{js/main/map.js}"></script>
 <script th:src="@{//dapi.kakao.com/v2/maps/sdk.js?appkey=APIKEY&libraries=clusterer}" type="text/javascript"></script>
+
 <div th:insert="~{footer :: footer}"></div>
 </body>
 </html>
