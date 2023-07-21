@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:lang="ko">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
 </head>
@@ -7,9 +7,10 @@
 <div th:fragment="header">
     <th:block th:insert="~{header_script}"></th:block>
     <div class="container-fluid p-0">
-        <nav class="navbar navbar-expand-lg bg-light">
+        <nav class="navbar navbar-expand-lg"  style="background-color: #f3f3f3;">
             <div class="container-fluid">
                 <div class="row w-100">
+
                     <div class="col-12 d-flex justify-content-end">
                         <ul class="navbar-nav">
                             <th:block th:if="${userId == null}">
@@ -39,8 +40,8 @@
                     </div>
 
                     <div class="col-12 d-flex justify-content-center my-5">
-                        <a class="navbar-brand d-flex align-items-center justify-content-center logo-position" href="/main">
-                            <img th:src="@{/images/logo.png}" alt="Logo" width="150" height="120">
+                        <a class="navbar-brand d-flex align-items-center justify-content-center logo-position" href="main">
+                            <img src="images/logo.png" alt="Logo" width="150" height="120">
                         </a>
                     </div>
 
@@ -62,6 +63,7 @@
             </div>
         </nav>
     </div>
+
 </div>
 </body>
 </html>
