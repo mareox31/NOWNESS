@@ -54,9 +54,8 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
         String clientName = userRequest.getClientRegistration().getClientName();
         Map<String, Object> userInfo = convertAttributesToUnifiedFormat(clientName, oAuth2User.getAttributes());
         String email = userInfo.get(FORMATTED_EMAIL_KEY_NAME).toString();
-        UserDTO userDto = loadUserByEmail(email);
-        if (!userDto.isVerifiedEmail()) userDto.setVerifiedEmail(true);
-        saveOrUpdateUser(userDto);
+        UserDTO userDto = loadOrCreateUserByEmail(email);
+        userDto.setId(saveOrUpdateUser(userDto));
         userInfo.put("id", userDto.getId());
         userInfo.put("nickname", userDto.getNickname());
         return new DefaultOAuth2User(getUserAuthorities(oAuth2User), userInfo, FORMATTED_ID_KEY_NAME);
@@ -100,12 +99,13 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
         return naverAttributes;
     }
 
-    private UserDTO loadUserByEmail(String email) {
+    private UserDTO loadOrCreateUserByEmail(String email) {
         return userRepository.findByEmail(email).orElseGet(() -> UserDTO.builder()
                 .email(email)
                 .nickname(UUID.nameUUIDFromBytes(email.getBytes()).toString().substring(0, 8))
                 .password(passwordEncoder.encode(email))
                 .lastLoginIp(getUserIpAddress())
+                .verifiedEmail(true)
                 .build());
     }
 
@@ -114,8 +114,9 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
         return request.getRemoteAddr();
     }
 
-    private void saveOrUpdateUser(UserDTO userDTO) {
-        userRepository.save(userDTO);
+    private long saveOrUpdateUser(UserDTO userDTO) {
+        userRepository.saveOrUpdateUser(userDTO);
+        return userRepository.findIdByEmail(userDTO.getEmail());
     }
 
     private Set<GrantedAuthority> getUserAuthorities(OAuth2User oAuth2User) {

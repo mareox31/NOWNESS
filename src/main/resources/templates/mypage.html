@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <link th:href="@{/css/styles.css}" rel="stylesheet" type="text/css">
-    <script th:src="@{/js/user/mypage.js}"></script>
     <style>
         body * {
             text-overflow: ellipsis; overflow: hidden; white-space:nowrap;
@@ -13,7 +12,9 @@
     <title>NOWNESS</title>
 </head>
 <body>
-<th:block th:insert="~{header :: header}"></th:block>
+<header>
+    <th:block th:insert="~{header :: header}"></th:block>
+</header>
 <div class="container mt-5">
     <div class="row justify-content-between">
         <aside class="col-lg-3">
@@ -42,7 +43,7 @@
                        data-bs-toggle="modal" data-bs-target="#modal" th:attr="data-bs-whatever=${nickname}">닉네임 변경</button>
                     <button id="btnChangePassword" class="btn-outline-secondary text-dark container-fluid mb-2 p-3 pt-1 pb-1 pt-0"
                             data-bs-toggle="modal" data-bs-target="#modal" data-bs-whatever="password-change">비밀번호 변경</button>
-                    <button class="btn-outline-secondary text-dark container-fluid p-3 pt-1 pb-1 pt-0">회원 탈퇴</button>
+                    <button id="btnWithdrawal" class="btn-outline-secondary text-dark container-fluid p-3 pt-1 pb-1 pt-0">회원 탈퇴</button>
 
                     <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
@@ -144,33 +145,7 @@
         </section>
     </div>
 </div>
-<div th:insert="~{footer :: footer}"></div>
-
-<!-- thymeleaf prefix 를 사용한 form 이므로 자동으로 hidden type 의 input 태그에 csrf 토큰 값이 자동으로 생성됨-->
-<form method="POST" th:action="@{/user/logout}">
-    <input type="submit" class="btn-primary" value="로그아웃"/>
-</form>
-
-<!-- thymeleaf prefix 를 사용한 form 을 만들지 않으면 hidden type 의 csrf 토큰 값이 자동으로 생성되지 않음
-그래서 script 로 post 요청 만들어서 보내려면 csrf 추가해서 보내야함-->
-<input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
-<button id="logout" type="button" class="btn-primary">로그아웃 by button</button>
-<script>
-    $(document).ready(() => {
-        // post request
-        $("logout").click(() => {
-            $.post("/user/logout", { "_csrf": $('input[name="_csrf"]').val()}, function(data, status){
-                // 성공적으로 요청을 보냈을 때 실행되는 콜백 함수
-                // 현재 html 을 반환하는 경로로 지정해서 html 이 응답으로 옴
-                // 추후에 경로를 api 로 변경해서 DOM 전체를 업데이트 하지 않고 로그아웃
-                console.log("응답 데이터: " + data);
-                console.log("응답 상태: " + status);
-            }).fail(function(xhr, status, error) {
-                // 요청이 실패했을 때 실행되는 콜백 함수
-                console.log("오류: " + error);
-            });
-        })
-    })
-</script>
+<footer th:insert="~{footer :: footer}"></footer>
+<script th:src="@{/js/user/mypage.js}"></script>
 </body>
 </html>

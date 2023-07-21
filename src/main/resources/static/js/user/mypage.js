@@ -1,8 +1,6 @@
-$(document).ready(function() {
+$(document).ready(() => {
 
-    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-
+    // 닉네임 또는 비밀번호 변경 시 Modal
     const modal = $('#modal');
     const passwordInput = $('#passwordInput');
     const nicknameInput = $('#nicknameInput');
@@ -36,6 +34,7 @@ $(document).ready(function() {
         modalTitle.text(isPasswordChange ? '비밀번호 변경하기' : '닉네임 변경하기');
     });
 
+    // 이메일 재발송 버튼
     const verifyMailSendBtn = $('#btnVerifyMailSend');
 
     // 인증 메일을 재발송한 후 여러번 클릭하는 것을 막기 위해 버튼을 숨깁니다.
@@ -45,18 +44,21 @@ $(document).ready(function() {
         resendVerifyMail();
     });
 
+    // 닉네임 변경 버튼
     const changeNicknameBtn = $('#btnChangeNickname');
 
     changeNicknameBtn.click(() => {
         passwordInput.val('');
     });
 
+    // 비밀번호 변경 버튼
     const changePasswordBtn = $('#btnChangePassword');
 
     changePasswordBtn.click(() => {
         nicknameInput.val('');
     });
 
+    // Modal 내부의 닉네임 또는 비밀번호 변경 요청 버튼
     const changeRequestBtn = $('#btnChangeRequest');
 
     changeRequestBtn.click(() => {
@@ -66,19 +68,27 @@ $(document).ready(function() {
         const newPassword = passwordInput.val();
         const newNickname = nicknameInput.val();
         if (newPassword.length >= 8) {
-            console.log(newPassword.length);
             changePassword(newPassword);
         } else if (newNickname.length >= 3 && newNickname.length <= 8) {
             changeNickname(newNickname);
         }
     });
 
+    // Modal 내부의 신규 닉네임 입력폼
     nicknameInput.keyup(() => {
         if (validateNickname(nicknameInput)) checkDuplicateNickname(nicknameInput.val());
     });
 
+    // Modal 내부의 신규 비밀번호 입력폼
     passwordInput.keyup(() => {
         validatePassword(passwordInput);
+    });
+
+    // 회원 탈퇴 버튼
+    const withdrawalBtn = $('#btnWithdrawal');
+
+    withdrawalBtn.click(() => {
+        location.href = '/user/withdrawal';
     });
 
 });

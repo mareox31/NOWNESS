@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/styles.css}" rel="stylesheet" type="text/css">
+    <title>NOWNESS</title>
+</head>
+<body>
+<header>
+    <th:block th:insert="~{header :: header}"></th:block>
+</header>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="card pb-3 pt-3" style="border-radius: 1rem; min-width: 400px; max-width: 500px; text-align: center">
+            <h4>회원 탈퇴 시 주의 사항</h4>
+            <p>· 탈퇴 시 회원님의 모든 정보가 영구적으로 삭제되며, 다시는 복구할 수 없습니다.</p>
+            <p>· 서비스 이용 중 본인의 계정에 귀속되지 않은 정보는 자동으로 삭제되지 않으며, 탈퇴 시 수정이나 삭제가 불가능합니다. 계정에 귀속되지 않은 정보를 수정하거나 삭제하려는 경우, 회원 탈퇴 이전에 수정 또는 삭제를 진행해 주세요.</p>
+            <div class="row m-4 mb-0 mt-0">
+                <hr>
+            </div>
+            <h4>삭제되는 정보</h4>
+            <input id="userId" type="hidden" th:value="${userId}">
+            <h5 th:text="${email}"></h5>
+            <h5 th:text="${nickname}"></h5>
+            <div class="row m-4 mb-0 mt-0">
+                <hr>
+            </div>
+            <div class="row p-2 justify-content-center">
+                <input class="form-check-input col-1" type="checkbox" name="withdrawalAgree" id="checkWithdrawal"/>
+                <label class="form-check-label col-11 text-secondary" for="checkWithdrawal">
+                    회원 탈퇴를 진행하여 이 계정에 귀속된 모든 정보를 삭제하는 데 동의합니다.
+                </label>
+            </div>
+            <button id="btnWithdrawal" class="btn btn-danger" disabled>회원 탈퇴</button>
+        </div>
+    </div>
+</div>
+<div th:insert="~{footer :: footer}"></div>
+<script th:src="@{/js/user/withdrawal.js}"></script>
+</body>
+</html>
