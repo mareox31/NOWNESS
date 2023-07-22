@@ -16,7 +16,8 @@ public class RequestBoardService {
 
     private final RequestBoardRepository requestBoardRepository;
 
-    // 페이징 처리 -'맵'사용
+
+    // 페이징 처리 -'맵'사용(닉네임용리스트에사용)
     public List<RequestDTO> requestboardPagingList(Map<String, Integer> pagingParams) {
         return requestBoardRepository.boardPagingList(pagingParams);
     }
@@ -90,12 +91,12 @@ public class RequestBoardService {
         return requestBoardRepository.categoryPagingList(categoryListParams);
     }
 
-
     //카테고리별ajax게시물갯수.
     public int categoryListMapCount(Map<String, Integer> categoryListParams) {
         int count = requestBoardRepository.categoryListMapCount(categoryListParams);
         return Math.max(count, 0);
     }
+
 
 
 

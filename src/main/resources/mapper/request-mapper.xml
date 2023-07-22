@@ -45,13 +45,31 @@
     </update>
 
 
-    <!--해당 게시글 닉네임 찾기 -->
+    <!--해당 게시글 닉네임 찾기 (세부게시글용)-->
     <select id="getNicknameById" parameterType="requestDTO" resultType="String">
         select users.nickname as id
         from users join contents
                         on contents.user_id = users.id
         where contents.id= #{id}
     </select>
+
+    <!--   게시글리스트 닉네임가져오기-->
+    <select id="getNickname2" parameterType="requestDTO" resultType="String" useCache="false">
+        SELECT users.nickname AS nickname
+        FROM users
+                 JOIN contents ON contents.user_id = users.id
+        WHERE contents.id = #{id}
+    </select>
+
+    <!--  ajax카테고리 분류시 닉네임가져오기-->
+    <select id="getNicknameByUserId" parameterType="int" resultType="String">
+        SELECT users.nickname AS nickname
+        FROM users
+                 JOIN contents ON contents.user_id = users.id
+        WHERE contents.user_id = #{userId}
+            LIMIT 1
+    </select>
+
 
     <!--리플쓴 유저id로  닉네임 찾기 -->
     <select id="getNickname" parameterType="requestDTO" resultType="String">
@@ -60,8 +78,6 @@
                         on replies.user_id = users.id
         where replies.id= #{id}
     </select>
-
-
 
 
     <!--해당 게시글 좋아요 (총 개수)  -->
@@ -166,7 +182,7 @@
 
 
 
-<!--&lt;!&ndash;    동적쿼리&ndash;&gt;-->
+<!-- 카테고리별   동적쿼리-->
     <select id="categoryPagingList" resultType="requestDTO" parameterType="java.util.Map">
         SELECT * FROM contents
         where board_type=1
@@ -180,6 +196,7 @@
           and deleted=0
         ORDER BY id DESC LIMIT #{pageIndex}, #{pageSize}
     </select>
+
 
 
 
