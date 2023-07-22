@@ -9,12 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
 public class RequestBoardRepository {
+
 
     @Autowired
     private SqlSessionTemplate sql;
@@ -25,9 +28,15 @@ public class RequestBoardRepository {
         return sql.selectList("request.findAll");
     }
 
-    // 페이징 처리 -'맵'사용
+
+    //게시글리리스트 조회(닉네임포함)
     public List<RequestDTO> boardPagingList(Map<String, Integer> pagingParams) {
-        return sql.selectList("request.boardPagingList", pagingParams);
+        List<RequestDTO> requestList = sql.selectList("request.boardPagingList", pagingParams);
+        for (RequestDTO requestDTO : requestList) {
+           String nickname = sql.selectOne("request.getNickname2", requestDTO);
+            requestDTO.setNickname(nickname);
+        }
+        return requestList;
     }
 
     //게시글 전체 ( 총 개수 )
@@ -89,27 +98,32 @@ public class RequestBoardRepository {
         sql.insert("request.updatePost", postData);
     }
 
-    //테스트중 ---------카테고리-----
+    //카테고리 리스트용-----
     public int getRequestsByBoardTypeCount(int boardType) {
         return sql.selectOne("request.getRequestsByBoardTypeCount", boardType);
     }
 
-    //테스트중ajax카테고리별게시물가져오기
+    //ajax카테고리별게시물가져오기
     public List<RequestDTO> categoryListMap(Map<String, Integer> categoryListParams) {
         return sql.selectList("request.categoryListMap", categoryListParams);
     }
 
-    //테스트중ajax카테고리별 페이징처리된 게시물가져오기
-    public List<RequestDTO> categoryPagingList(Map<String, Integer> categoryListParams) {
-        return sql.selectList("request.categoryPagingList", categoryListParams);
-    }
 
-
-    //테스트중ajax카테고리별게시물갯수.
+    //ajax카테고리별게시물갯수.
     public int categoryListMapCount(Map<String, Integer> categoryListParams) {
         return sql.selectOne("request.categoryListMapCount", categoryListParams);
     }
 
+
+    //테스트중ajax카테고리별 페이징처리된 게시물가져오기
+    public List<RequestDTO> categoryPagingList(Map<String, Integer> categoryListParams) {
+        List<RequestDTO> requestList = sql.selectList("request.categoryPagingList", categoryListParams);
+        for (RequestDTO requestDTO : requestList) {
+            String nickname = sql.selectOne("request.getNicknameByUserId", requestDTO.getUserId());
+            requestDTO.setNickname(nickname);
+        }
+        return requestList;
+    }
 
 
 }

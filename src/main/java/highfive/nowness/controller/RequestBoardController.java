@@ -258,12 +258,12 @@ public class RequestBoardController {
         pagingParams.put("pageSize", pageSize);
         List<RequestDTO> list = requestBoardService.requestboardPagingList(pagingParams);
 
-
         model.addAttribute("lists", list); //페이징처리된 게시글 DTO
         model.addAttribute("currentPage", page); //해당 페이지가 몇번째 페이지인지.
         model.addAttribute("totalPages", totalPages);//총 페이지가 몇번째 까지 있는가.
         model.addAttribute("totalRequestCount", totalRequestCount);//총 갯수.
         model.addAttribute("user", user);
+
 
         return "requestboard";
     }
@@ -309,6 +309,7 @@ public class RequestBoardController {
         pagingParams.put("pageSize", pageSize);
 
         List<RequestDTO> list = requestBoardService.categoryPagingList(categoryListParams);
+
 
         model.addAttribute("lists", list); //페이징처리된 게시글 DTO
         model.addAttribute("currentPage", page); //해당 페이지가 몇번째 페이지인지.
