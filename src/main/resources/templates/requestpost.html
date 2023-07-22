@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:lang="ko">
+<!--
+	Future Imperfect by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
 <head>
     <meta charset="UTF-8">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
@@ -8,6 +13,7 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <meta name="_csrf" th:content="${_csrf.token}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 
     <style>
         .col-sm-12.sub.deletereplybtn {
@@ -17,8 +23,11 @@
         }
 
         .col-sm-12 sub{
-            display: inline;
+            display: inline-block;
+            clear:both;
+            float:left;
         }
+
 
         button.deletereplybtn {
 
@@ -244,13 +253,12 @@
                     subHtml = '<div class="row"><div class="col-sm-12 subReply">';
                     //안씀 subHtml += 'ㄴ <label for="pwd" class="col-sm-12 sub">'+ "[작성자 : " + nickname + " ] "  + reply.reply + "( " + reply.createddatetime + ")"+  '</label>';
                     //안씀 subHtml += 'ㄴ <label for="pwd" class="col-sm-12 sub">'+ "[작성자 : " + nickname + " ] "  + reply.reply.replace(/\n/g, '<br>') + "( " + reply.createddatetime + ")"+  '</label>';
-                    subHtml += '<label for="pwd" class="col-sm-12 sub">'+ "ㄴ[작성자 : " + nickname + " ] " + "( " + reply.createddatetime + ")"+  '</label>';
+                    subHtml += '<label for="pwd" class="mr-sm-2 sub">'+ "ㄴ[작성자 : " + nickname + " ] " + "( " + reply.createddatetime + ")"+  '</label>';
                     //안씀 subHtml += '<button type="button" class="col-sm-12 sub deletereplybtn" data-replyid="' + reply.id + '">❌</button>';
-                    subHtml += '<button type="button" class="col-sm-12 sub deletereplybtn" data-replyid="' + reply.id + '" data-replyuserid="' + reply.userid + '">❌</button>';
+                    subHtml += '<button type="button" class="mr-sm-2 sub deletereplybtn" data-replyid="' + reply.id + '" data-replyuserid="' + reply.userid + '">❌</button>';
                     subHtml += '<label for="pwd" class="col-sm-12 sub">'+ reply.reply.replace(/\n/g, '<br>') +  '</label>';
                     subHtml += '<hr>';
                     subHtml += '<div class="row"><div class="col-sm-12 sub' + reply.id + '"></div></div></div></div>';
-
 
                     $(".sub" + reply.parentid).append(subHtml);
                 }
@@ -293,11 +301,18 @@
             <p th:utext="${postdetail.contents}"></p>
 
 
+
+
+
+
+
             <!-- 로그인 유저 확인 후, 게시글 작성자와 일치하면 수정/삭제 버튼 생성-->
             <footer>
                 <ul class="stats">
                     <li><a href="#" class="icon solid fa-viewt">view <span th:text="${postdetail.views}"></span></a></li>
-                    <li><a href="#" class="icon solid fa-heart"><span th:text="${likes}"></span></a></li>
+<!--                    <li><a href="#" class="icon solid fa-heart"><span th:text="${likes}"></span></a></li>-->
+<!--                    <li><a href="#" class="icon solid fa-heart"><span th:text="${likes}"></span></a></li>-->
+                    <li><a href="#" >💖<span th:text="${likes}"></span></a></li>
                     <li><a href="#" class="icon solid fa-comment">comment <span th:text="${comments.size()}"></span></a></li>
                     <li><a href="#" class="icon solid fa-report">report</a></li>
                 <th:block th:if="${userId == postdetail.userId }">

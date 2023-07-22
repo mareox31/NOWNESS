@@ -66,19 +66,6 @@
 
 
 
-
-
-        /*@font-face {*/
-        /*    font-family: 'NeoDunggeunmoPro-Regular';*/
-        /*    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/NeoDunggeunmoPro-Regular.woff2') format('woff2');*/
-        /*    font-weight: normal;*/
-        /*    font-style: normal;*/
-        /*}*/
-        body {
-            font-family: 'NeoDunggeunmoPro-Regular', sans-serif;
-        }
-
-
     </style>
     <script th:inline="javascript">
 
@@ -141,7 +128,7 @@
                             $('<th>').attr('scope', 'row').text(subcategoryNames[request.subcategory]).appendTo(row);
                             // $('<th>').attr('scope', 'row').text(request.id).appendTo(row);
                             $('<td>').addClass('title-column').append($('<a>').attr('href', '/request/post/' + request.id).text(request.title)).appendTo(row);
-                            $('<td>').addClass('title-column').text(request.userId).appendTo(row);
+                            $('<td>').addClass('title-column').text(request.nickname).appendTo(row);
                             $('<td>').addClass('title-column').text(request.views).appendTo(row);
                             $('<td>').addClass('title-column').text(formattedDate).appendTo(row);
 
@@ -320,8 +307,10 @@
                 </a>
             </td>
             <td class="title-column">
-                <span th:text="${request.userId}"></span>
+                <span th:text="${request.nickname}"></span>
             </td>
+
+
             <td class="title-column">
                 <span th:text="${request.views}"></span>
             </td >
