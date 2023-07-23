@@ -1,0 +1,37 @@
+<div class="rankblock" th:each="rank: ${RankList}">
+    <div class = "name"><span th:text="${ rank.nickname }"></span></div><div class = "date"><span th:text="${ rank.daycount }"></span></div>
+    <div class = "title"><span th:text="${ rank.title }"></span></div>
+    <div class = "pic"></div>
+    <div class = "contents"><a th:href="@{/request/post/{id}(id=${rank.id})}" th:text="${rank.contents}"></a></div>
+    <div class = "tag">태그</div>
+    <div class = "likes"><span th:text="${ rank.likeCount }"></span></div><div class = "view"><span th:text="${ rank.views }"></span></div>
+</div>
+
+<!--
+    <script>
+        // 서버로 데이터를 전송하고 contents div를 업데이트하는 JavaScript 함수
+        function dataSend() {
+            var SearchTime = $("day").val();
+            var SortMethod = $("").val();
+
+            $.ajax({
+                url: "/dataSend",
+                data: { ST: SearchTime, SM: SortMethod },
+                type: "POST",
+                success: function (result) {
+                    // 서버에서 데이터를 반환하면 contents div를 받은 결과로 업데이트합니다
+                    $("#contents").html(result);
+                },
+                error: function () {
+                    // 에러 처리 부분 (옵션)
+                    $("#contents").html("데이터를 로드하는 중 에러가 발생했습니다.");
+                },
+            });
+        }
+
+        // 페이지 로드 시 초기 데이터 요청을 합니다
+        $(document).ready(function () {
+            dataSend();
+        });
+    </script>
+-->
