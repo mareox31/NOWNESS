@@ -22,7 +22,7 @@ public class ReportBoardController {
 
     @GetMapping("/writer")
     public String boardWriteForm() {
-        return "/writer";
+        return "reportwriter";
     }
 
     // 글쓰기 저장
@@ -76,8 +76,36 @@ public class ReportBoardController {
         reportBoardService.increasePostViewCount(postId);
 
         model.addAttribute("post", post);
-        return "/post";
+        return "reportpost";
     }
 
+    // 게시글 목록 조회 및 검색(제목으로 구현)
+    @GetMapping("/board/search")
+    public String reportBoardList(@RequestParam(defaultValue = "1") int page,
+                                  @RequestParam(required = false) String searchTitle,
+                                  Model model) {
+        int pageSize = 10;
+        int totalPosts;
+        List<ReportDTO> posts;
+
+        if (searchTitle != null && !searchTitle.isEmpty()) {
+            // 검색어가 존재하는 경우 검색 결과만 가져옴
+            totalPosts = reportBoardService.getTotalPostsCountByTitle(searchTitle);
+            posts = reportBoardService.getPostsByTitleAndPage(searchTitle, page, pageSize);
+        } else {
+            // 검색어가 없는 경우 게시글 목록 1페이지를 가져옴
+            totalPosts = reportBoardService.getTotalPostsCount();
+            int totalPages = (int) Math.ceil((double) totalPosts / pageSize);
+            page = Math.max(1, Math.min(page, totalPages));
+            int offset = (page - 1) * pageSize;
+            posts = reportBoardService.getPostsByPage(offset, pageSize);
+        }
+
+        model.addAttribute("posts", posts);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", (int) Math.ceil((double) totalPosts / pageSize));
+
+        return "/reportboard";
+    }
 
 }
