@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="report">
+
+
+    <!-- 게시글 등록 -->
+    <insert id="addPost" parameterType="postDATA">
+        INSERT INTO Contents (`user_id`, `contents`, `title`, `board_type`, `locale`, `subcategory`)
+        VALUES (#{userId}, #{contents}, #{title}, #{boardType}, #{locale}, #{subcategory})
+    </insert>
+
+    <!-- 게시글 출력 -->
+    <select id="getTotalPostsCount" resultType="int">
+        SELECT COUNT(*) FROM Contents;
+    </select>
+
+    <!-- 게시물 목록 조회-->
+    <select id="getPostsByPage" parameterType="map" resultType="reportDTO">
+        SELECT * FROM Contents
+        ORDER BY id DESC
+            LIMIT #{pageSize} OFFSET #{offset};
+    </select>
+
+    <!-- 게시글 상세 정보 조회 -->
+    <select id="getPostById" parameterType="int" resultType="reportDTO">
+        SELECT * FROM Contents WHERE id = #{postId};
+    </select>
+
+    <!-- 게시글 조회수 증가 -->
+    <update id="increasePostViewCount" parameterType="int">
+        UPDATE Contents SET views = views + 1 WHERE id = #{postId}
+    </update>
+
+</mapper>
+
