@@ -341,14 +341,15 @@
   </th:block>
 
 
+
   <th:block th:if="${subcategory != null && locale!=null }">
     <a class="btn btn-light" th:href="@{/request/listtest(page=1, locale=${locale}, subcategory=${subcategory})}" role="button">First</a>
     <a class="btn btn-light" th:if="${currentPage > 1}" th:href="@{/request/listtest(page=${currentPage - 1}, locale=${locale}, subcategory=${subcategory})}" role="button">Previous</a>
     <div th:each="pageNumber : ${#numbers.sequence(1, totalPages)}">
-        <a class="btn btn-light" th:href="@{/request/listtest(page=${pageNumber}, locale=${locale}, subcategory=${subcategory})}" th:text="${pageNumber}" role="button"></a>
+        <a class="btn btn-light" th:if="${currentPage > 0}" th:href="@{/request/listtest(page=${pageNumber}, locale=${locale}, subcategory=${subcategory})}" th:text="${pageNumber}" role="button"></a>
     </div>
     <a class="btn btn-light" th:if="${currentPage < totalPages}" th:href="@{/request/listtest(page=${currentPage + 1}, locale=${locale}, subcategory=${subcategory})}" role="button">Next</a>
-    <a class="btn btn-light" th:href="@{/request/listtest(page=${totalPages}, locale=${locale}, subcategory=${subcategory})}" role="button">Last</a>
+    <a class="btn btn-light" th:if="${currentPage > 0}" th:href="@{/request/listtest(page=${totalPages}, locale=${locale}, subcategory=${subcategory})}" role="button">Last</a>
    </th:block>
 </div>
 
