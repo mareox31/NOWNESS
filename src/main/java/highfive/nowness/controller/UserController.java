@@ -1,10 +1,12 @@
 package highfive.nowness.controller;
 
+import highfive.nowness.captcha.NaverImageCaptchaService;
 import highfive.nowness.domain.User;
 import highfive.nowness.service.UserDetailsService;
+import highfive.nowness.util.CaptchaUtil;
 import highfive.nowness.util.UserUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -13,23 +15,25 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/user")
+@RequiredArgsConstructor
 @Controller
 public class UserController {
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public UserController(UserDetailsService userDetailsService,
-                          PasswordEncoder passwordEncoder) {
-        this.userDetailsService = userDetailsService;
-        this.passwordEncoder = passwordEncoder;
-    }
+    private final NaverImageCaptchaService naverImageCaptchaService;
 
     @GetMapping({"/login", "/signup"})
     public String showLoginForm(@AuthenticationPrincipal User user,
-                                @AuthenticationPrincipal OAuth2User oAuth2User) {
-        if (UserUtil.isNotLogin(user, oAuth2User)) return "login_signup";
+                                @AuthenticationPrincipal OAuth2User oAuth2User,
+                                Model model) {
+        if (UserUtil.isNotLogin(user, oAuth2User)) {
+            String captchaKey = naverImageCaptchaService.getCaptchaKey();
+            String captchaImagePath = naverImageCaptchaService.getCaptchaImagePath(captchaKey);
+            model.addAttribute("encodedCaptchaImage", CaptchaUtil.encodeBase64Image(captchaImagePath));
+            model.addAttribute("captchaKey", captchaKey);
+            return "login_signup";
+        }
         else return "redirect:/main";
     }
 

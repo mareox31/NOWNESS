@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <link th:href="@{/css/styles.css}" rel="stylesheet" type="text/css">
     <script th:src="@{/js/jquery-3.7.0.min.js}"></script>
@@ -62,8 +63,26 @@
                         <a th:href="@{/user/find-password}" class="link-dark text-nowrap">비밀번호 찾기</a>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="d-grid gap-2">
+                <div class="row justify-content-center">
+                    <th:block th:if="${#ctx.springRequestContext.requestUri} == '/user/signup'">
+                    <div class="col-8 row">
+                        <img th:src="@{'data:image/jpeg;base64,' + ${encodedCaptchaImage}}" alt="Captcha 이미지"
+                             class="img-fluid rounded"/>
+                        <input type="hidden" name="captchaKey" th:value="${captchaKey}">
+                    </div>
+                    <div class="col-4 row align-content-center">
+                        <button id="btnRefreshCaptchaImage" class="btn btn-primary container-fluid text-nowrap m-2">⟳새로고침</button>
+                        <button id="btnAudioCaptcha" class="btn btn-primary container-fluid text-nowrap m-2">🔊음성듣기</button>
+                    </div>
+                    <div class="col-12 row form-floating mt-3">
+                        <input type="text" class="form-control" id="floatingCaptcha" placeholder="captcha"
+                               name="captcha"
+                               aria-describedby="captchaValidationFeedback" required>
+                        <label for="floatingCaptcha">위 이미지에 보이는 텍스트를 입력하세요.</label>
+                        <div id="captchaValidationFeedback" class="invalid-feedback">입력하신 값이 일치하지 않습니다.</div>
+                    </div>
+                    </th:block>
+                    <div class="d-grid gap-2 mt-3">
                         <input class="btn btn-primary p-3" type="submit" disabled
                                th:id="btnSubmit"
                                th:value="${#ctx.springRequestContext.requestUri} == '/user/login' ? '로그인' : '회원가입'"/>

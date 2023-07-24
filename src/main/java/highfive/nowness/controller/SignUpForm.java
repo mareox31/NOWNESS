@@ -10,6 +10,8 @@ public class SignUpForm {
     private String email;
     private String password;
     private String nickname;
+    private String captchaKey;
+    private String captchaInput;
 
     public User toUser(PasswordEncoder passwordEncoder, HttpServletRequest request) {
         return User.builder()
