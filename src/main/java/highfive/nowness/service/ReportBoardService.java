@@ -38,4 +38,15 @@ public class ReportBoardService {
         reportBoardRepository.increasePostViewCount(postId);
     }
 
+    // 제목으로 게시글 검색 결과 수 가져오기
+    public int getTotalPostsCountByTitle(String searchTitle) {
+        return reportBoardRepository.getTotalPostsCountByTitle(searchTitle);
+    }
+
+    // 제목으로 게시글 검색 결과 가져오기
+    public List<ReportDTO> getPostsByTitleAndPage(String searchTitle, int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        return reportBoardRepository.getPostsByTitleAndPage(searchTitle, offset, pageSize);
+    }
+
 }

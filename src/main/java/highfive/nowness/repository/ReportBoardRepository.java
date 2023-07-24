@@ -40,4 +40,15 @@ public class ReportBoardRepository {
         sql.update("report.increasePostViewCount", postId);
     }
 
+    // 제목으로 게시글 검색 결과 수 가져오기
+    public int getTotalPostsCountByTitle(String searchTitle) {
+        return sql.selectOne("report.getTotalPostsCountByTitle", searchTitle);
+    }
+
+    // 제목으로 게시글 검색 결과 가져오기
+    public List<ReportDTO> getPostsByTitleAndPage(String searchTitle, int offset, int pageSize) {
+        Map<String, Object> params = Map.of("searchTitle", searchTitle, "offset", offset, "pageSize", pageSize);
+        return sql.selectList("report.getPostsByTitleAndPage", params);
+    }
+
 }

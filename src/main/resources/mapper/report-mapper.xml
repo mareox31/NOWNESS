@@ -32,5 +32,18 @@
         UPDATE Contents SET views = views + 1 WHERE id = #{postId}
     </update>
 
+    <!-- 게시글 검색 결과 수 가져오기 -->
+    <select id="getTotalPostsCountByTitle" parameterType="string" resultType="int">
+        SELECT COUNT(*) FROM Contents WHERE title LIKE CONCAT('%', #{searchTitle}, '%');
+    </select>
+
+    <!-- 제목으로 게시글 검색 결과 가져오기 -->
+    <select id="getPostsByTitleAndPage" parameterType="map" resultType="reportDTO">
+        SELECT * FROM Contents
+        WHERE title LIKE CONCAT('%', #{searchTitle}, '%')
+        ORDER BY id DESC
+            LIMIT #{pageSize} OFFSET #{offset};
+    </select>
+
 </mapper>
 
