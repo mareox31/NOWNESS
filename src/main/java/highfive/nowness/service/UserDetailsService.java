@@ -80,7 +80,7 @@ public class UserDetailsService implements UserService {
 
     @Transactional(readOnly = true)
     public boolean isExistEmail(String email) {
-        return userRepository.findIdByEmail(email) > 0;
+        return userRepository.findIdByEmail(email).orElse(0L) > 0;
     }
 
     @Transactional(readOnly = true)
