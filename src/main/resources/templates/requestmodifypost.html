@@ -15,7 +15,6 @@
 <div class="post-header-wrapper">
 
     <!-- 현재 기입항목 :  userId, String contents, String title, int boardType, int locale, int subcategory-->
-    <!--                필수 추가할것 :★★ 보드게시판에서 글쓰기누를때마다 기본옵션 변경할것-->
     <!--                이미지, 해시태그, 멀티미디어항목추가해야함.-->
 
 
@@ -146,7 +145,6 @@
 
 
         var markupStr =  [[${modifypost.contents}]];
-        console.log(markupStr);
         summernote.summernote('code', markupStr);
 
     });

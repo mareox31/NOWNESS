@@ -1,14 +1,159 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:lang="ko">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.w3.org/1999/xhtml" th:lang="ko">
 <head>
     <meta charset="UTF-8">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/rankboard/rankboard.css}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <title>NOWNESS</title>
+    <script>
+        function dataSend() {
+            var SearchTime =$('input[name=serachtime]:checked').val();
+            var SortMethod =$('input[name=sortmethod]:checked').val();
+
+            console.log(SearchTime);
+            console.log(SortMethod);
+
+            $.ajax({
+                url:"/dataSend",
+                data: {ST:SearchTime, SM:SortMethod},
+                type:"POST",
+            })
+                .done(function (result) {
+                    //console.log(result);
+                    $("#contents").replaceWith(result);
+            })
+                .fail(function(result) {
+                    //console.log(result);
+                    console.log("값 전송을 실패했습니다.");
+            });
+        };
+    </script>
 </head>
 <body>
-<h1>RANKBOARD</h1>
+
+<!--
+<div th:insert="~{header :: header}"></div>
+
 <ul>
     <li>test<span th:text="${data}"></span></li>
 </ul>
+-->
+
+<div class="sortmethod">
+    최신순으로 보기
+    <label class="select">
+        <input type="radio" name="serachtime" value="day" onclick="dataSend()"/> <span>일</span>
+    </label>
+
+    <label class="select">
+        <input type="radio" name="serachtime" value="week" onclick="dataSend()"/> <span>주</span>
+    </label>
+
+    <label class="select">
+        <input type="radio" name="serachtime" value="month"onclick="dataSend()"/> <span>월</span>
+    </label>
+
+    <label class="select">
+        <input type="radio" name="serachtime" value="year" checked onclick="dataSend()"/> <span>년</span>
+    </label>
+
+    <!--
+    <button type="button" class="btn btn-info" name="serachtime" value="day" onclick="dataSend()"/> <span>일</span></button>
+    <button type="button" class="btn btn-info" name="serachtime" value="week" onclick="dataSend()"/> <span>주</span></button>
+    <button type="button" class="btn btn-info" name="serachtime" value="month"onclick="dataSend()"/> <span>월</span></button>
+    <button type="button" class="btn btn-info" name="serachtime" value="year" onclick="dataSend()"/> <span>년</span></button>
+    -->
+
+    정렬 방법(내림차순)
+    <label class="select">
+        <input type="radio" name="sortmethod" value="likeCount" checked onclick="dataSend()"/> <span>좋아요 순</span>
+    </label>
+
+    <label class="select">
+        <input type="radio" name="sortmethod" value="viewCount" onclick="dataSend()"/> <span>조회수 순</span>
+    </label>
+</div>
+
+<hr>
+
+<div id="contents">
+    <!--
+    <table border="1" class="tablerow">
+        <tr>
+            <th>아이디</th>
+            <th>아이디번호</th>
+            <th>닉네임</th>
+            <th>게시날짜(수정예정)</th>
+            <th>조회수 순</th>
+            <th>내용</th>
+            <th>이름</th>
+            <th>좋아요횟수</th>
+        </tr>
+
+        <th:block th:each="rank: ${RankList}">
+            <tr>
+                <td th:text="${ rank.id }"></td>
+                <td th:text="${ rank.user_id }"></td>
+                <td th:text="${ rank.nickname }"></td>
+                <td th:text="${ rank.daycount }"></td>
+                <td th:text="${ rank.views }"></td>
+                <a th:href="@{/request/post/{id}(id=${rank.id})}" th:text="${rank.views}"></a>
+                <td th:text="${ rank.contents }"></td>
+                <td th:text="${ rank.title }"></td>
+                <td th:text="${ rank.likeCount }"></td>
+            </tr>
+            <th:tr th:if = "${rank.id % 4 == 0}">Test</th:tr>
+        </th:block>
+
+
+        <th:block th:each="page:${#numbers.sequence(RankStartPage,RankEndPage)}">
+            <a th:if="${page != RankNowPage}" th:href="@{/rankboard(page=${page})}" th:text ="${page}"></a>
+            <strong th:if="${page==RankNowPage}" th:text ="${page}" style="color:red"></strong>
+        </th:block>
+
+    </table>
+
+    <div class="rankblock" th:each="rank: ${RankList}">
+        <span th:text="${ rank.id }"></span>
+        <span th:text="${ rank.user_id }"></span>
+        <span th:text="${ rank.nickname }"></span>
+        <span th:text="${ rank.daycount }"></span>
+        <span th:text="${ rank.views }"></span>
+        <span th:text="${ rank.contents }"></span>
+        <span th:text="${ rank.title }"></span>
+        <span th:text="${ rank.likeCount }"></span>
+    </div>
+    -->
+
+    <div class="rankblock" th:each="rank: ${RankList}">
+        <div class = "name"><span th:text="${ rank.nickname }"></span></div><div class = "date"><span th:text="${ rank.daycount }"></span></div>
+        <div class = "title"><span th:text="${ rank.title }"></span></div>
+        <div class = "pic"></div>
+        <div class = "contents"><a th:href="@{/request/post/{id}(id=${rank.id})}" th:text="${rank.contents}"></a></div>
+        <div class = "tag">태그</div>
+        <div class = "likes"><span th:text="${ rank.likeCount }"></span></div><div class = "view"><span th:text="${ rank.views }"></span></div>
+    </div>
+
+    <br><br>
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            <li class="page-item" th:each="page:${#numbers.sequence(RankStartPage, RankEndPage)}" th:classappend="${page == RankNowPage} ? 'active' : ''">
+                <a class="page-link" th:if="${page != RankNowPage}" th:href="@{/rankboard(page=${page})}" th:text="${page}"></a>
+                <a class="page-link" th:if="${page == RankNowPage}" th:text="${page}"></a>
+            </li>
+        </ul>
+    </nav>
+    <br><br>
+</div>
+
+<!--
+
+<div th:insert="~{footer :: footer}"></div>
+
+-->
+
 </body>
 </html>

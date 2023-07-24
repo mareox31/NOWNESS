@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <link th:href="@{/css/reportwriter1.css}" rel="stylesheet">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="/js/summernote/summernote-lite.js"></script>
+  <script src="/js/summernote/lang/summernote-ko-KR.js"></script>
+  <link rel="stylesheet" href="/css/summernote/summernote-lite.css">
+  <title>writer</title>
+  <script>
+    $(document).ready(function() {
+
+
+      $('#summernote').summernote({
+        // 에디터 높이
+        height: 300,
+        // 에디터 한글 설정
+        lang: "ko-KR",
+        // 에디터에 커서 이동 (input창의 autofocus라고 생각)
+        focus : true,
+        toolbar: [
+          // 글꼴 설정
+          ['fontname', ['fontname']],
+          // 글자 크기 설정
+          ['fontsize', ['fontsize']],
+          // 굵기, 기울임꼴, 밑줄,취소 선, 서식지우기
+          ['style', ['bold', 'italic', 'underline','strikethrough', 'clear']],
+          // 글자색
+          ['color', ['forecolor','color']],
+          // 표만들기
+          ['table', ['table']],
+          // 글머리 기호, 번호매기기, 문단정렬
+          ['para', ['ul', 'ol', 'paragraph']],
+          // 줄간격
+          ['height', ['height']],
+          // 코드보기, 확대해서보기, 도움말
+          ['view', ['codeview','fullscreen', 'help']]
+        ],
+        // 추가한 글꼴
+        fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New','맑은 고딕','궁서','굴림체','굴림','돋음체','바탕체'],
+        // 추가한 폰트사이즈
+        fontSizes: ['8','9','10','11','12','14','16','18','20','22','24','28','30','36','50','72']
+        ,
+
+        minHeight: null,             // 최소 높이
+        maxHeight: null,             // 최대 높이
+
+        placeholder: '최대 2048자까지 쓸 수 있습니다'	//placeholder 설정
+      });
+
+      $('#summernote').summernote('code', '써머노트에 쓸 텍스트');
+    });
+
+    // 서머노트 쓰기 비활성화
+    $('#summernote').summernote('disable');
+
+    // 서머노트 쓰기 활성화
+    $('#summernote').summernote('enable');
+
+
+    // 서머노트 리셋
+    $('#summernote').summernote('reset');
+
+
+    // 마지막으로 한 행동 취소 ( 뒤로가기 )
+    $('#summernote').summernote('undo');
+    // 앞으로가기
+    $('#summernote').summernote('redo');
+
+  </script>
+</head>
+<div>
+  <div class="main-wrapper">
+    <main>
+      <div class="post-header-wrapper">
+        <h1>게시글 작성</h1>
+
+
+
+        <!--        <input-->
+        <!--                id="postCategory"-->
+        <!--                type="text"-->
+        <!--                name="boardType"-->
+        <!--                placeholder="게시판을 선택하세요. ▼"-->
+        <!--        />-->
+      </div>
+
+      <!--        폼위치-테스트 -->
+      <form id="post-form" action="/report/writer" method="post">
+
+        게시판을 선택하세요(공유/요청)
+        <select name="boardType" id="boardType">
+          <option value="1">공유</option>
+          <option value="2">요청</option>
+        </select>
+
+
+
+        <!--      @RequestParam int userId, @RequestParam String contents, @RequestParam String title,-->
+        <!--      @RequestParam int boardType, @RequestParam int locale, @RequestParam int subcategory-->
+
+        <!--      <form id="post-form" action="/report/writer" method="post">-->
+        <div class="category-title-wrapper">
+          <div class="form-group">
+            <label for="postTitle"></label>
+
+
+            <!--            테스트   userId ,contents  ,title , boardType , locale, subcategory-->
+            <input type="hidden" name="userId"  value=7>
+            <input type="hidden" name="locale"  value=1>
+            <input type="hidden" name="subcategory"  value=1>
+
+
+            <input
+                    type="text"
+                    name="title"
+                    placeholder="제목을 입력해주세요."
+                    id="postTitle"
+                    required
+            />
+          </div>
+        </div>
+
+        <div class="date-wrapper"></div>
+        <div class="form-group">
+          <!-- 썸머노트 -->
+          <div>
+            <textarea id="summernote" name="contents"></textarea>
+          </div>
+        </div>
+        <div class="category-title-wrapper">
+          <input
+                  type="text"
+                  name="tags"
+                  placeholder="#태그를 입력해주세요"
+                  id="tagTitle"
+                  required
+          />
+          <button type="button" class="cta blue" onclick="addHashtag()">추가</button>
+        </div>
+        <button type="submit" id="submitButton">등록</button>
+      </form>
+    </main>
+  </div>
+</div>
+</body>
+</html>

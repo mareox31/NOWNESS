@@ -22,14 +22,14 @@
         SELECT * FROM users WHERE nickname = #{nickname}
     </select>
 
-    <insert id="save" parameterType="UserDTO">
+    <insert id="saveOrUpdateUser" parameterType="UserDTO">
         INSERT INTO users (email, password, nickname, last_updated_ip, verified)
         VALUES (#{email}, #{password}, #{nickname}, #{lastLoginIp}, #{verifiedEmail})
         ON DUPLICATE KEY UPDATE last_updated_ip = #{lastLoginIp}
     </insert>
 
-    <select id="countByEmail" resultType="int">
-        SELECT count(id) FROM users WHERE email = #{email}
+    <select id="findIdByEmail" resultType="long">
+        SELECT id FROM users WHERE email = #{email}
     </select>
 
     <select id="countByNickname" resultType="int">
@@ -65,4 +65,8 @@
     <update id="changeNicknameByEmail" parameterType="String">
         UPDATE users SET nickname = #{arg1} WHERE email = #{arg0}
     </update>
+
+    <delete id="deleteUser" parameterType="long">
+        DELETE FROM users WHERE id = #{userId}
+    </delete>
 </mapper>

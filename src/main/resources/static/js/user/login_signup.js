@@ -30,6 +30,11 @@ $(document).ready(() => {
             if (!element.hasClass('is-invalid'))
                 duplicationCheck(element.attr('name'), element.val());
         });
+
+        $('#signupForm').submit(function() {
+            $('#btnSubmit').hide();
+            $('#btnSignupProcessingMessage').show();
+        });
     }
 
 });

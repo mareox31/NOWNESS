@@ -45,13 +45,31 @@
     </update>
 
 
-    <!--해당 게시글 닉네임 찾기 -->
+    <!--해당 게시글 닉네임 찾기 (세부게시글용)-->
     <select id="getNicknameById" parameterType="requestDTO" resultType="String">
         select users.nickname as id
         from users join contents
                         on contents.user_id = users.id
         where contents.id= #{id}
     </select>
+
+    <!--   게시글리스트 닉네임가져오기-->
+    <select id="getNickname2" parameterType="requestDTO" resultType="String" useCache="false">
+        SELECT users.nickname AS nickname
+        FROM users
+                 JOIN contents ON contents.user_id = users.id
+        WHERE contents.id = #{id}
+    </select>
+
+    <!--  ajax카테고리 분류시 닉네임가져오기-->
+    <select id="getNicknameByUserId" parameterType="int" resultType="String">
+        SELECT users.nickname AS nickname
+        FROM users
+                 JOIN contents ON contents.user_id = users.id
+        WHERE contents.user_id = #{userId}
+            LIMIT 1
+    </select>
+
 
     <!--리플쓴 유저id로  닉네임 찾기 -->
     <select id="getNickname" parameterType="requestDTO" resultType="String">
@@ -60,8 +78,6 @@
                         on replies.user_id = users.id
         where replies.id= #{id}
     </select>
-
-
 
 
     <!--해당 게시글 좋아요 (총 개수)  -->
@@ -133,7 +149,56 @@
         WHERE `id` = #{id};
     </insert>
 
+    <!--ajax테스트중-->
+    <!--카테고리분류별 게시글가져오기 DTO //필요파라메터 지역, 섭카테고리-->
+    <select id="categoryList" resultType="requestDTO">
+        select * from contents
+        where board_type=1
+          and locale = #{locale}
+          and subcategory =#{subcategory}
+          and deleted=0
+        order by id desc;
+    </select>
+
+    <!--맵사용 테스트용 카테고리-->
+    <select id="categoryListMap" resultType="requestDTO" parameterType="java.util.Map">
+        select * from contents
+        where board_type=1
+          and locale = #{locale}
+          and subcategory =#{subcategory}
+          and deleted=0
+        order by id desc;
+    </select>
+
+
+    <!--맵사용 테스트용 카테고리 갯수-->
+    <select id="categoryListMapCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+        select count(*) from contents
+        where board_type=1
+          and locale = #{locale}
+          and subcategory =#{subcategory}
+          and deleted=0
+    </select>
+
+
+
+<!-- 카테고리별   동적쿼리-->
+    <select id="categoryPagingList" resultType="requestDTO" parameterType="java.util.Map">
+        SELECT * FROM contents
+        where board_type=1
+
+            <if test="#{locale} != null">
+                and locale = #{locale}
+            </if>
+            <if test="#{subcategory} != null">
+                and subcategory =#{subcategory}
+            </if>
+          and deleted=0
+        ORDER BY id DESC LIMIT #{pageIndex}, #{pageSize}
+    </select>
+
+
+
+
 </mapper>
-
-
 

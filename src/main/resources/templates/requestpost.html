@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:lang="ko">
+<!--
+	Future Imperfect by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
 <head>
     <meta charset="UTF-8">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
@@ -8,6 +13,7 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <meta name="_csrf" th:content="${_csrf.token}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 
     <style>
         .col-sm-12.sub.deletereplybtn {
@@ -17,7 +23,21 @@
         }
 
         .col-sm-12 sub{
-            display: inline;
+            display: inline-block;
+            clear:both;
+            float:left;
+        }
+
+
+        button.deletereplybtn {
+
+            border-color: transparent;
+            background-color: transparent;
+        }
+
+        a {
+            text-decoration: none;
+            color : black;
         }
 
     </style>
@@ -36,7 +56,6 @@
 
             // 페이지 로드 시 댓글 가져오기
             getReplyList(boardId);
-
 
             //댓글 textarea 엔터처리용.
             //enter => <br>
@@ -106,8 +125,6 @@
             $(document).on("click", "#postdeletebtn", function(event) {
                 event.preventDefault();
 
-                console.log("로그인아이디" + loginuser + "글 작성자 아이디" + postwriter );
-
                 if (loginuser == postwriter) {
                     if (confirm("글을 삭제하시겠습니까?")) {
                         window.location.href = $(this).attr("href");
@@ -127,7 +144,6 @@
                 var replyId = $(this).data("replyid");
                 var replyWriterId = $(this).data("replyuserid");
 
-                console.log("로그인아이디" + loginuser + "댓글작성자아이디" + replyWriterId );
 
                 if(loginuser == replyWriterId){
                     if (confirm("댓글을 삭제하시겠습니까?")) {
@@ -175,7 +191,6 @@
                 async: false,
                 success: function(result) {
                     nickname = result;
-                    console.log("nickname : 찾기힘드네" + nickname);
                 },
                 error: function() {
                     console.error("Error occurred while fetching nickname for id: " + id);
@@ -238,13 +253,12 @@
                     subHtml = '<div class="row"><div class="col-sm-12 subReply">';
                     //안씀 subHtml += 'ㄴ <label for="pwd" class="col-sm-12 sub">'+ "[작성자 : " + nickname + " ] "  + reply.reply + "( " + reply.createddatetime + ")"+  '</label>';
                     //안씀 subHtml += 'ㄴ <label for="pwd" class="col-sm-12 sub">'+ "[작성자 : " + nickname + " ] "  + reply.reply.replace(/\n/g, '<br>') + "( " + reply.createddatetime + ")"+  '</label>';
-                    subHtml += '<label for="pwd" class="col-sm-12 sub">'+ "ㄴ[작성자 : " + nickname + " ] " + "( " + reply.createddatetime + ")"+  '</label>';
+                    subHtml += '<label for="pwd" class="mr-sm-2 sub">'+ "ㄴ[작성자 : " + nickname + " ] " + "( " + reply.createddatetime + ")"+  '</label>';
                     //안씀 subHtml += '<button type="button" class="col-sm-12 sub deletereplybtn" data-replyid="' + reply.id + '">❌</button>';
-                    subHtml += '<button type="button" class="col-sm-12 sub deletereplybtn" data-replyid="' + reply.id + '" data-replyuserid="' + reply.userid + '">❌</button>';
+                    subHtml += '<button type="button" class="mr-sm-2 sub deletereplybtn" data-replyid="' + reply.id + '" data-replyuserid="' + reply.userid + '">❌</button>';
                     subHtml += '<label for="pwd" class="col-sm-12 sub">'+ reply.reply.replace(/\n/g, '<br>') +  '</label>';
                     subHtml += '<hr>';
                     subHtml += '<div class="row"><div class="col-sm-12 sub' + reply.id + '"></div></div></div></div>';
-
 
                     $(".sub" + reply.parentid).append(subHtml);
                 }
@@ -262,9 +276,10 @@
 <div th:insert="~{header :: header}"></div>
 
 <!--바디-본문-->
-<a class="btn btn-primary btn-back" id="backbtn" href="javascript:history.back()">뒤로가기</a>
+
 <!--게시글 세부내용 본문-->
 <div class="container">
+    <a class="btn btn-light" id="backbtn" href="javascript:history.back()">back</a>
 
     <!--게시글 상세내용-->
     <div id="main">
@@ -277,7 +292,7 @@
 
                 <!--오른쪽부분 날짜와 닉네임-->
                 <div class="meta">
-                    <time class="published" datetime="2015-11-01" th:text="${postdetail.createdDatetime}"></time>
+                    <time class="published" th:text="${#temporals.format(postdetail.createdDatetime,'yyyy-MM-dd HH:mm:ss')}"></time>
                     <a href="#" class="author"><span class="name" th:text="${nickname}"></span><img src="images/avatar.jpg" alt="" /></a>
                 </div>
             </header>
@@ -286,11 +301,18 @@
             <p th:utext="${postdetail.contents}"></p>
 
 
+
+
+
+
+
             <!-- 로그인 유저 확인 후, 게시글 작성자와 일치하면 수정/삭제 버튼 생성-->
             <footer>
                 <ul class="stats">
                     <li><a href="#" class="icon solid fa-viewt">view <span th:text="${postdetail.views}"></span></a></li>
-                    <li><a href="#" class="icon solid fa-heart"><span th:text="${likes}"></span></a></li>
+<!--                    <li><a href="#" class="icon solid fa-heart"><span th:text="${likes}"></span></a></li>-->
+<!--                    <li><a href="#" class="icon solid fa-heart"><span th:text="${likes}"></span></a></li>-->
+                    <li><a href="#" >💖<span th:text="${likes}"></span></a></li>
                     <li><a href="#" class="icon solid fa-comment">comment <span th:text="${comments.size()}"></span></a></li>
                     <li><a href="#" class="icon solid fa-report">report</a></li>
                 <th:block th:if="${userId == postdetail.userId }">
@@ -317,7 +339,7 @@
         <input type="hidden" name="contentsid" th:value="${postdetail.id}">
 <!--        <input type="text" class="form-control mb-2 mr-sm-2" id="contents" placeholder="로그인을 해야 댓글을 사용할 수 있습니다." name="reply" required>-->
         <textarea class="form-control mb-2 mr-sm-2" id="contents" placeholder="댓글을 입력해주세요.(인증된 로그인 유저만 사용가능합니다.)" name="reply" required></textarea>
-        <button type="button" class="btn btn-primary mb-2" id="submitbtn">등록</button>
+        <button type="button" class="btn btn-outline-dark" id="submitbtn">등록</button>
     </form>
 
 

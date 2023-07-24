@@ -67,6 +67,14 @@
                         <input class="btn btn-primary p-3" type="submit" disabled
                                th:id="btnSubmit"
                                th:value="${#ctx.springRequestContext.requestUri} == '/user/login' ? '로그인' : '회원가입'"/>
+                        <th:block th:if="${#ctx.springRequestContext.requestUri} == '/user/signup'">
+                        <button id="btnSignupProcessingMessage" class="btn btn-primary p-3"
+                                style="display: none"
+                                type="button" disabled>
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            회원가입 중...
+                        </button>
+                        </th:block>
                     </div>
                 </div>
                 </form>
