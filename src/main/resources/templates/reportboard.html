@@ -42,14 +42,18 @@
                 <a href="writer" class="on">글쓰기</a>
             </div>
             <div class="search">
-                <input type="text" placeholder="검색어 입력">
-                <img src="https://s3.ap-northeast-2.amazonaws.com/cdn.wecode.co.kr/icon/search.png">
+                <form th:action="@{/report/board/search}" method="get">
+                    <input type="text" placeholder="검색어 입력" name="searchTitle">
+                    <button type="submit"><img src="https://s3.ap-northeast-2.amazonaws.com/cdn.wecode.co.kr/icon/search.png"></button>
+                </form>
+
             </div>
 
             <div class="page_wrap">
                 <div class="page_nation">
-                    <a class="arrow pprev" th:href="@{/report/board(page=1)}"><<</a>
-                    <a class="arrow prev" th:href="@{/report/board(page=${currentPage - 1})}" th:if="${currentPage > 1}"><</a>
+                    <a class="arrow pprev" th:href="@{/report/board(page=1)}">처음</a>
+                    <!-- 이전 페이지로 이동 버튼 -->
+                    <a class="arrow prev" th:href="@{/report/board(page=${currentPage - 1})}" th:if="${currentPage > 1}">이전</a>
 
                     <!-- 페이지 번호 출력 -->
                     <a th:each="pageNum : ${#numbers.sequence(1, totalPages)}"
@@ -57,8 +61,10 @@
                        th:class="${pageNum == currentPage ? 'active' : ''}"
                        th:text="${pageNum}"></a>
 
-                    <a class="arrow next" th:href="@{/report/board(page=${currentPage + 1})}" th:if="${currentPage < totalPages}">></a>
-                    <a class="arrow nnext" th:href="@{/report/board(page=${totalPages})}">>></a>
+                    <!-- 다음 페이지로 이동 버튼 -->
+                    <a class="arrow next" th:href="@{/report/board(page=${currentPage + 1})}" th:if="${currentPage < totalPages}">다음</a>
+                    <a class="arrow nnext" th:href="@{/report/board(page=${totalPages})}">끝</a>
+
                 </div>
             </div>
 
