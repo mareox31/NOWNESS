@@ -79,35 +79,35 @@
 
 
 
-<!--        <input-->
-<!--                id="postCategory"-->
-<!--                type="text"-->
-<!--                name="boardType"-->
-<!--                placeholder="게시판을 선택하세요. ▼"-->
-<!--        />-->
+        <!--        <input-->
+        <!--                id="postCategory"-->
+        <!--                type="text"-->
+        <!--                name="boardType"-->
+        <!--                placeholder="게시판을 선택하세요. ▼"-->
+        <!--        />-->
       </div>
 
       <!--        폼위치-테스트 -->
       <form id="post-form" action="/report/writer" method="post">
 
         게시판을 선택하세요(공유/요청)
-      <select name="boardType" id="boardType">
-        <option value="1">공유</option>
-        <option value="2">요청</option>
-      </select>
+        <select name="boardType" id="boardType">
+          <option value="1">공유</option>
+          <option value="2">요청</option>
+        </select>
 
 
 
-<!--      @RequestParam int userId, @RequestParam String contents, @RequestParam String title,-->
-<!--      @RequestParam int boardType, @RequestParam int locale, @RequestParam int subcategory-->
+        <!--      @RequestParam int userId, @RequestParam String contents, @RequestParam String title,-->
+        <!--      @RequestParam int boardType, @RequestParam int locale, @RequestParam int subcategory-->
 
-<!--      <form id="post-form" action="/report/writer" method="post">-->
+        <!--      <form id="post-form" action="/report/writer" method="post">-->
         <div class="category-title-wrapper">
           <div class="form-group">
             <label for="postTitle"></label>
 
 
-<!--            테스트   userId ,contents  ,title , boardType , locale, subcategory-->
+            <!--            테스트   userId ,contents  ,title , boardType , locale, subcategory-->
             <input type="hidden" name="userId"  value=7>
             <input type="hidden" name="locale"  value=1>
             <input type="hidden" name="subcategory"  value=1>
