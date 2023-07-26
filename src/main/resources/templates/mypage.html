@@ -92,7 +92,9 @@
         <section class="col-lg-9">
             <div class="card container mb-2">
                 <div class="row mt-3 justify-content-center">
-                    <h4>최근 작성 글</h4>
+                    <h4 class="col-10">최근 작성 글</h4>
+                    <a class="col-2 text-center text-decoration-none text-dark fw-bold text-decoration-underline"
+                       th:href="@{/user/posts}">전체 보기</a>
                     <table class="table table-hover">
                         <colgroup>
                             <col style="width: 5%">
@@ -118,7 +120,9 @@
             </div>
             <div class="card container">
                 <div class="row mt-3 justify-content-center">
-                    <h4>최근 작성 댓글</h4>
+                    <h4 class="col-10">최근 작성 댓글</h4>
+                    <a class="col-2 text-center text-decoration-none text-dark fw-bold text-decoration-underline"
+                       th:href="@{/user/replies}">전체 보기</a>
                     <table class="table table-hover">
                         <colgroup>
                             <col style="width: 5%">
