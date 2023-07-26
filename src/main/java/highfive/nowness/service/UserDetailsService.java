@@ -203,6 +203,26 @@ public class UserDetailsService implements UserService {
         return boardRepository.loadRecentContentsAndReplies(userId);
     }
 
+    @Transactional(readOnly = true)
+    public List<Map<String, String>> getUserRecentPostsByPage(long userId, long page) {
+        return boardRepository.loadUserRecentPostsByPage(userId, (page - 1) * 10);
+    }
+
+    @Transactional(readOnly = true)
+    public long getUserPostsCount(long userId) {
+        return boardRepository.loadUserPostsCount(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, String>> getUserRecentRepliesByPage(long userId, long page) {
+        return boardRepository.loadUserRecentRepliesByPage(userId, (page - 1) * 10);
+    }
+
+    @Transactional(readOnly = true)
+    public long getUserRepliesCount(long userId) {
+        return boardRepository.loadUserRepliesCount(userId);
+    }
+
     @Transactional
     public boolean withdrawal(long userId) {
         return userRepository.deleteUser(userId) == 1;
