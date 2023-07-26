@@ -26,12 +26,15 @@ public class UserController {
     @GetMapping({"/login", "/signup"})
     public String showLoginForm(@AuthenticationPrincipal User user,
                                 @AuthenticationPrincipal OAuth2User oAuth2User,
+                                HttpServletRequest request,
                                 Model model) {
         if (UserUtil.isNotLogin(user, oAuth2User)) {
-            String captchaKey = naverImageCaptchaService.getCaptchaKey();
-            String captchaImagePath = naverImageCaptchaService.getCaptchaImagePath(captchaKey);
-            model.addAttribute("encodedCaptchaImage", CaptchaUtil.encodeBase64Image(captchaImagePath));
-            model.addAttribute("captchaKey", captchaKey);
+            if (request.getRequestURI().equals("/user/signup")) {
+                String captchaKey = naverImageCaptchaService.getCaptchaKey();
+                String captchaImagePath = naverImageCaptchaService.getCaptchaImagePath(captchaKey);
+                model.addAttribute("encodedCaptchaImage", CaptchaUtil.encodeBase64Image(captchaImagePath));
+                model.addAttribute("captchaKey", captchaKey);
+            }
             return "login_signup";
         }
         else return "redirect:/main";
