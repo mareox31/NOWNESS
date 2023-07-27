@@ -125,6 +125,12 @@
         VALUES (#{contentsId}, #{userId}, #{reply})
     </insert>
 
+    <!--    대댓글등록-->
+    <insert id="add_reReply" parameterType="replyDATA">
+        INSERT INTO Replies (contents_id, user_id, reply, parent_id)
+        VALUES (#{contentsId}, #{userId}, #{reply}, #{parentid})
+    </insert>
+
 
 
     <!-- 댓글 삭제 deleted =1로. -->
@@ -198,6 +204,69 @@
     </select>
 
 
+    <!-- 검색 : 해당 글 갯수 가져오기(개수)-->
+    <select id="searchListMapCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT COUNT(*) FROM contents c
+        JOIN users u ON c.user_id = u.id
+        WHERE c.board_type = 1
+        AND c.deleted = 0
+        <if test="searchType == 'title'">
+            AND c.title LIKE CONCAT('%', #{searchKeyword}, '%')
+        </if>
+        <if test="searchType == 'contents'">
+            AND c.contents LIKE CONCAT('%', #{searchKeyword}, '%')
+        </if>
+        <if test="searchType == 'user_id'">
+            AND u.nickname LIKE CONCAT('%', #{searchKeyword}, '%')
+        </if>
+    </select>
+
+
+    <!-- 검색 : 해당 글 DTO가져오기.(닉네임포함)-->
+    <select id="searchPagingList" resultType="requestDTO" parameterType="java.util.Map">
+        SELECT c.* , u.nickname
+        FROM contents c
+        JOIN users u ON c.user_id = u.id
+        WHERE c.board_type = 1
+        AND c.deleted = 0
+        <if test="searchType == 'title'">
+            AND c.title LIKE CONCAT('%', #{searchKeyword}, '%')
+        </if>
+        <if test="searchType == 'contents'">
+            AND c.contents LIKE CONCAT('%', #{searchKeyword}, '%')
+        </if>
+        <if test="searchType == 'user_id'">
+            AND u.nickname LIKE CONCAT('%', #{searchKeyword}, '%')
+        </if>
+        ORDER BY id DESC LIMIT #{pageIndex}, #{pageSize}
+    </select>
+
+
+
+    <!-- 해당 게시글 좋아요 기록이 있는지 검사(개수)-->
+    <select id="checkIfUserLikedPost" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT COUNT(*) as like_count
+        FROM contents c
+        JOIN likes l ON c.id = l.contents_id
+        WHERE c.deleted = 0
+          AND l.user_id =  #{userId}
+          AND c.id = #{contentsid}
+    </select>
+
+    <!--  해당 게시글에 좋아요 기록 저장.-->
+    <insert id="insertLike" parameterType="java.util.Map">
+        INSERT INTO likes (contents_id, user_id)
+        VALUES (#{contentsid}, #{userid})
+    </insert>
+
+
+
+    <!--해당 게시글 댓글 개수 조회-->
+    <select id="postRepliesCount" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM replies
+        where contents_id=#{id}
+        and deleted=0
+    </select>
 
 
 </mapper>

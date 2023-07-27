@@ -18,8 +18,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Collections;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,13 +83,22 @@ public class RequestBoardController {
     @RequestMapping(value = "/writeReply", method = RequestMethod.POST)
     public ResponseEntity<String> writeReply(@RequestParam("userid") int userId,
                                              @RequestParam("contentsid") int contentsId,
-                                             @RequestParam("reply") String reply) {
+                                             @RequestParam("reply") String reply,
+                                             @RequestParam(value = "parentid", required = false) Integer parentid
+                                             ) {
+        boolean success;
+
         ReplyData replyData = new ReplyData();
         replyData.setContentsId(contentsId);
         replyData.setUserId(userId);
         replyData.setReply(reply);
-
-        boolean success = requestBoardService.addReply(replyData);
+        //대댓추가
+        if (parentid != null) {
+            replyData.setParentid(parentid);
+            success = requestBoardService.add_reReply(replyData);
+        }else {
+            success = requestBoardService.addReply(replyData);
+        }
 
         if (success) {
             return ResponseEntity.ok("success");
@@ -151,6 +159,20 @@ public class RequestBoardController {
         List<RepliesDTO> comments = requestBoardService.getReply(id);
 
 
+        //게시글에 좋아요 한 적있는지 로그인유저, 글번호로 체크 후 하트 이미지결정. heart-empty/full
+        boolean booleanResult = false;
+        if(user!=null) {
+            Map<String, Integer> likecheckParams = new HashMap<>();
+            likecheckParams.put("contentsid", id);
+            likecheckParams.put("userId", Math.toIntExact(user.getId()));
+
+            int result = requestBoardService.checkIfUserLikedPost(likecheckParams);
+            booleanResult = result != 0;
+        }
+
+
+
+
         //전달데이터
         model.addAttribute("postdetail", requestPost);
         model.addAttribute("nickname", nickname);
@@ -158,6 +180,7 @@ public class RequestBoardController {
         model.addAttribute("comments", comments);
 
         model.addAttribute("user", user);
+        model.addAttribute("liked", booleanResult);
 
         return "requestpost";
     }
@@ -195,7 +218,7 @@ public class RequestBoardController {
 
 
     //글 수정하는 페이지
-    @GetMapping("/modify/{id}")
+    @PostMapping("/modify/{id}")
     public String postModify(@PathVariable("id") Integer id, Model model){
         model.addAttribute("modifypost", requestBoardService.getBoard(id));
 
@@ -377,8 +400,109 @@ public class RequestBoardController {
         return response;
     }
 
+    
+    // 조회 : 전체글에대한것만 가능 - 조회항목 : 제목 / 내용 / 이름
+    @GetMapping("/list/search")
+    public String reportBoardList(@RequestParam(defaultValue = "1") int page,
+                                  @RequestParam(required = false) String searchType,
+                                  @RequestParam(required = false) String searchKeyword,
+                                  @AuthenticationPrincipal User user,
+                                  @AuthenticationPrincipal OAuth2User oAuth2User,
+                                  RedirectAttributes redirectAttributes,
+                                  Model model) {
+
+        //유저 로그인여부판단 후 user에 등록. //비로그인user = null
+        if (!UserUtil.isNotLogin(user, oAuth2User)) {
+            if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
+            UserUtil.addPublicUserInfoToModel(model, user);
+        }
+
+        //검색컬럼 : searchType = title, contents, user_id (제목, 내용, 작성자)
+        //검색어 : searchKeyword
+
+        Map<String, Object> searchListParams = new HashMap<>();
+        searchListParams.put("searchType", searchType);
+        searchListParams.put("searchKeyword", searchKeyword);
 
 
+        int totalRequestCount = requestBoardService.searchListMapCount(searchListParams);
+        int pageSize = 10;//한페이지10개
+        int pageIndex = (page - 1) * pageSize;
+        int totalPages = (int) Math.ceil((double) totalRequestCount / pageSize);
+
+        //없는 페이지 요구시 보정.
+        if (page <= 0) {
+            page = 1;
+        } else if (page > totalPages) {
+            page = totalPages;
+//                if(searchKeyword!=null && searchType!=null){
+//                redirectAttributes.addAttribute("page", totalPages);
+//                return "redirect:/request/list/search?page={totalPages}&searchType={searchType}&searchKeyword={searchKeyword}";
+//                }else{
+//                    page = totalPages;
+//                }
+        }
+
+
+
+        //해당 게시물 내용을 가져오자.DTO
+        Map<String, Object> pagingParams = new HashMap<>();
+        pagingParams.put("pageIndex", pageIndex);
+        pagingParams.put("pageSize", pageSize);
+        pagingParams.put("searchType", searchType);
+        pagingParams.put("searchKeyword", searchKeyword);
+
+        List<RequestDTO> list = requestBoardService.searchPagingList(pagingParams);
+
+
+
+        //모델에 정보 넣어서 뷰로 보냄.
+        model.addAttribute("lists", list); //페이징처리된 게시글 DTO
+        model.addAttribute("currentPage", page); //해당 페이지가 몇번째 페이지인지.
+        model.addAttribute("totalPages", totalPages);//총 페이지가 몇번째 까지 있는가.
+        model.addAttribute("totalRequestCount", totalRequestCount);//총 갯수.
+        model.addAttribute("user", user);
+        model.addAttribute("searchType", searchType);
+        model.addAttribute("searchKeyword", searchKeyword);
+
+        return "/requestboard";
+
+    }
+
+
+
+    //좋아요 저장.
+    @PostMapping("/insertlike")
+    @ResponseBody
+    public boolean insertLike(@RequestParam("contentsid") int contentsid,
+                             @RequestParam("userid") int userid) {
+
+        //좋아요 저장.
+        Map<String, Integer> insertLikeParams = new HashMap<>();
+        insertLikeParams.put("contentsid", contentsid);
+        insertLikeParams.put("userid", userid);
+        requestBoardService.insertLike(insertLikeParams);
+
+        //ajax -빈하트/풀하트
+        Map<String, Integer> likecheckParams = new HashMap<>();
+        likecheckParams.put("contentsid", contentsid);
+        likecheckParams.put("userId", userid);
+
+        int checkLike = requestBoardService.checkIfUserLikedPost(likecheckParams);
+
+        //좋아요 유무 재검사.
+        boolean liked;
+        if (checkLike>0){
+            liked = true;
+        }else{
+            liked =false;
+        }
+
+        //좋아요 수
+        int likes = requestBoardService.getLikes(contentsid);
+
+        return liked;
+    }
 
 
 
@@ -386,13 +510,9 @@ public class RequestBoardController {
 
 //구현해야할 목록 --------------
 
-//검색
+//리스트 - 왜......없는 페이지번호 쓰면, 에러로가고.. 페이지 보정이안됨??
 
 //해시태그
-
-//대댓글 등록: 미구현
-
-//좋아요 : 미구현--->해야함
 
 //첨부파일 : 미구현--->해야함
 
@@ -401,6 +521,11 @@ public class RequestBoardController {
 //API유해콘텐츠 : 미구현--->해야함
 
 //---------부분구현
+
+//좋아요 : 미구현--->해야함 (좋아요등록O, 좋아요취소는 미구현)-필요시 구현예정.
+
+//검색 : 전체 게시물에서 제목, 내용, 작성자로 조회가능.(카테고리별로는 불가)
+
 //게시글 등록 : 부분구현.(이미지멀티미디어 아직)
 
 //게시글 수정 : 부분구현.(이미지멀티미디어 아직)
@@ -412,4 +537,6 @@ public class RequestBoardController {
 //게시판리스트 :카테고리별구현O
 
 //---------완료
+//글 수정, post변경o
 //게시글 삭제 : 구현O
+//대댓글 등록: 구현(1단계대댓만 가능)
