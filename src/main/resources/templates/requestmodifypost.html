@@ -12,6 +12,7 @@
 <body>
 <div th:insert="~{header :: header}"></div>
 
+<div class="contents">
 <div class="post-header-wrapper">
 
     <!-- 현재 기입항목 :  userId, String contents, String title, int boardType, int locale, int subcategory-->
@@ -81,6 +82,7 @@
 
 
     <div th:insert="~{footer :: footer}"></div>
+</div>
 </div>
 <script th:inline="javascript">
     $(document).ready(function() {

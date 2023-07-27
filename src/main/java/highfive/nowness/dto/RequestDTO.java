@@ -25,6 +25,7 @@ public class RequestDTO {
     private int subcategory;
 
     private String nickname; //추가
+    private int repliesCount;//추가
 
 }
 
