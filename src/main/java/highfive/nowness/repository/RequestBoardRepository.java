@@ -1,18 +1,12 @@
 package highfive.nowness.repository;
-import highfive.nowness.dto.PostData;
-import highfive.nowness.dto.RepliesDTO;
-import highfive.nowness.dto.ReplyData;
-import highfive.nowness.dto.RequestDTO;
+import highfive.nowness.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -35,6 +29,11 @@ public class RequestBoardRepository {
         for (RequestDTO requestDTO : requestList) {
            String nickname = sql.selectOne("request.getNickname2", requestDTO);
             requestDTO.setNickname(nickname);
+
+           //댓글갯수 추가.
+            int postId = requestDTO.getId();
+            int repliesCount = sql.selectOne("request.postRepliesCount", postId);
+            requestDTO.setRepliesCount(repliesCount);
         }
         return requestList;
     }
@@ -75,11 +74,20 @@ public class RequestBoardRepository {
     //댓글조회 - 콘텐츠이름.
     public List<RepliesDTO> getReply(int id) { return sql.selectList("request.getReply",id); }
 
+    //테스트 해당 글 댓글갯수 - postRepliesCount
+    public int postRepliesCount(int id) {
+        return sql.selectOne("request.postRepliesCount", id);
+    }
 
     //댓글 등록
     public boolean addReply(ReplyData replyData) {
         return sql.insert("request.addReply", replyData) == 1;
     }
+    //대댓글 등록
+    public boolean add_reReply(ReplyData replyData) {
+        return sql.insert("request.add_reReply", replyData) == 1;
+    }
+
 
     //댓글 삭제
     public int deleteReply(int replyId) {
@@ -103,27 +111,65 @@ public class RequestBoardRepository {
         return sql.selectOne("request.getRequestsByBoardTypeCount", boardType);
     }
 
-    //ajax카테고리별게시물가져오기
+    //카테고리별게시물가져오기
     public List<RequestDTO> categoryListMap(Map<String, Integer> categoryListParams) {
         return sql.selectList("request.categoryListMap", categoryListParams);
     }
 
 
-    //ajax카테고리별게시물갯수.
+    //카테고리별게시물갯수.
     public int categoryListMapCount(Map<String, Integer> categoryListParams) {
         return sql.selectOne("request.categoryListMapCount", categoryListParams);
     }
 
 
-    //테스트중ajax카테고리별 페이징처리된 게시물가져오기
+    //카테고리별 페이징처리된 게시물가져오기
     public List<RequestDTO> categoryPagingList(Map<String, Integer> categoryListParams) {
         List<RequestDTO> requestList = sql.selectList("request.categoryPagingList", categoryListParams);
         for (RequestDTO requestDTO : requestList) {
             String nickname = sql.selectOne("request.getNicknameByUserId", requestDTO.getUserId());
             requestDTO.setNickname(nickname);
+
+            //테스트추가-댓글갯수,
+            int postId = requestDTO.getId();
+            int repliesCount = sql.selectOne("request.postRepliesCount", postId);
+            requestDTO.setRepliesCount(repliesCount);
         }
         return requestList;
     }
+
+    //검색 : 해당 키워드 조회 총 갯수
+    public int searchListMapCount(Map<String, Object> searchListParams) {
+        return sql.selectOne("request.searchListMapCount", searchListParams);
+    }
+
+    //검색 : 해당 키워드 조회 총 글 DTO
+    public List<RequestDTO> searchPagingList(Map<String, Object> pagingParams) {
+        List<RequestDTO> requestList = sql.selectList("request.searchPagingList", pagingParams);
+        for (RequestDTO requestDTO : requestList) {
+            String nickname = sql.selectOne("request.getNicknameByUserId", requestDTO.getUserId());
+            requestDTO.setNickname(nickname);
+
+            //테스트추가-댓글갯수,
+            int postId = requestDTO.getId();
+            int repliesCount = sql.selectOne("request.postRepliesCount", postId);
+            requestDTO.setRepliesCount(repliesCount);
+
+        }
+        return requestList;
+    }
+
+    //해당 게시글 좋아요 기록이 있는지 검사(개수)
+    public int checkIfUserLikedPost(Map<String, Integer>likecheckParams) {
+        return sql.selectOne("request.checkIfUserLikedPost", likecheckParams);
+    }
+
+    //해당 게시글에 좋아요 기록 저장.
+    public int insertLike(Map<String, Integer>insertLikeParams) {
+        return sql.insert("request.insertLike", insertLikeParams);
+    }
+
+
 
 
 }
