@@ -72,27 +72,6 @@ public class UserController {
         else return "redirect:/";
     }
 
-    // 테스트용
-    @GetMapping("/welcome")
-    public String showWelcomePage() {
-        return "welcome_signup";
-    }
-
-    // 테스트용
-    @GetMapping("/testmail")
-    public String testMail() {
-        String code = UserUtil.getRandomCode();
-        String email = "--@gmail.com";
-        userDetailsService.sendVerificationEmail(User.builder()
-                        .email(email)
-                        .nickname("tester")
-                        .build(),
-                "http://localhost:8080",
-                        code);
-        userDetailsService.saveUnverifiedEmail(code, email);
-        return "welcome_signup";
-    }
-
     @GetMapping("/find-password")
     public String showFindPasswordForm() {
         return "find_password";

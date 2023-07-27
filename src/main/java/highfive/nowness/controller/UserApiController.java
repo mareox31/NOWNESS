@@ -18,17 +18,12 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
 public class UserApiController {
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
-
-    @Autowired
-    UserApiController(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-        this.userDetailsService = userDetailsService;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     /**
      * 중복된 email 또는 nickname 이 있는지 확인합니다.
