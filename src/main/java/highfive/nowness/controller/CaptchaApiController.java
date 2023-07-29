@@ -5,10 +5,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import highfive.nowness.captcha.NaverImageCaptchaService;
-import highfive.nowness.util.CaptchaUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Base64;
 
 @RequiredArgsConstructor
 @RestController
@@ -52,8 +53,9 @@ public class CaptchaApiController {
     @GetMapping("/image")
     public ResponseEntity<CaptchaImage> getNewCaptchaImage() {
         String captchaKey = naverImageCaptchaService.getCaptchaKey();
-        String captchaImagePath = naverImageCaptchaService.getCaptchaImagePath(captchaKey);
-        var captchaImage = new CaptchaImage(captchaKey, CaptchaUtil.encodeBase64Image(captchaImagePath));
+        String encodedCaptchaImage = Base64.getEncoder()
+                .encodeToString(naverImageCaptchaService.getCaptchaImage(captchaKey));
+        var captchaImage = new CaptchaImage(captchaKey, encodedCaptchaImage);
         return ResponseEntity.ok(captchaImage);
     }
 

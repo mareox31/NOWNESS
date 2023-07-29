@@ -3,7 +3,6 @@ package highfive.nowness.controller;
 import highfive.nowness.captcha.NaverImageCaptchaService;
 import highfive.nowness.domain.User;
 import highfive.nowness.service.UserDetailsService;
-import highfive.nowness.util.CaptchaUtil;
 import highfive.nowness.util.UserUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +12,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Base64;
 
 @RequestMapping("/user")
 @RequiredArgsConstructor
@@ -31,8 +32,9 @@ public class UserController {
         if (UserUtil.isNotLogin(user, oAuth2User)) {
             if (request.getRequestURI().equals("/user/signup")) {
                 String captchaKey = naverImageCaptchaService.getCaptchaKey();
-                String captchaImagePath = naverImageCaptchaService.getCaptchaImagePath(captchaKey);
-                model.addAttribute("encodedCaptchaImage", CaptchaUtil.encodeBase64Image(captchaImagePath));
+                String encodedCaptchaImage = Base64.getEncoder()
+                        .encodeToString(naverImageCaptchaService.getCaptchaImage(captchaKey));
+                model.addAttribute("encodedCaptchaImage", encodedCaptchaImage);
                 model.addAttribute("captchaKey", captchaKey);
             }
             return "login_signup";

@@ -83,30 +83,18 @@ public class NaverImageCaptchaService {
         return br;
     }
 
-    public String getCaptchaImagePath(String captchaKey) {
+    public byte[] getCaptchaImage(String captchaKey) {
         try {
-            String apiURL = "https://naveropenapi.apigw.ntruss.com/captcha-bin/v1/ncaptcha?key=" + captchaKey + "&X-NCP-APIGW-API-KEY-ID=" + clientId;
+            String apiURL = "https://naveropenapi.apigw.ntruss.com/captcha-bin/v1/ncaptcha?key="
+                    + captchaKey + "&X-NCP-APIGW-API-KEY-ID=" + clientId;
             URL url = new URL(apiURL);
             HttpURLConnection con = (HttpURLConnection)url.openConnection();
             con.setRequestMethod("GET");
             int responseCode = con.getResponseCode();
-            BufferedReader br;
             if(responseCode==200) {
-                String captchaImageFileName = Long.valueOf(new Date().getTime()).toString();
-                File f = new File("src/main/resources/static/images/captcha/" + captchaImageFileName + ".jpg");
-                f.createNewFile();
-
-                InputStream is = con.getInputStream();
-                int read = 0;
-                byte[] bytes = new byte[1024];
-                OutputStream outputStream = new FileOutputStream(f);
-                while ((read = is.read(bytes)) != -1) {
-                    outputStream.write(bytes, 0, read);
-                }
-                is.close();
-                return f.getPath();
+                return con.getInputStream().readAllBytes();
             } else {
-                br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+                var br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
                 String inputLine;
                 StringBuffer response = new StringBuffer();
                 while ((inputLine = br.readLine()) != null) {
@@ -120,7 +108,7 @@ public class NaverImageCaptchaService {
             log.info(e.getMessage());
         }
 
-        return "";
+        return new byte[]{};
 
     }
 
