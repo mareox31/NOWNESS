@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Date;
 
 @Slf4j
 @Service
@@ -84,32 +83,48 @@ public class NaverImageCaptchaService {
     }
 
     public byte[] getCaptchaImage(String captchaKey) {
+        String apiURL = buildApiURL(captchaKey);
         try {
-            String apiURL = "https://naveropenapi.apigw.ntruss.com/captcha-bin/v1/ncaptcha?key="
-                    + captchaKey + "&X-NCP-APIGW-API-KEY-ID=" + clientId;
-            URL url = new URL(apiURL);
-            HttpURLConnection con = (HttpURLConnection)url.openConnection();
-            con.setRequestMethod("GET");
-            int responseCode = con.getResponseCode();
-            if(responseCode==200) {
-                return con.getInputStream().readAllBytes();
-            } else {
-                var br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-                String inputLine;
-                StringBuffer response = new StringBuffer();
-                while ((inputLine = br.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                br.close();
-                log.info("[Failed Create CAPTCHA Image] CAPTCHA Image Request Key:" + captchaKey +
-                        "Message: " + response.toString());
-            }
+            HttpURLConnection con = establishHttpConnection(apiURL);
+            return handleResponse(con);
         } catch (Exception e) {
             log.info(e.getMessage());
         }
 
         return new byte[]{};
 
+    }
+
+    private String buildApiURL(String captchaKey) {
+        return "https://naveropenapi.apigw.ntruss.com/captcha-bin/v1/ncaptcha?key="
+                + captchaKey + "&X-NCP-APIGW-API-KEY-ID=" + clientId;
+    }
+
+    private HttpURLConnection establishHttpConnection(String apiURL) throws IOException {
+        URL url = new URL(apiURL);
+        HttpURLConnection con = (HttpURLConnection)url.openConnection();
+        con.setRequestMethod("GET");
+        return con;
+    }
+
+    private byte[] handleResponse(HttpURLConnection con) throws IOException{
+        if(con.getResponseCode() == 200) {
+            return con.getInputStream().readAllBytes();
+        } else {
+            handleError(con);
+            return new byte[]{};
+        }
+    }
+
+    private void handleError(HttpURLConnection con) throws IOException {
+        var br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+        while ((inputLine = br.readLine()) != null) {
+            response.append(inputLine);
+        }
+        br.close();
+        log.info("[Failed Create CAPTCHA Image] Message: " + response.toString());
     }
 
 }
