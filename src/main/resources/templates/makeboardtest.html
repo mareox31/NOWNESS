@@ -1,21 +1,83 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.w3.org/1999/xhtml" th:lang="ko">
+<html>
 <head>
     <meta charset="UTF-8">
-    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
-    <link th:href="@{/css/rankboard/rankboard.css}" rel="stylesheet">
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../static/css/rankboard/rankboard.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <title>NOWNESS</title>
+
+    <script>
+        function likeclick(element) {
+            var likesValue = element.getAttribute('value');
+            var likestextElement = document.querySelector(".liketext")
+            var imageElement = document.querySelector(".image")
+
+            // span 요소의 텍스트 값을 정수로 변환하여 사용합니다.
+            var likestext = parseInt(likestextElement.textContent);
+
+            console.log(likestext);
+
+            if(likesValue == "like") {
+                element.setAttribute('value', "unlike");
+                likestextElement.textContent = likestext - 1;
+                imageElement.src = "../static/css/image/rankboard/unlike.jpg";
+            }
+            if(likesValue == "unlike") {
+                element.setAttribute('value', "like");
+                likestextElement.textContent = likestext + 1;
+                imageElement.src = "../static/css/image/rankboard/like.jpg";
+            }
+        }
+
+    </script>
+
 </head>
 <body>
+<div class="sortmethod">
+    최신순으로 보기
+    <label class="select">
+        <input type="radio" name="serachtime" value="day" onclick="dataSend()"/> <span>일</span>
+    </label>
+
+    <label class="select">
+        <input type="radio" name="serachtime" value="week" onclick="dataSend()"/> <span>주</span>
+    </label>
+
+    <label class="select">
+        <input type="radio" name="serachtime" value="month"onclick="dataSend()"/> <span>월</span>
+    </label>
+
+    <label class="select">
+        <input type="radio" name="serachtime" value="year" checked onclick="dataSend()"/> <span>년</span>
+    </label>
+</div>
+<div class="sortmethod">
+    정렬 방법(내림차순)
+    <label class="select">
+        <input type="radio" name="sortmethod" value="likeCount" checked onclick="dataSend()"/> <span>좋아요 순</span>
+    </label>
+
+    <label class="select">
+        <input type="radio" name="sortmethod" value="viewCount" onclick="dataSend()"/> <span>조회수 순</span>
+    </label>
+</div>
 <div id="contents">
     <div class="rankblock">
-        <div class = "name">이름</div><div class = "date">날짜</div>
-        <div class = "title">제목</div>
-        <div class = "pic">그림</div>
-        <div class = "contents">내용</div>
-        <div class = "tag">태그</div>
-        <div class = "likes">좋아요 수</div><div class = "view">조회수</div>
+        <div class = "name"><span>이름이너무길면어떻하면좋을까요그냥숨길까요? 안숨기는게낫겠죠?</span></div><div class = "date"><span>날짜</span></div>
+        <div class = "pic">
+            <img src="../static/css/image/rankboard/testimg2.jpg" rel="stylesheet" alt="이미지" style="width:100%; height:100%;"/>
+        </div>
+        <div class = "title"><span>제목</span></div>
+        <div class = "contents"><span>파우스트(Faust) 또는 파우스투스(Faustus;"경사로운", "행운의" 의미의 라틴어)는 고전 독일 소설의 주인공이다. 대강의 내용은 다음과 같다.
+            박식한 학자 파우스트는 속세적인 지식에 만족하지 못하고,자신의 영혼과 악마가 가진 인간의 한계를 넘어선 금지된 지식을 교환하는 계약을 하게 된다. 메피스토펠레스(Mephistopheles)
+            또는 메피스토로 불리는 이 악마는 계약 기간 동안 흑마술로서 파우스트의 욕심을 충족시켜주지만, 계약 기간이 끝난 후 파우스트의 영혼은 악마 메피스토의 소유가 되고, 영원히 저주받게 된다.
+            박식한 파우스트는 그의 삶에 매우 만족하면서도 무한한 지식과 세속적인 쾌락을 위해 자신의 영혼을 교환하면서 마귀와 협약을 맺게된다. 파우스트의 전설은 여러 시대를 통해 그것을 재해석한
+            문학, 예술, 영화 및 음악 작품의 기초가 되었다. "파우스트 (Faust)"와 형용사 "파우스 티아 (Faustian)"는 야심적인 사람이 한정된 기간 동안 권력과 성공을 달성하기 위해 도덕적 청렴성을
+            포기하는 상황을 의미한다.</span></div>
+        <div class = "tag"><a href="안녕하세요">#텍스트1</a> <a href="안녕하세요">#텍스트2</a> <a href="안녕하세요">#텍스트3</a></div>
+        <div class = "likes" value = "unlike" onclick="likeclick(this)">
+            <img src="../static/css/image/rankboard/like.jpg" alt = "Nothing" class="image">&nbsp;&nbsp;<span class="liketext">5</span></div><div class = "view"> 조회 <span>조회수</span> 회</div>
     </div>
 </div>
 </body>

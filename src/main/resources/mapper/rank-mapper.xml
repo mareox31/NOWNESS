@@ -4,6 +4,7 @@
 <mapper namespace="highfive.nowness.repository.RankBoardRepository">
 
 
+    <!--
     <select id="getRank" resultType="RankBoardDTO" parameterType="hashMap">
         SELECT contents.id, contents.user_id, users.nickname, contents.created_datetime,
         contents.views, contents.contents, contents.title, IFNULL(count(likes.id), 0) AS count
@@ -38,9 +39,10 @@
             ORDER BY views desc;
         </if>
     </select>
+    -->
 
 
-    <!--
+
     <select id="getRank" resultType="RankBoardDTO" parameterType="hashMap">
         SELECT t_contents.id, t_contents.user_id, t_users.nickname, t_contents.created_datetime,
         t_contents.views, t_contents.contents, t_contents.title, IFNULL(count(t_likes.id), 0) AS count
@@ -75,7 +77,7 @@
             ORDER BY views desc;
         </if>
     </select>
-    -->
+
 
     <!--
     <insert id="addTest">

@@ -6,6 +6,11 @@
            font-style: normal;
        }
        */
+body {
+    background-color: #F0F2F5;
+    caret-color: transparent;
+    /* 입력 커서 깜빡이는 거 없애기 */
+}
 
 .sortmethod {
     text-align: center;
@@ -26,17 +31,19 @@
     cursor: pointer;
     height: 30px;
     width: 90px;
-    border: 1px solid #333;
-    line-height: 24px;
+    line-height: 30px;
     text-align: center;
     font-weight:bold;
     font-size:13px;
+    border-radius: 10px 10px 10px 10px;
 }
 .select input[type=radio] + span{
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
     background-color: #fff;
     color: #333;
 }
 .select input[type=radio]:checked + span{
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
     background-color: #333;
     color: #fff;
 }
@@ -46,6 +53,36 @@
     justify-content: center;
 }
 /* Pagination 중앙 정렬 */
+
+.fill {
+    object-fit: fill;
+}
+
+.contain {
+    object-fit: contain;
+}
+
+.cover {
+    object-fit: cover;
+}
+
+.none {
+    object-fit: none;
+}
+
+.scale-down {
+    object-fit: scale-down;
+}
+
+/* 사진 */
+
+a {
+    color : black;
+    text-decoration-line: none;
+    /* 밑줄 없애기 */
+}
+
+/*
 
 a:link {
     color : black;
@@ -60,102 +97,178 @@ a:active {
     color : black;
 }
 
+*/
 #contents {
     width : 1200px;
-    height: 1550px;
+    height: 1600px;
     border: 1px solid black;
     margin: 0 auto;
 }
+/* 본 페이지에서는 적용안됨 */
 
 .rankblock {
-    border: 1px solid black;
-    margin: 0 auto;
-    height: 450px;
+    height: 620px;
     width: 350px;
     display: inline-block;
-    margin: 0 auto;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    margin-left: 20px;
-    margin-right: 20px;
+    margin: 15px 25px 15px 20px;
+    border-radius: 10px 10px 10px 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+
+    background-color: #FFFFFF;
 }
 
-.rankblock .title {
-    width: 100%;
-    height: 30px;
-    padding-left: 10px;
-    font-size: 11pt;
-    line-height: 30px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.rankblock:hover {
+    box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
 }
 
 .rankblock .name {
     display: inline-block;
     text-align: left;
-    width: 50%;
-    height: 20px;
+    width: 70%;
+    height: 40px;
+    line-height: 40px;
+    font-size: 10pt;
     padding-left: 10px;
-    font-size: 8pt;
-    line-height: 20px;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .rankblock .date {
     display: inline-block;
     text-align: right;
-    width: 50%;
-    height: 20px;
+    width: 30%;
+    height: 40px;
+    line-height: 40px;
     padding-right: 10px;
-    font-size: 8pt;
+    font-size: 10pt;
     color: #a0a0a0;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 .rankblock .pic {
     width: 100%;
-    height: 210px;
-    border: 1px solid black;
+    height: 250px;
     border-radius: 5px 5px 5px 5px;
+    box-sizing: border-box;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    overflow: hidden; /* object-fit을 적용하기 위해 컨테이너를 숨김 처리 */
+}
+
+.rankblock .title {
+    width: 100%;
+    height: 50px;
+    padding-left: 10px;
+    font-size: 12pt;
+    line-height: 50px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box;
+    font-weight: bold;
+    border-bottom: lightgray 0.5px solid;
+}
+
+.rankblock .title:hover{
+    background: whitesmoke;
 }
 
 .rankblock .contents {
     width: 100%;
-    height: 100px;
-    border: 1px solid black;
-    padding-left: 5px;
-    font-size: 10pt;
+    height: 190px;
+    padding: 5px 10px 10px 10px;
+    font-size: 11pt;
     overflow: hidden;
     text-overflow: ellipsis;
+    box-sizing: border-box;
+    border-bottom: lightgray 0.5px solid;
+    line-height: 1.4;
+
+    /* div를 넘어가면 출력 제한 */
+    display: -webkit-box;
+    -webkit-line-clamp: 9;
+    -webkit-box-orient: vertical;
+}
+
+.rankblock .contents:hover{
+    background: whitesmoke;
 }
 
 .rankblock .tag {
     width: 100%;
-    height: 30px;
-    border: 1px solid black;
+    height: 40px;
     padding-left: 10px;
     font-size: 10pt;
-    line-height: 30px;
+    line-height: 40px;
     overflow: hidden;
     text-overflow: ellipsis;
+    box-sizing: border-box;
+    border-bottom: lightgray 0.5px solid;
+}
+
+.rankblock .likes:hover{
+    background: whitesmoke;
+}
+
+.rankblock .tag a:link {
+    color : dodgerblue;
+}
+.rankblock .tag a:visited {
+    color : dodgerblue;
+}
+.rankblock .tag a:hover {
+    color : dodgerblue;
+}
+.rankblock .tag a:active {
+    color : dodgerblue;
 }
 
 .rankblock .likes {
     display: inline-block;
     text-align: left;
-    width: 50%;
-    height: 50px;
-    border: 1px solid black;
+    width: 45%;
+    height: 40px;
     padding-left: 10px;
-    line-height: 50px;
+    margin-left: 10px;
+    line-height: 40px;
+    box-sizing: border-box;
+}
+
+.rankblock .likes:hover{
+    background: whitesmoke;
+    cursor : pointer;
+}
+
+.rankblock .likes:active{
+    background: lightgray;
+}
+
+.rankblock .likes img{
+    height: 25px;
+    width:  25px;
+    margin-bottom: 8px;
+    transition: opacity 0.5s;
+}
+
+.rankblock .likes img.hide{
+    opacity: 0;
+}
+
+.rankblock .likes .liketext{
+    margin-top: 30px;
+    font-weight: bold;
 }
 
 .rankblock .view {
     display: inline-block;
     text-align: right;
     width: 50%;
-    height: 50px;
-    border: 1px solid black;
+    height: 40px;
     padding-right: 10px;
-    line-height: 50px;
+    line-height: 40px;
+    box-sizing: border-box;
+    cursor : default;
 }
