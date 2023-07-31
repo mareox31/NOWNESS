@@ -190,15 +190,13 @@ public class UserApiController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> withdrawal(@AuthenticationPrincipal User user,
+    public ResponseEntity<Void> withdrawal(@AuthenticationPrincipal User user,
                                               @AuthenticationPrincipal OAuth2User oAuth2User,
                                               HttpServletRequest request,
                                               @PathVariable long id) {
         if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
         if (user.getId() == id && userDetailsService.withdrawal(id)) {
-            SecurityContextHolder.clearContext();
-            request.getSession(false).invalidate();
-            return ResponseEntity.ok().build();
+            return logout(request);
         }
         else return ResponseEntity.badRequest().build();
     }
