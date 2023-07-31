@@ -3,7 +3,6 @@ package highfive.nowness.controller;
 import highfive.nowness.captcha.NaverImageCaptchaService;
 import highfive.nowness.domain.User;
 import highfive.nowness.service.UserDetailsService;
-import highfive.nowness.util.CaptchaUtil;
 import highfive.nowness.util.UserUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +12,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Base64;
 
 @RequestMapping("/user")
 @RequiredArgsConstructor
@@ -26,12 +27,16 @@ public class UserController {
     @GetMapping({"/login", "/signup"})
     public String showLoginForm(@AuthenticationPrincipal User user,
                                 @AuthenticationPrincipal OAuth2User oAuth2User,
+                                HttpServletRequest request,
                                 Model model) {
         if (UserUtil.isNotLogin(user, oAuth2User)) {
-            String captchaKey = naverImageCaptchaService.getCaptchaKey();
-            String captchaImagePath = naverImageCaptchaService.getCaptchaImagePath(captchaKey);
-            model.addAttribute("encodedCaptchaImage", CaptchaUtil.encodeBase64Image(captchaImagePath));
-            model.addAttribute("captchaKey", captchaKey);
+            if (request.getRequestURI().equals("/user/signup")) {
+                String captchaKey = naverImageCaptchaService.getCaptchaKey();
+                String encodedCaptchaImage = Base64.getEncoder()
+                        .encodeToString(naverImageCaptchaService.getCaptchaImage(captchaKey));
+                model.addAttribute("encodedCaptchaImage", encodedCaptchaImage);
+                model.addAttribute("captchaKey", captchaKey);
+            }
             return "login_signup";
         }
         else return "redirect:/main";
@@ -67,27 +72,6 @@ public class UserController {
     public String showVerificationPage(@RequestParam String code) {
         if (userDetailsService.verifyEmail(code)) return "email_verified";
         else return "redirect:/";
-    }
-
-    // 테스트용
-    @GetMapping("/welcome")
-    public String showWelcomePage() {
-        return "welcome_signup";
-    }
-
-    // 테스트용
-    @GetMapping("/testmail")
-    public String testMail() {
-        String code = UserUtil.getRandomCode();
-        String email = "--@gmail.com";
-        userDetailsService.sendVerificationEmail(User.builder()
-                        .email(email)
-                        .nickname("tester")
-                        .build(),
-                "http://localhost:8080",
-                        code);
-        userDetailsService.saveUnverifiedEmail(code, email);
-        return "welcome_signup";
     }
 
     @GetMapping("/find-password")

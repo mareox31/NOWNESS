@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Date;
 
 @Slf4j
 @Service
@@ -83,45 +82,49 @@ public class NaverImageCaptchaService {
         return br;
     }
 
-    public String getCaptchaImagePath(String captchaKey) {
+    public byte[] getCaptchaImage(String captchaKey) {
+        String apiURL = buildApiURL(captchaKey);
         try {
-            String apiURL = "https://naveropenapi.apigw.ntruss.com/captcha-bin/v1/ncaptcha?key=" + captchaKey + "&X-NCP-APIGW-API-KEY-ID=" + clientId;
-            URL url = new URL(apiURL);
-            HttpURLConnection con = (HttpURLConnection)url.openConnection();
-            con.setRequestMethod("GET");
-            int responseCode = con.getResponseCode();
-            BufferedReader br;
-            if(responseCode==200) {
-                String captchaImageFileName = Long.valueOf(new Date().getTime()).toString();
-                File f = new File("src/main/resources/static/images/captcha/" + captchaImageFileName + ".jpg");
-                f.createNewFile();
-
-                InputStream is = con.getInputStream();
-                int read = 0;
-                byte[] bytes = new byte[1024];
-                OutputStream outputStream = new FileOutputStream(f);
-                while ((read = is.read(bytes)) != -1) {
-                    outputStream.write(bytes, 0, read);
-                }
-                is.close();
-                return f.getPath();
-            } else {
-                br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-                String inputLine;
-                StringBuffer response = new StringBuffer();
-                while ((inputLine = br.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                br.close();
-                log.info("[Failed Create CAPTCHA Image] CAPTCHA Image Request Key:" + captchaKey +
-                        "Message: " + response.toString());
-            }
+            HttpURLConnection con = establishHttpConnection(apiURL);
+            return handleResponse(con);
         } catch (Exception e) {
             log.info(e.getMessage());
         }
 
-        return "";
+        return new byte[]{};
 
+    }
+
+    private String buildApiURL(String captchaKey) {
+        return "https://naveropenapi.apigw.ntruss.com/captcha-bin/v1/ncaptcha?key="
+                + captchaKey + "&X-NCP-APIGW-API-KEY-ID=" + clientId;
+    }
+
+    private HttpURLConnection establishHttpConnection(String apiURL) throws IOException {
+        URL url = new URL(apiURL);
+        HttpURLConnection con = (HttpURLConnection)url.openConnection();
+        con.setRequestMethod("GET");
+        return con;
+    }
+
+    private byte[] handleResponse(HttpURLConnection con) throws IOException{
+        if(con.getResponseCode() == 200) {
+            return con.getInputStream().readAllBytes();
+        } else {
+            handleError(con);
+            return new byte[]{};
+        }
+    }
+
+    private void handleError(HttpURLConnection con) throws IOException {
+        var br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+        while ((inputLine = br.readLine()) != null) {
+            response.append(inputLine);
+        }
+        br.close();
+        log.info("[Failed Create CAPTCHA Image] Message: " + response.toString());
     }
 
 }
