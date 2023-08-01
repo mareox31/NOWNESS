@@ -12,41 +12,101 @@ body {
     /* 입력 커서 깜빡이는 거 없애기 */
 }
 
+.sortmotherdiv {
+    margin: 0 auto;
+    text-align: center;
+}
+
+/* 목록창 */
+
+select {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    width: 100px;
+}
+
+select option {
+    padding-right: 20px;
+}
+
+/* 검색창 */
+
+.search-container {
+    display: inline-block;
+    text-align: center;
+    margin-top: 20px;
+}
+
+#searchInput {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    caret-color: black;
+}
+
+#searchButton {
+    padding: 8px 16px;
+    font-size: 16px;
+    border: none;
+    background-color: #000000;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#searchButton:hover {
+    background-color: #a0a0a0;
+}
+
+/* 분류창 */
+
 .sortmethod {
+    margin: 0 auto;
+    display: inline-block;
     text-align: center;
+    font-family: "Noto Sans KR", sans-serif;
+    font-weight: bold;
+    font-size: 14px;
 }
-
-.tablerow {
-    text-align: center;
+.radio_select {
+    padding: 10px 5px;
 }
-
-.select {
-    padding: 10px 10px;
-}
-.select input[type=radio]{
+.radio_select input[type=radio]{
     display: none;
 }
-.select input[type=radio] + span{
+.radio_select input[type=radio] + span{
     display: inline-block;
     cursor: pointer;
-    height: 30px;
-    width: 90px;
-    line-height: 30px;
+    height: 40px;
+    line-height: 40px;
     text-align: center;
     font-weight:bold;
     font-size:13px;
     border-radius: 10px 10px 10px 10px;
 }
-.select input[type=radio] + span{
+
+.radio_select .short_size + span{
+    width: 40px;
+}
+
+.radio_select .long_size + span{
+    width: 80px;
+}
+
+.radio_select input[type=radio] + span{
     transition: all 0.3s cubic-bezier(.25,.8,.25,1);
     background-color: #fff;
     color: #333;
 }
-.select input[type=radio]:checked + span{
+.radio_select input[type=radio]:checked + span{
     transition: all 0.3s cubic-bezier(.25,.8,.25,1);
     background-color: #333;
     color: #fff;
 }
+
 /* radio type을 조금 더 깔끔하게 만들어준다. */
 
 .pagination {
@@ -77,12 +137,9 @@ body {
 /* 사진 */
 
 a {
-    color : black;
     text-decoration-line: none;
     /* 밑줄 없애기 */
 }
-
-/*
 
 a:link {
     color : black;
@@ -97,10 +154,9 @@ a:active {
     color : black;
 }
 
-*/
 #contents {
     width : 1200px;
-    height: 1600px;
+    height: 2050px;
     border: 1px solid black;
     margin: 0 auto;
 }

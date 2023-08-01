@@ -28,112 +28,102 @@
                     console.log("값 전송을 실패했습니다.");
             });
         };
+
+        function likeclick(element) {
+            var likesValue = element.getAttribute('value');
+            var likestextElement = element.querySelector(".liketext")
+            var imageElement = element.querySelector(".image")
+
+            // span 요소의 텍스트 값을 정수로 변환하여 사용합니다.
+            var likestext = parseInt(likestextElement.textContent);
+
+            console.log(likestext);
+
+            if(likesValue == "like") {
+                element.setAttribute('value', "unlike");
+                likestextElement.textContent = likestext - 1;
+                imageElement.src = '/css/image/rankboard/unlike.jpg';
+            }
+            if(likesValue == "unlike") {
+                element.setAttribute('value', "like");
+                likestextElement.textContent = likestext + 1;
+                imageElement.src = '/css/image/rankboard/like.jpg';
+            }
+        }
     </script>
 </head>
 <body>
 
-<!--
-<div th:insert="~{header :: header}"></div>
+<!-- <div th:insert="~{header :: header}"></div> -->
 
-<ul>
-    <li>test<span th:text="${data}"></span></li>
-</ul>
--->
+<div class = "sortmotherdiv">
+    <div class="sortmethod">
+        최신순으로 보기
+        <label class="radio_select">
+            <input type="radio" name="serachtime" value="day" class="short_size" onclick="dataSend()"/><span>일</span>
+        </label>
 
-<div class="sortmethod">
-    최신순으로 보기
-    <label class="select">
-        <input type="radio" name="serachtime" value="day" onclick="dataSend()"/> <span>일</span>
-    </label>
+        <label class="radio_select">
+            <input type="radio" name="serachtime" value="week" class="short_size" onclick="dataSend()"/><span>주</span>
+        </label>
 
-    <label class="select">
-        <input type="radio" name="serachtime" value="week" onclick="dataSend()"/> <span>주</span>
-    </label>
+        <label class="radio_select">
+            <input type="radio" name="serachtime" value="month" class="short_size" onclick="dataSend()"/><span>월</span>
+        </label>
 
-    <label class="select">
-        <input type="radio" name="serachtime" value="month"onclick="dataSend()"/> <span>월</span>
-    </label>
+        <label class="radio_select">
+            <input type="radio" name="serachtime" value="year" class="short_size" checked onclick="dataSend()"/><span>년</span>
+        </label>
+    </div>
+    <div class="sortmethod">
+        정렬 방법(내림차순)
+        <label class="radio_select">
+            <input type="radio" name="sortmethod" value="likeCount" class="long_size" checked onclick="dataSend()"/><span>좋아요 순</span>
+        </label>
 
-    <label class="select">
-        <input type="radio" name="serachtime" value="year" checked onclick="dataSend()"/> <span>년</span>
-    </label>
-</div>
-    <!--
-    <button type="button" class="btn btn-info" name="serachtime" value="day" onclick="dataSend()"/> <span>일</span></button>
-    <button type="button" class="btn btn-info" name="serachtime" value="week" onclick="dataSend()"/> <span>주</span></button>
-    <button type="button" class="btn btn-info" name="serachtime" value="month"onclick="dataSend()"/> <span>월</span></button>
-    <button type="button" class="btn btn-info" name="serachtime" value="year" onclick="dataSend()"/> <span>년</span></button>
-    -->
-<div class="sortmethod">
-    정렬 방법(내림차순)
-    <label class="select">
-        <input type="radio" name="sortmethod" value="likeCount" checked onclick="dataSend()"/> <span>좋아요 순</span>
-    </label>
+        <label class="radio_select">
+            <input type="radio" name="sortmethod" value="viewCount" class="long_size" onclick="dataSend()"/><span>조회수 순</span>
+        </label>
+    </div>
 
-    <label class="select">
-        <input type="radio" name="sortmethod" value="viewCount" onclick="dataSend()"/> <span>조회수 순</span>
-    </label>
+    <div class="sortmethod">
+        <select name="selectsort">
+            <option value="글쓴이">글쓴이</option>
+            <option value="제목">제목</option>
+            <option value="내용" selected="selected">내용</option>
+            <option value="태그">태그</option>
+        </select>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="검색어를 입력하세요...">
+            <button id="searchButton" onclick="search()">검색</button>
+        </div>
+    </div>
+
+    <div class="sortmethod">
+        <label class="radio_select">
+            <input type="checkbox" name="findlike" value="unfindlike" class="long_size" checked onclick="dataSend()"/><span>좋아요 누른 글만 확인하기</span>
+        </label>
+    </div>
+
 </div>
 
 <hr>
 
 <div id="contents">
-    <!--
-    <table border="1" class="tablerow">
-        <tr>
-            <th>아이디</th>
-            <th>아이디번호</th>
-            <th>닉네임</th>
-            <th>게시날짜(수정예정)</th>
-            <th>조회수 순</th>
-            <th>내용</th>
-            <th>이름</th>
-            <th>좋아요횟수</th>
-        </tr>
-
-        <th:block th:each="rank: ${RankList}">
-            <tr>
-                <td th:text="${ rank.id }"></td>
-                <td th:text="${ rank.user_id }"></td>
-                <td th:text="${ rank.nickname }"></td>
-                <td th:text="${ rank.daycount }"></td>
-                <td th:text="${ rank.views }"></td>
-                <a th:href="@{/request/post/{id}(id=${rank.id})}" th:text="${rank.views}"></a>
-                <td th:text="${ rank.contents }"></td>
-                <td th:text="${ rank.title }"></td>
-                <td th:text="${ rank.likeCount }"></td>
-            </tr>
-            <th:tr th:if = "${rank.id % 4 == 0}">Test</th:tr>
-        </th:block>
-
-
-        <th:block th:each="page:${#numbers.sequence(RankStartPage,RankEndPage)}">
-            <a th:if="${page != RankNowPage}" th:href="@{/rankboard(page=${page})}" th:text ="${page}"></a>
-            <strong th:if="${page==RankNowPage}" th:text ="${page}" style="color:red"></strong>
-        </th:block>
-
-    </table>
-
-    <div class="rankblock" th:each="rank: ${RankList}">
-        <span th:text="${ rank.id }"></span>
-        <span th:text="${ rank.user_id }"></span>
-        <span th:text="${ rank.nickname }"></span>
-        <span th:text="${ rank.daycount }"></span>
-        <span th:text="${ rank.views }"></span>
-        <span th:text="${ rank.contents }"></span>
-        <span th:text="${ rank.title }"></span>
-        <span th:text="${ rank.likeCount }"></span>
-    </div>
-    -->
 
     <div class="rankblock" th:each="rank: ${RankList}">
         <div class = "name"><span th:text="${ rank.nickname }"></span></div><div class = "date"><span th:text="${ rank.daycount }"></span></div>
-        <div class = "title"><span th:text="${ rank.title }"></span></div>
-        <div class = "pic"></div>
+        <div class = "pic">
+            <img src="@{/css/image/rankboard/testimg.jpg}" rel="stylesheet" alt="이미지" style="width:100%; height:100%;"/> <!-- 테스트용! -->
+        </div>
+        <div class = "title"><a th:href="@{/request/post/{id}(id=${rank.id})}" th:text="${rank.title}"></a></div>
         <div class = "contents"><a th:href="@{/request/post/{id}(id=${rank.id})}" th:text="${rank.contents}"></a></div>
         <div class = "tag">태그</div>
-        <div class = "likes"><span th:text="${ rank.likeCount }"></span></div><div class = "view"><span th:text="${ rank.views }"></span></div>
+        <div class = "likes" value = "unlike" onclick="likeclick(this)">
+            <img th:src="@{/css/image/rankboard/unlike.jpg}" alt = "Like/Unlike" class="image">&nbsp;&nbsp;<span class="liketext" th:text="${ rank.likeCount }"></span></div>
+        <div class = "view">조회수 <span th:text="${ rank.views }"></span>회</div>
     </div>
+
 
     <br><br>
     <nav aria-label="Page navigation example">
@@ -147,11 +137,7 @@
     <br><br>
 </div>
 
-<!--
-
-<div th:insert="~{footer :: footer}"></div>
-
--->
+<!-- <div th:insert="~{footer :: footer}"></div> -->
 
 </body>
 </html>

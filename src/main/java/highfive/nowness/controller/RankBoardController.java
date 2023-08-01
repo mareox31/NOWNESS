@@ -54,8 +54,6 @@ public class RankBoardController {
                 }
                 break;
             }
-            //log.info(String.valueOf((rankBoardPaginationDTO.getBlock() - 1) * 10));
-            //log.info(String.valueOf(RankList.get(i).getViewsnum()));
         }
         // 임시 리스트에 출력할 값들의 번호를 받아온다.
 
@@ -63,7 +61,6 @@ public class RankBoardController {
         model.addAttribute("RankNowPage", rankBoardPaginationDTO.getBlock());
         model.addAttribute("RankStartPage", rankBoardPaginationDTO.getStartBlock());
         model.addAttribute("RankEndPage", rankBoardPaginationDTO.getEndBlock());
-        //model.addAttribute("RankList", RankList);
 
         return "/rankboard";
     }
@@ -90,9 +87,6 @@ public class RankBoardController {
                 break;
             }
         }
-
-        //log.info(String.valueOf(rankBoardPaginationDTO.getStartBlock()));
-        //log.info(String.valueOf(rankBoardPaginationDTO.getEndBlock()));
 
         model.addAttribute("RankList", t_RankList);
         model.addAttribute("RankNowPage", rankBoardPaginationDTO.getBlock());

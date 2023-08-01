@@ -10,8 +10,10 @@
     <script>
         function likeclick(element) {
             var likesValue = element.getAttribute('value');
-            var likestextElement = document.querySelector(".liketext")
-            var imageElement = document.querySelector(".image")
+            var likestextElement = element.querySelector(".liketext")
+            var imageElement = element.querySelector(".image")
+
+            console.log(likesValue, likestextElement, imageElement)
 
             // span 요소의 텍스트 값을 정수로 변환하여 사용합니다.
             var likestext = parseInt(likestextElement.textContent);
@@ -34,34 +36,58 @@
 
 </head>
 <body>
-<div class="sortmethod">
-    최신순으로 보기
-    <label class="select">
-        <input type="radio" name="serachtime" value="day" onclick="dataSend()"/> <span>일</span>
-    </label>
 
-    <label class="select">
-        <input type="radio" name="serachtime" value="week" onclick="dataSend()"/> <span>주</span>
-    </label>
+<div class = "sortmotherdiv">
+    <div class="sortmethod">
+        최신순으로 보기
+        <label class="radio_select">
+            <input type="radio" name="serachtime" value="day" class="short_size" onclick="dataSend()"/><span>일</span>
+        </label>
 
-    <label class="select">
-        <input type="radio" name="serachtime" value="month"onclick="dataSend()"/> <span>월</span>
-    </label>
+        <label class="radio_select">
+            <input type="radio" name="serachtime" value="week" class="short_size" onclick="dataSend()"/><span>주</span>
+        </label>
 
-    <label class="select">
-        <input type="radio" name="serachtime" value="year" checked onclick="dataSend()"/> <span>년</span>
-    </label>
+        <label class="radio_select">
+            <input type="radio" name="serachtime" value="month" class="short_size" onclick="dataSend()"/><span>월</span>
+        </label>
+
+        <label class="radio_select">
+            <input type="radio" name="serachtime" value="year" class="short_size" checked onclick="dataSend()"/><span>년</span>
+        </label>
+    </div>
+    <div class="sortmethod">
+        정렬 방법(내림차순)
+        <label class="radio_select">
+            <input type="radio" name="sortmethod" value="likeCount" class="long_size" checked onclick="dataSend()"/><span>좋아요 순</span>
+        </label>
+
+        <label class="radio_select">
+            <input type="radio" name="sortmethod" value="viewCount" class="long_size" onclick="dataSend()"/><span>조회수 순</span>
+        </label>
+    </div>
+
+    <div class="sortmethod">
+        <select name="selectsort">
+            <option value="글쓴이">글쓴이</option>
+            <option value="제목">제목</option>
+            <option value="내용" selected="selected">내용</option>
+            <option value="태그">태그</option>
+        </select>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="검색어를 입력하세요...">
+            <button id="searchButton" onclick="search()">검색</button>
+        </div>
+    </div>
+
+    <div class="sortmethod">
+        <label class="radio_select">
+            <input type="checkbox" name="findlike" value="unfindlike" class="long_size" checked onclick="dataSend()"/><span>좋아요 글만 확인하기</span>
+        </label>
+    </div>
+
 </div>
-<div class="sortmethod">
-    정렬 방법(내림차순)
-    <label class="select">
-        <input type="radio" name="sortmethod" value="likeCount" checked onclick="dataSend()"/> <span>좋아요 순</span>
-    </label>
 
-    <label class="select">
-        <input type="radio" name="sortmethod" value="viewCount" onclick="dataSend()"/> <span>조회수 순</span>
-    </label>
-</div>
 <div id="contents">
     <div class="rankblock">
         <div class = "name"><span>이름이너무길면어떻하면좋을까요그냥숨길까요? 안숨기는게낫겠죠?</span></div><div class = "date"><span>날짜</span></div>

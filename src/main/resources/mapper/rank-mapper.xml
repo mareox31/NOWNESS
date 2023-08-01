@@ -7,7 +7,12 @@
     <!--
     <select id="getRank" resultType="RankBoardDTO" parameterType="hashMap">
         SELECT contents.id, contents.user_id, users.nickname, contents.created_datetime,
-        contents.views, contents.contents, contents.title, IFNULL(count(likes.id), 0) AS count
+        contents.views, contents.contents, contents.title, IFNULL(count(likes.id), 0) AS count,
+        (
+            SELECT GROUP_CONCAT(tag SEPARATOR ' ')
+            FROM Tags
+            WHERE contents.id = Tags.contents_id
+        ) AS tag
         FROM contents
         LEFT JOIN likes ON contents.id = likes.contents_id
         INNER JOIN users ON contents.user_id = users.id
@@ -45,7 +50,12 @@
 
     <select id="getRank" resultType="RankBoardDTO" parameterType="hashMap">
         SELECT t_contents.id, t_contents.user_id, t_users.nickname, t_contents.created_datetime,
-        t_contents.views, t_contents.contents, t_contents.title, IFNULL(count(t_likes.id), 0) AS count
+        t_contents.views, t_contents.contents, t_contents.title, IFNULL(count(t_likes.id), 0) AS count,
+        (
+            SELECT GROUP_CONCAT(tag SEPARATOR ' ')
+            FROM t_Tags
+            WHERE t_contents.id = t_Tags.contents_id
+        ) AS tag
         FROM t_contents
         LEFT JOIN t_likes ON t_contents.id = t_likes.contents_id
         INNER JOIN t_users ON t_contents.user_id = t_users.id

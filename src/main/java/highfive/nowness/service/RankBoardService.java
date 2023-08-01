@@ -57,6 +57,8 @@ public class RankBoardService {
                 Datediff = nowtime.getSecond() - date.getSecond() + "초 전";
             }
 
+
+
             //log.info(Datediff);
             RankList.get(i).setDaycount(Datediff);
             RankList.get(i).setViewsnum(i);
