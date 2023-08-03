@@ -6,27 +6,22 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.ibatis.type.Alias;
+
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @ToString
-@Alias("repliesDTO")
+@Alias("tagsDTO")
 @Data
-public class RepliesDTO {
+public class TagsDTO {
 
     private int id;
     private int contentsid;
-    private int userid;
-    private String reply;
-//    private LocalDateTime createddatetime;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createddatetime;
-    private int deleted;
-    private int parentid;
+    private String tag;
+
+
 
 }
 
-
-//LocalDateTime
 

@@ -7,6 +7,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.apache.ibatis.type.Alias;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
@@ -21,6 +23,7 @@ public class PostData {
     private int subcategory;
 
     private int id;//글번호 ,글수정때문에 추가.
+    private List<FileData> files;//파일 추가
     
 }
 

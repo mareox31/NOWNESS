@@ -1,14 +1,15 @@
 package highfive.nowness.service;
 
-import highfive.nowness.dto.PostData;
-import highfive.nowness.dto.RepliesDTO;
-import highfive.nowness.dto.ReplyData;
-import highfive.nowness.dto.RequestDTO;
+import highfive.nowness.dto.*;
 import highfive.nowness.repository.RequestBoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.nodes.Tag;
+
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -86,8 +87,15 @@ public class RequestBoardService {
     //글저장(insert)
     public void addPost(PostData postData) { requestBoardRepository.addPost(postData); }
 
+    //글 저장2(insert + 번호반환)
+    public int addPost2(PostData postData) { return requestBoardRepository.addPost2(postData);}
+
     //글"수정" 저장(update)
     public void updatePost(PostData postData) { requestBoardRepository.updatePost(postData); }
+
+    //태그추가테스트중 글"수정" 저장(update + 번호반환)--------------------
+    public int updatePost2(PostData postData) { return requestBoardRepository.updatePost2(postData); }
+
 
 
     //게시글ajax테스트-카테고리분류된 DTO끌고오기.
@@ -128,6 +136,81 @@ public class RequestBoardService {
        return requestBoardRepository.insertLike(insertLikeParams);
     }
 
+
+    //해시태그 저장.
+    public int addTags(List<String> hashtags, int contentsId) {
+        if (hashtags == null || hashtags.isEmpty()) {
+            return 0;
+        }
+
+        List<TagsDTO> tags = hashtags.stream().map(tag -> {
+            TagsDTO newTag = new TagsDTO();
+            newTag.setContentsid(contentsId);
+            newTag.setTag(tag);
+            return newTag;
+        }).collect(Collectors.toList());
+
+        return requestBoardRepository.addTags(tags);
+    }
+
+
+    //해당 게시글에 대한 태그 가져오기.
+    public List<TagsDTO> getTags(int id) {
+        return requestBoardRepository.getTags(id);
+    }
+
+    //태그 검색 : 태그에 해당하는 글 개수
+    public int  searchTagListCount(String tag) {
+        int count = requestBoardRepository.searchTagListCount(tag);
+        return Math.max(count, 0);
+    }
+
+    //검색 : 해당 키워드 조회 총 글 DTO
+    public List<RequestDTO> searchPagingTagList(Map<String, Object> pagingParams) {
+        return requestBoardRepository.searchPagingTagList(pagingParams);
+    }
+
+
+    //태그삭제
+    public int removeTags(List<String> hashtags, int contentsId) {
+        if (hashtags == null || hashtags.isEmpty()) {
+            return 0;
+        }
+
+        List<TagsDTO> tags = hashtags.stream().map(tag -> {
+            TagsDTO newTag = new TagsDTO();
+            newTag.setContentsid(contentsId);
+            newTag.setTag(tag);
+            return newTag;
+        }).collect(Collectors.toList());
+
+        return requestBoardRepository.removeTags(tags);
+    }
+
+
+
+    //파일 DB저장
+    public void saveFileData(FileData fileData) {
+        requestBoardRepository.saveFileData(fileData);
+    }
+
+    //파일 다운로드용 테스트--
+    // 파일 다운로드용 테스트
+    public FileData getFileById(long fileId) {
+        return requestBoardRepository.getFileById(fileId);
+    }
+
+    //게시물에해당하는 id
+    public List<FileData>  getFileByContentsId(int id) {
+        return requestBoardRepository.getFileByContentsId(id);
+    }
+
+//
+
+    // Delete a file by its ID
+    public void deleteFileById(long fileId) {
+        requestBoardRepository.deleteFileById(fileId);
+    }
 
 
 }

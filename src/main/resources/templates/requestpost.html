@@ -61,6 +61,9 @@
 
         }
 
+        textarea {
+            resize: none;
+        }
 
     </style>
 
@@ -409,7 +412,7 @@
                     html += '<textarea class="form-control mb-2 mr-sm-2 re-reply-textarea" placeholder="Enter your re-reply"></textarea>';
                     html += '<button type="button" class="btn btn-outline-dark re-reply-submitbtn" data-replyid="' + reply.id + '">Submit</button>';
                     html += '</div></div>';
-                    html += '<br>';
+                    // html += '<br>';
 
                     html += '<input type="hidden" name="id" th:value="${postdetail.id}">';
                     html += '<input type="hidden" name="parentid" th:value="' + reply.id + '">';
@@ -426,14 +429,48 @@
                     subHtml += '<label for="pwd" class="mr-sm-2 sub">' + "└[작성자 : " + nickname + " ] " + "( " + reply.createddatetime + ")" + '</label>';
                     subHtml += '<button type="button" class="mr-sm-2 sub deletereplybtn" data-replyid="' + reply.id + '" data-replyuserid="' + reply.userid + '">❌</button>';
                     subHtml += '<label for="pwd" class="col-sm-12 sub">' + reply.reply.replace(/\n/g, '<br>') + '</label>';
-                    subHtml += '<hr>';
                     subHtml += '<div class="row"><div class="col-sm-12 sub' + reply.id + '"></div></div></div></div>';
+                    subHtml += '<hr>';
 
                     $(".sub" + reply.parentid).append(subHtml);
                 }
             });
         }
 
+
+
+            //POST방식용 파일다운
+            $(document).on("click", ".download-link", function(event) {
+                event.preventDefault();
+
+                var fileId = $(this).attr("id").replace("fileLink_", "");
+                var orginName = $(this).find("span").text();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/request/download/' + fileId,
+                    data: {"fileId": fileId},
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader(header, token);
+                    },
+                    xhrFields: {
+                        responseType: 'blob'
+                    },
+                    success: function (data, status, xhr) {
+                        var blob = new Blob([data], { type: xhr.getResponseHeader('Content-Type') });
+                        var url = URL.createObjectURL(blob);
+                        var link = document.createElement('a');
+                        link.href = url;
+                        link.download = orginName;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            });
 
 });// ready end
 
@@ -481,7 +518,7 @@
             <!-- 로그인 유저 확인 후, 게시글 작성자와 일치하면 수정/삭제 버튼 생성-->
             <footer>
                 <ul class="stats">
-                    <li><a href="#" class="icon solid fa-viewt">view <span th:text="${postdetail.views}"></span></a></li>
+                    <li><a href="#" class="icon solid fa-view">view <span th:text="${postdetail.views}"></span></a></li>
                     <li id="likesContainer">
                         <a th:href="@{'/request/post/' + ${id} + '/like'}" class="postlike" id="postlikebtn">
                             <img th:if="${liked}" src="/images/heart_full.png" alt="Full Heart" width="20px" height="20px">
@@ -493,9 +530,28 @@
                     <li><a href="#" class="icon solid fa-report">report</a></li>
                 </ul>
 
-                <ul class="hash">
-                    <li></li>
+
+                <!-- 해시태그 -->
+
+                <ul  class="stats" th:each="tag : ${tagslist}">
+                    <li>
+                        <a  class="icon solid fa-tag" th:href="@{'/request/list/searchtag?page=1&tag=' + ${tag.tag}}">
+                            #<span th:text="${tag.tag}"></span>
+                        </a>
+                    </li>
                 </ul>
+
+                <!--파일다운로드-->
+                <div>
+                    <ul class="stats" th:each="file : ${fileDatalist}">
+                        <li>
+                            <a th:id="'fileLink_' + ${file.id}" href="#" class="download-link">
+                                첨부파일 : <span th:text="${file.orginName}"></span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
 
 
             </footer>
@@ -536,7 +592,7 @@
 
 <!--로그인유저-->
 
-
+<!--    <span th:text="${fileDatalist}"></span>-->
 <!--            <span th:text="${postdetail}"></span>-->
 <!--        <br>-->
 <!--        <span th:text="${user.id}"></span>-->
@@ -545,6 +601,9 @@
 
 <!--    이메일인증-->
 <!--    <span th:text="${verifiedUser}"></span> -->
+
+<!-- <span th:text="${tagslist}"></span>-->
+
 
 
     <div th:insert="~{footer :: footer}"></div>
