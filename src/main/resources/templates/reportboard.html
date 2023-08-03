@@ -6,6 +6,7 @@
     <link th:href="@{/css/reportboard.css}" rel="stylesheet">
 </head>
 <body>
+<div th:insert="~{header :: header}"></div>
 <div>
     <div class="main-wrapper">
         <div class="board_wrap">
@@ -39,40 +40,36 @@
 
             </div>
             <div class="bt_wrap">
-                <a href="writer" class="on">글쓰기</a>
+                <a th:href="@{/report/writer}" class="on">글쓰기</a>
             </div>
             <div class="search">
                 <form th:action="@{/report/board/search}" method="get">
-                    <input type="text" placeholder="검색어 입력" name="searchTitle">
-                    <button type="submit"><img src="https://s3.ap-northeast-2.amazonaws.com/cdn.wecode.co.kr/icon/search.png"></button>
+                    <input type="text" placeholder="검색어 입력" name="searchTitle" th:value="${searchTitle}">
+                    <button type="submit">
+                        <img src="https://s3.ap-northeast-2.amazonaws.com/cdn.wecode.co.kr/icon/search.png">
+                    </button>
                 </form>
-
             </div>
 
             <div class="page_wrap">
                 <div class="page_nation">
-                    <a class="arrow pprev" th:href="@{/report/board(page=1)}">처음</a>
-                    <!-- 이전 페이지로 이동 버튼 -->
-                    <a class="arrow prev" th:href="@{/report/board(page=${currentPage - 1})}" th:if="${currentPage > 1}">이전</a>
+                    <a class="arrow pprev" th:href="@{/report/board/search(Page=1, searchTitle=${searchTitle})}"><<</a>
+                    <a class="arrow prev" th:href="@{/report/board/search(page=${currentPage - 1}, searchTitle=${searchTitle})}" th:if="${currentPage > 1}">이전</a>
 
                     <!-- 페이지 번호 출력 -->
                     <a th:each="pageNum : ${#numbers.sequence(1, totalPages)}"
-                       th:href="@{/report/board(page=${pageNum})}"
+                       th:href="@{/report/board/search(page=${pageNum}, searchTitle=${searchTitle})}"
                        th:class="${pageNum == currentPage ? 'active' : ''}"
                        th:text="${pageNum}"></a>
 
-                    <!-- 다음 페이지로 이동 버튼 -->
-                    <a class="arrow next" th:href="@{/report/board(page=${currentPage + 1})}" th:if="${currentPage < totalPages}">다음</a>
-                    <a class="arrow nnext" th:href="@{/report/board(page=${totalPages})}">끝</a>
-
+                    <a class="arrow next" th:href="@{/report/board/search(page=${currentPage + 1}, searchTitle=${searchTitle})}" th:if="${currentPage < totalPages}">다음</a>
+                    <a class="arrow nnext"
+                       th:href="@{/report/board/search(page=${totalPages}, searchTitle=${searchTitle})}">>></a>
                 </div>
             </div>
-
         </div>
     </div>
-    <footer>
-        <p>푸터</p>
-    </footer>
-</div>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <div th:insert="~{footer :: footer}"></div>
 </body>
 </html>

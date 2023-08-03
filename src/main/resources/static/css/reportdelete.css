@@ -30,8 +30,8 @@ body {
     display: flex;
     flex-direction: column;
     width: 1200px;
-    min-width: 1000px;
-    max-width: 1200px;
+    min-width: 500px;
+    max-width: 700px;
     background-color: white;
     padding: 75px;
     border-radius: 1rem;
@@ -41,23 +41,6 @@ body {
 .main-page main {
     height: 100%;
 }
-
-/** 게시글 상세 페이지 */
-/* .view_body_wrap {
-  width: 1200;
-  min-width: 1000px;
-  max-width: 1200px;
-  padding: 75px;
-} */
-
-/* .board_title strong {
-  font-size: 2rem;
-}
-
-.board_title p {
-  margin-top: 5px;
-  font-size: 1.4rem;
-} */
 
 .board_title {
     display: flex;

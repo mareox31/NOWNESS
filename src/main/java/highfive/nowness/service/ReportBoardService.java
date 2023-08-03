@@ -2,6 +2,7 @@ package highfive.nowness.service;
 
 import highfive.nowness.dto.PostData;
 import highfive.nowness.dto.ReportDTO;
+import highfive.nowness.dto.TagsDTO;
 import highfive.nowness.repository.ReportBoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -49,4 +50,32 @@ public class ReportBoardService {
         return reportBoardRepository.getPostsByTitleAndPage(searchTitle, offset, pageSize);
     }
 
+    // 제보요청카테고리만 게시물 목록 출력
+    public int getTotalPostsCountByBoardType(int boardType) {
+        return reportBoardRepository.getTotalPostsCountByBoardType(boardType);
+    }
+
+    public List<ReportDTO> getPostsByBoardTypeAndPage(int boardType, int offset, int pageSize) {
+        return reportBoardRepository.getPostsByBoardTypeAndPage(boardType, offset, pageSize);
+    }
+
+    // 제보요청카테고리만 검색 목록 출력
+    public int getTotalPostsCountByTitleAndBoardType(String searchTitle, int boardType) {
+        return reportBoardRepository.getTotalPostsCountByTitleAndBoardType(searchTitle, boardType);
+    }
+
+    public List<ReportDTO> getPostsByTitleAndBoardTypeAndPage(String searchTitle, int boardType, int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        return reportBoardRepository.getPostsByTitleAndBoardTypeAndPage(searchTitle, boardType, offset, pageSize);
+    }
+
+    // 게시글 삭제
+    public void deletePostById(int postId) {
+        reportBoardRepository.deletePostById(postId);
+    }
+
+    // 게시글 상세 정보 조회
+    public List<TagsDTO> getTagsByContentsId(int contentsId) {
+        return reportBoardRepository.getTagsByContentsId(contentsId);
+    }
 }
