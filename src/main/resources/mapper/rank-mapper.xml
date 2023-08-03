@@ -77,6 +77,32 @@
             AND t_contents.created_datetime between date_add(now(), interval -1 year ) and now()
         </if>
 
+        <!-- 좋아요한 글인지 확인! -->
+        <if test='FL == "findlike"'>
+            AND t_likes.user_id = #{userid}
+        </if>
+
+        <!-- 검색창 분류에 맞게 출력 -->
+        <if test='SS == "nickname"'>
+            AND t_users.nickname LIKE CONCAT('%', #{SW}, '%')
+        </if>
+
+        <if test='SS == "title"'>
+            AND t_contents.title LIKE CONCAT('%', #{SW}, '%')
+        </if>
+
+        <if test='SS == "contents"'>
+            AND t_contents.contents LIKE CONCAT('%', #{SW}, '%')
+        </if>
+
+        <if test='SS == "tag"'>
+            AND (
+            SELECT GROUP_CONCAT(tag SEPARATOR ' ')
+            FROM t_Tags
+            WHERE t_contents.id = t_Tags.contents_id
+            ) LIKE CONCAT('%', #{SW}, '%')
+        </if>
+
         GROUP BY t_contents.id
 
         <if test='SM == "likeCount"'>
@@ -88,6 +114,29 @@
         </if>
     </select>
 
+    <!-- 좋아요가 존재하는 값인지 확인하기 -->
+    <select id="findLike" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1 FROM t_likes WHERE contents_id = #{contentsId} AND user_id = #{userId}
+        ) AS exist
+    </select>
+
+    <!-- 좋아요 삭제 혹은 추가 -->
+    <update id="deleteOrInsertLike" parameterType="map">
+        <choose>
+            <when test="action == 'delete'">
+                DELETE FROM t_likes
+                WHERE contents_id = #{contentsId} AND user_id = #{userId}
+            </when>
+            <when test="action == 'insert'">
+                INSERT INTO t_likes (contents_id, user_id)
+                SELECT #{contentsId}, #{userId} FROM dual
+                WHERE NOT EXISTS (
+                SELECT 1 FROM t_likes WHERE contents_id = #{contentsId} AND user_id = #{userId}
+                )
+            </when>
+        </choose>
+    </update>
 
     <!--
     <insert id="addTest">

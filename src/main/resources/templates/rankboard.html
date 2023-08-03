@@ -7,48 +7,114 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <title>NOWNESS</title>
     <script>
-        function dataSend() {
-            var SearchTime =$('input[name=serachtime]:checked').val();
-            var SortMethod =$('input[name=sortmethod]:checked').val();
 
-            console.log(SearchTime);
-            console.log(SortMethod);
+        // 정렬 변경, 좋아요 및 조회수
+        function dataSend() {
+            var searchTime =$('input[name=serachtime]:checked').val();
+            var sortMethod =$('input[name=sortmethod]:checked').val();
+            var findlikeValue = $('input[name=findlike]:checked').val();
+            var searchSort = $('select[name=selectsort]').val();
+            var searchWord = $('input[id=searchInput]').val();
+
+            // var 사용 자제하기
+
+            console.log(searchTime);
+            console.log(sortMethod);
+            console.log(findlikeValue);
+            console.log(searchSort);
+            console.log(searchWord);
+
 
             $.ajax({
                 url:"/dataSend",
-                data: {ST:SearchTime, SM:SortMethod},
+                data: {ST:searchTime, SM:sortMethod, FL:findlikeValue, SS:searchSort, SW:searchWord},
                 type:"POST",
             })
                 .done(function (result) {
-                    //console.log(result);
                     $("#contents").replaceWith(result);
             })
                 .fail(function(result) {
-                    //console.log(result);
                     console.log("값 전송을 실패했습니다.");
             });
         };
 
-        function likeclick(element) {
+        // 좋아요 누를 경우 변경
+        function likeclick(element, id) {
             var likesValue = element.getAttribute('value');
-            var likestextElement = element.querySelector(".liketext")
-            var imageElement = element.querySelector(".image")
+            var likestextElement = element.querySelector(".liketext");
+            var imageElement = element.querySelector(".image");
 
             // span 요소의 텍스트 값을 정수로 변환하여 사용합니다.
             var likestext = parseInt(likestextElement.textContent);
 
-            console.log(likestext);
+            $.ajax({
+                url:"/dataSendlike",
+                data: {id:id},
+                type:"POST",
+                dataType:"json"
+            })
+            .done(function (result) {
+                if (result.checklike) {
+                    if (likesValue == "like") {
+                        element.setAttribute('value', "unlike");
+                        likestextElement.textContent = likestext - 1;
+                        imageElement.src = '/css/image/rankboard/unlike.jpg';
+                    }
+                    else if (likesValue == "unlike") {
+                        element.setAttribute('value', "like");
+                        likestextElement.textContent = likestext + 1;
+                        imageElement.src = '/css/image/rankboard/like.jpg';
+                    }
+                }
+            })
+                .fail(function(result) {
+                    console.log("값 전송을 실패했습니다.");
+            });
+        };
 
-            if(likesValue == "like") {
-                element.setAttribute('value', "unlike");
-                likestextElement.textContent = likestext - 1;
-                imageElement.src = '/css/image/rankboard/unlike.jpg';
+        // 좋아요 누른 글만 보기 확인값
+        function dataSendonlylike(element){
+            var findlikeValue = element.value;
+
+            $.ajax({
+                url:"/dataSendonlylike",
+                data: {},
+                type:"POST",
+            })
+            .done(function (result) {
+                if (result.checklogin) {
+                    if(element.checked) {
+                        element.value = "findlike"
+                    }
+                    else {
+                        element.value = "unfindlike"
+                    }
+                    dataSend();
+                }
+                else {
+                    alert("로그인이 필요합니다.");
+                }
+            })
+            .fail(function(result) {
+                console.log("값 전송을 실패했습니다.");
+            });
+        }
+        function tagClick(elemenet)
+        {
+            var tagtext = elemenet.textContent;
+
+            var searchInput = document.getElementById("searchInput");
+
+            searchInput.value = tagtext;
+
+            var selectSort = document.getElementsByName("selectsort")[0];
+            for (var i = 0; i < selectSort.options.length; i++) {
+                if (selectSort.options[i].value === "tag") {
+                    selectSort.selectedIndex = i;
+                    break;
+                }
             }
-            if(likesValue == "unlike") {
-                element.setAttribute('value', "like");
-                likestextElement.textContent = likestext + 1;
-                imageElement.src = '/css/image/rankboard/like.jpg';
-            }
+            dataSend();
         }
     </script>
 </head>
@@ -88,20 +154,20 @@
 
     <div class="sortmethod">
         <select name="selectsort">
-            <option value="글쓴이">글쓴이</option>
-            <option value="제목">제목</option>
-            <option value="내용" selected="selected">내용</option>
-            <option value="태그">태그</option>
+            <option value="nickname">글쓴이</option>
+            <option value="title">제목</option>
+            <option value="contents" selected="selected">내용</option>
+            <option value="tag">태그</option>
         </select>
         <div class="search-container">
             <input type="text" id="searchInput" placeholder="검색어를 입력하세요...">
-            <button id="searchButton" onclick="search()">검색</button>
+            <button id="searchButton" onclick="dataSend()">검색</button>
         </div>
     </div>
 
     <div class="sortmethod">
         <label class="radio_select">
-            <input type="checkbox" name="findlike" value="unfindlike" class="long_size" checked onclick="dataSend()"/><span>좋아요 누른 글만 확인하기</span>
+            <input type="checkbox" name="findlike" value="unfindlike" class="long_size" unchecked onclick="dataSendonlylike(this)"/><span>좋아요 누른 글만</span>
         </label>
     </div>
 
@@ -118,9 +184,21 @@
         </div>
         <div class = "title"><a th:href="@{/request/post/{id}(id=${rank.id})}" th:text="${rank.title}"></a></div>
         <div class = "contents"><a th:href="@{/request/post/{id}(id=${rank.id})}" th:text="${rank.contents}"></a></div>
-        <div class = "tag">태그</div>
-        <div class = "likes" value = "unlike" onclick="likeclick(this)">
-            <img th:src="@{/css/image/rankboard/unlike.jpg}" alt = "Like/Unlike" class="image">&nbsp;&nbsp;<span class="liketext" th:text="${ rank.likeCount }"></span></div>
+        <div class = "tag"><a th:each="tagarr : ${rank.tagarray}" href="#" th:attr="onclick='tagClick(this)'" th:text="${tagarr}">태그</a>&nbsp;</div>
+        <!-- <div class = "likes" th:value="${rank.checklike ? 'like' : 'unlike'}"  th:attr="onclick='likeclick(this, ' + ${rank.id} + ')'">
+            <img th:src="@{/css/image/rankboard/unlike.jpg}" alt = "Like/Unlike" class="image">&nbsp;&nbsp;<span class="liketext" th:text="${ rank.likeCount }"></span></div> -->
+        <div class="likes" th:value="${rank.checklike ? 'like' : 'unlike'}"
+             th:attr="onclick='likeclick(this, ' + ${rank.id} + ')'"
+             th:if="${rank.checklike}">
+            <img th:src="@{/css/image/rankboard/like.jpg}" alt="likebutton" class="image">
+            &nbsp;&nbsp;<span class="liketext" th:text="${rank.likeCount}"></span>
+        </div>
+        <div class="likes" th:value="${rank.checklike ? 'like' : 'unlike'}"
+             th:attr="onclick='likeclick(this, ' + ${rank.id} + ')'"
+             th:if="${not rank.checklike}">
+            <img th:src="@{/css/image/rankboard/unlike.jpg}" alt="likebutton" class="image">
+            &nbsp;&nbsp;<span class="liketext" th:text="${rank.likeCount}"></span>
+        </div>
         <div class = "view">조회수 <span th:text="${ rank.views }"></span>회</div>
     </div>
 
