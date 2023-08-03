@@ -4,37 +4,37 @@
 <mapper namespace="highfive.nowness.repository.BoardRepository">
     <select id="loadRecentContentsAndReplies" parameterType="long" resultType="java.util.HashMap">
         (SELECT 'contents' AS type, c.id AS contentsId, c.title AS contents, c.created_datetime AS datetime
-         FROM Contents c
-         WHERE c.user_id = #{userId} ORDER BY c.created_datetime DESC LIMIT 0, 5)
+         FROM contents c
+         WHERE c.user_id = #{param1} ORDER BY c.created_datetime DESC LIMIT 0, 5)
         UNION ALL
         (SELECT 'replies' AS type, r.contents_id AS contentsId, r.reply AS contents, r.created_datetime AS datetime
-         FROM Replies r
-         WHERE r.user_id = #{userId} ORDER BY r.created_datetime DESC LIMIT 0, 5);
+         FROM replies r
+         WHERE r.user_id = #{param1} ORDER BY r.created_datetime DESC LIMIT 0, 5);
     </select>
 
     <select id="loadUserRecentPostsByPage" parameterType="long" resultType="java.util.HashMap">
         SELECT id, title, created_datetime AS datetime
         FROM contents
-        WHERE user_id = #{arg0}
-        ORDER BY created_datetime DESC LIMIT #{arg1}, 10
+        WHERE user_id = #{param1}
+        ORDER BY created_datetime DESC LIMIT #{param2}, 10
     </select>
 
     <select id="loadUserPostsCount" parameterType="long" resultType="long">
         SELECT count(*)
         FROM contents
-        WHERE user_id = #{arg0}
+        WHERE user_id = #{param1}
     </select>
 
     <select id="loadUserRecentRepliesByPage" parameterType="long" resultType="java.util.HashMap">
         SELECT id, SUBSTR(reply, 1, 50) AS title, created_datetime AS datetime
         FROM replies
-        WHERE user_id = #{arg0}
-        ORDER BY created_datetime DESC LIMIT #{arg1}, 10
+        WHERE user_id = #{param1}
+        ORDER BY created_datetime DESC LIMIT #{param2}, 10
     </select>
 
     <select id="loadUserRepliesCount" parameterType="long" resultType="long">
         SELECT count(*)
         FROM replies
-        WHERE user_id = #{arg0}
+        WHERE user_id = #{param1}
     </select>
 </mapper>

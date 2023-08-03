@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 @Configuration
-@PropertySource("classpath:api.properties")
+//@PropertySource(value = "classpath:/api.properties", encoding = "utf-8")
 @Getter
 public class ApiConfig {
 
