@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/styles.css}" rel="stylesheet" type="text/css">
+    <script th:src="@{/js/jquery-3.7.0.min.js}"></script>
+    <script th:src="@{/js/popper.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <script th:src="@{/js/user/login_signup.js}"></script>
+    <title>NOWNESS</title>
+</head>
+<body>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="card pb-3 pt-3" style="border-radius: 1rem; min-width: 400px; max-width: 450px">
+            <div class="container mt-3">
+                <form th:method="post"
+                      th:id="${#ctx.springRequestContext.requestUri} == '/user/login' ? 'loginForm' : 'signupForm'"
+                      th:action="${#ctx.springRequestContext.requestUri} == '/user/login' ? '/authenticate' : '/user/signup'">
+                <div class="row">
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" id="floatingEmail" placeholder="name@example.com"
+                               name="email"
+                               aria-describedby="emailValidationFeedback" required>
+                        <label for="floatingEmail">이메일주소</label>
+                        <div id="emailValidationFeedback" class="invalid-feedback"></div>
+                    </div>
+                    <div th:if="${#ctx.springRequestContext.requestUri} == '/user/signup'" class="form-floating mb-3">
+                        <input type="text" class="form-control" id="floatingNickname" placeholder="exampleNickname"
+                               name="nickname"
+                               aria-describedby="nicknameValidationFeedback" required>
+                        <label for="floatingNickname">닉네임</label>
+                        <div id="nicknameValidationFeedback" class="invalid-feedback"></div>
+                    </div>
+                    <div class="form-floating">
+                        <input type="password" class="form-control" id="floatingPassword" placeholder="비밀번호"
+                               name="password"
+                               aria-describedby="passwordValidationFeedback" required>
+                        <label for="floatingPassword">비밀번호</label>
+                        <div id="passwordValidationFeedback" class="invalid-feedback">
+                            비밀번호는 영문자, 숫자, 특수문자 조합으로 8글자 이상 작성하여야 합니다.
+                        </div>
+                    </div>
+                    <div th:if="${#ctx.springRequestContext.requestUri} == '/user/signup'" class="form-floating mt-3 mb-3">
+                        <input type="password" class="form-control" id="floatingPasswordCheck" placeholder="비밀번호 확인"
+                               aria-describedby="passwordCheckValidationFeedback" required>
+                        <label for="floatingPasswordCheck">비밀번호 재확인</label>
+                        <div id="passwordCheckValidationFeedback" class="invalid-feedback">
+                            입력하신 비밀번호와 일치하지 않습니다.
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${#ctx.springRequestContext.requestUri} == '/user/login'" class="row justify-content-between flex-nowrap">
+                    <div class="form-check col-5 m-3 text-start" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="공용 컴퓨터에서는 절대 체크하지 마세요.">
+                        <input class="form-check-input" type="checkbox" name="remember-me" id="remember-me">
+                        <label class="form-check-label text-nowrap text-secondary" for="remember-me">
+                            로그인 상태 유지
+                        </label>
+                    </div>
+                    <div class="col-5 m-3 text-end">
+                        <a th:href="@{/user/find-password}" class="link-dark text-nowrap">비밀번호 찾기</a>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <th:block th:if="${#ctx.springRequestContext.requestUri} == '/user/signup'">
+                    <div class="col-8 row">
+                        <img th:src="@{'data:image/jpeg;base64,' + ${encodedCaptchaImage}}" alt="Captcha 이미지"
+                             class="img-fluid rounded"/>
+                        <input type="hidden" name="captchaKey" th:value="${captchaKey}">
+                    </div>
+                    <div class="col-4 row align-content-center">
+                        <button id="btnRefreshCaptchaImage" class="btn btn-primary container-fluid text-nowrap m-2">⟳새로고침</button>
+                        <button id="btnAudioCaptcha" class="btn btn-primary container-fluid text-nowrap m-2">🔊음성듣기</button>
+                    </div>
+                    <div class="col-12 row form-floating mt-3">
+                        <input type="text" class="form-control" id="floatingCaptcha" placeholder="captcha"
+                               name="captcha"
+                               aria-describedby="captchaValidationFeedback" required>
+                        <label for="floatingCaptcha">위 이미지에 보이는 텍스트를 입력하세요.</label>
+                        <div id="captchaValidationFeedback" class="invalid-feedback">입력하신 값이 일치하지 않습니다.</div>
+                    </div>
+                    </th:block>
+                    <div class="d-grid gap-2 mt-3">
+                        <input class="btn btn-primary p-3" type="submit" disabled
+                               th:id="btnSubmit"
+                               th:value="${#ctx.springRequestContext.requestUri} == '/user/login' ? '로그인' : '회원가입'"/>
+                        <th:block th:if="${#ctx.springRequestContext.requestUri} == '/user/signup'">
+                        <button id="btnSignupProcessingMessage" class="btn btn-primary p-3"
+                                style="display: none"
+                                type="button" disabled>
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            회원가입 중...
+                        </button>
+                        </th:block>
+                    </div>
+                </div>
+                </form>
+                <div th:if="${#ctx.springRequestContext.requestUri} == '/user/login'" class="row text-center m-2">
+                    <p>계정을 만드시려면?&nbsp;<a th:href="@{/user/signup}" class="link-primary text-nowrap">회원가입</a></p>
+                </div>
+                <div  th:if="${#ctx.springRequestContext.requestUri} == '/user/signup'" class="row m-3 text-center">
+                    <a th:href="@{/user/login}" class="link-dark text-nowrap">로그인 화면으로 돌아가기</a>
+                </div>
+                <div class="row m-4 mb-0 mt-0">
+                    <hr>
+                </div>
+                <div class="row m-2">
+                    <a th:href="@{/oauth2/authorization/google}" class="btn btn-block p-3 mb-3 card text-start">
+                        <div class="row">
+                            <div class="col-1">
+                                <img th:src="@{/images/login/icon_google.svg}" style="width: 24px;" alt="구글 아이콘">
+                            </div>
+                            <div class="col-11">
+                                <span class="p-1">구글 계정으로 로그인</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a th:href="@{/oauth2/authorization/kakao}" class="btn btn-block p-3 mb-3 card text-start">
+                        <div class="row">
+                            <div class="col-1">
+                                <img th:src="@{/images/login/icon_kakao.svg}" style="width: 24px" alt="카카오 아이콘">
+                            </div>
+                            <div class="col-11">
+                                <span class="p-1">카카오 계정으로 로그인</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a th:href="@{/oauth2/authorization/naver}" class="btn btn-block p-3 card text-start">
+                        <div class="row">
+                            <div class="col-1">
+                                <img th:src="@{/images/login/icon_naver.svg}" style="width: 24px" alt="네이버 아이콘">
+                            </div>
+                            <div class="col-11">
+                                <span class="p-1">네이버 계정으로 로그인</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:insert="~{footer :: footer}"></div>
+</body>
+</html>
