@@ -342,7 +342,7 @@
     <div class="pagination">
 
         <!--기본출력-->
-        <th:block th:if="${subcategory == null && locale==null && searchType == null && searchKeyword==null }">
+        <th:block th:if="${subcategory == null && locale==null && searchType == null && searchKeyword==null && searchtag == null }">
             <a class="btn btn-light" th:href="@{/request/list(page=1)}" role="button">First</a>
             <a class="btn btn-light" th:if="${currentPage > 1}" th:href="@{/request/list(page=${currentPage - 1})}" role="button">Previous</a>
             <div th:each="pageNumber : ${#numbers.sequence(1, totalPages)}">
@@ -357,7 +357,7 @@
 
 
         <!--카테고리랑, 지역있을때-->
-        <th:block th:if="${subcategory != null && locale!=null && searchType == null && searchKeyword==null}">
+        <th:block th:if="${subcategory != null && locale!=null && searchType == null && searchKeyword==null && searchtag == null}">
             <a class="btn btn-light" th:href="@{/request/listtest(page=1, locale=${locale}, subcategory=${subcategory})}" role="button">First</a>
             <a class="btn btn-light" th:if="${currentPage > 1}" th:href="@{/request/listtest(page=${currentPage - 1}, locale=${locale}, subcategory=${subcategory})}" role="button">Previous</a>
             <div th:each="pageNumber : ${#numbers.sequence(1, totalPages)}">
@@ -374,7 +374,7 @@
 
 
         <!--검색어 있을때-->
-        <th:block th:if="${searchType != null && searchKeyword != null && subcategory == null && locale == null}">
+        <th:block th:if="${searchType != null && searchKeyword != null && subcategory == null && locale == null && searchtag == null}">
             <a class="btn btn-light" th:href="@{/request/list/search(page=1, searchType=${searchType}, searchKeyword=${searchKeyword})}" role="button">First</a>
             <a class="btn btn-light" th:if="${currentPage > 1}" th:href="@{/request/list/search(page=${currentPage - 1}, searchType=${searchType}, searchKeyword=${searchKeyword})}" role="button">Previous</a>
             <div th:each="pageNumber : ${#numbers.sequence(1, totalPages)}">
@@ -387,6 +387,18 @@
         </th:block>
 
 
+        <!--태그 검색어 있을때-->
+        <th:block th:if="${searchtag != null }">
+            <a class="btn btn-light" th:href="@{/request/list/searchtag(page=1, tag=${searchtag})}" role="button">First</a>
+            <a class="btn btn-light" th:if="${currentPage > 1}" th:href="@{/request/list/searchtag(page=${currentPage - 1}, tag=${searchtag})}" role="button">Previous</a>
+            <div th:each="pageNumber : ${#numbers.sequence(1, totalPages)}">
+                <a class="btn btn-light" th:if="${currentPage > 0}" th:href="@{/request/list/searchtag(page=${pageNumber}, tag=${searchtag})}" th:text="${pageNumber}" role="button"></a>
+            </div>
+            <a class="btn btn-light" th:if="${currentPage < totalPages}" th:href="@{/request/list/searchtag(page=${currentPage + 1}, tag=${searchtag})}" role="button">Next</a>
+            <!--페이지수 0일때 last누르면 1페이지로-->
+            <a class="btn btn-light" th:if="${currentPage == 0}" th:href="@{/request/list/searchtag(page=1, tag=${searchtag})}" role="button">Last</a>
+            <a class="btn btn-light" th:if="${currentPage > 0}" th:href="@{/request/list/searchtag(page=${totalPages}, tag=${searchtag})}" role="button">Last</a>
+        </th:block>
 
 
 

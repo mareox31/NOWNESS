@@ -8,84 +8,142 @@
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <script th:src="@{/js/jquery-3.7.0.min.js}"></script>
     <link rel="stylesheet" th:href="@{/css/summernote/summernote-lite.css}">
+
+    <link rel="stylesheet" href="https://unpkg.com/@yaireo/tagify/dist/tagify.css">
+
 </head>
 <body>
 <div th:insert="~{header :: header}"></div>
 
 <div class="contents">
-<div class="post-header-wrapper">
+    <div class="post-header-wrapper">
 
-    <!-- 현재 기입항목 :  userId, String contents, String title, int boardType, int locale, int subcategory-->
-    <!--                이미지, 해시태그, 멀티미디어항목추가해야함.-->
-
-
-
-    <form action="/request/updatepost" method="post">
-        <input type="hidden" name="userId"  th:value="${userId}">
-        <input type="hidden" name="_csrf" th:value="${_csrf.token}">
-
-        <input type="hidden" name="id"  th:value="${modifypost.id}">
-
-        게시판을 선택하세요(공유/요청)
-        <select name="boardType" id="boardType">
-            <option value="1" th:selected="${modifypost.boardType == 1}">공유</option>
-            <option value="2" th:selected="${modifypost.boardType == 2}">요청</option>
-        </select>
-
-        <hr>
-
-        지역을 선택하세요
-        <select name="locale" id="locale">
-            <option value="1" th:selected="${modifypost.locale == 1}">서울</option>
-            <option value="2" th:selected="${modifypost.locale == 2}">경기</option>
-            <option value="3" th:selected="${modifypost.locale == 3}">인천</option>
-            <option value="4" th:selected="${modifypost.locale == 4}">부산</option>
-            <option value="5" th:selected="${modifypost.locale == 5}">광주</option>
-            <option value="6" th:selected="${modifypost.locale == 6}">대구</option>
-            <option value="7" th:selected="${modifypost.locale == 7}">대전</option>
-            <option value="8" th:selected="${modifypost.locale == 8}">울산</option>
-            <option value="9" th:selected="${modifypost.locale == 9}">제주</option>
-            <option value="10" th:selected="${modifypost.locale == 10}">경상</option>
-            <option value="11" th:selected="${modifypost.locale == 11}">전라</option>
-            <option value="12" th:selected="${modifypost.locale == 12}">충청</option>
-
-        </select>
-
-        <hr>
-        분류를 선택하세요.
-        <select name="subcategory" id="subcategory">
-            <option value="1" th:selected="${modifypost.subcategory == 1}">혼잡도</option>
-            <option value="2" th:selected="${modifypost.subcategory == 2}">교통</option>
-            <option value="3" th:selected="${modifypost.subcategory == 3}">날씨</option>
-            <option value="4" th:selected="${modifypost.subcategory == 4}">주변</option>
-            <option value="5" th:selected="${modifypost.subcategory == 5}">사건사고</option>
-            <option value="6" th:selected="${modifypost.subcategory == 6}">행사</option>
-        </select>
-
-        <input type="text" placeholder="제목을 입력해주세요." id="postTitle" name="title" required th:value="${modifypost.title}">
-
-        <!--썸머노트-->
-        <div>
-            <textarea id="summernote" name="contents"></textarea>
-<!--            <textarea id="summernote" name="contents" th:text="${modifypost.contents}"></textarea>-->
-        </div>
-
-
-        <button type="submit" id="submitButton">등록</button>
-
-    </form>
-
-
-    <!--                작성자id확인용-->
-    <!--                <span th:text="${user.id}"></span>-->
+        <!-- 현재 기입항목 :  userId, String contents, String title, int boardType, int locale, int subcategory-->
+        <!--                이미지, 해시태그, 멀티미디어항목추가해야함.-->
 
 
 
-    <div th:insert="~{footer :: footer}"></div>
+        <form action="/request/updatepost" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="userId"  th:value="${userId}">
+            <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+
+            <input type="hidden" name="id"  th:value="${modifypost.id}">
+
+            게시판을 선택하세요(공유/요청)
+            <select name="boardType" id="boardType">
+                <option value="1" th:selected="${modifypost.boardType == 1}">공유</option>
+                <option value="2" th:selected="${modifypost.boardType == 2}">요청</option>
+            </select>
+
+            <hr>
+
+            지역을 선택하세요
+            <select name="locale" id="locale">
+                <option value="1" th:selected="${modifypost.locale == 1}">서울</option>
+                <option value="2" th:selected="${modifypost.locale == 2}">경기</option>
+                <option value="3" th:selected="${modifypost.locale == 3}">인천</option>
+                <option value="4" th:selected="${modifypost.locale == 4}">부산</option>
+                <option value="5" th:selected="${modifypost.locale == 5}">광주</option>
+                <option value="6" th:selected="${modifypost.locale == 6}">대구</option>
+                <option value="7" th:selected="${modifypost.locale == 7}">대전</option>
+                <option value="8" th:selected="${modifypost.locale == 8}">울산</option>
+                <option value="9" th:selected="${modifypost.locale == 9}">제주</option>
+                <option value="10" th:selected="${modifypost.locale == 10}">경상</option>
+                <option value="11" th:selected="${modifypost.locale == 11}">전라</option>
+                <option value="12" th:selected="${modifypost.locale == 12}">충청</option>
+
+            </select>
+
+            <hr>
+            분류를 선택하세요.
+            <select name="subcategory" id="subcategory">
+                <option value="1" th:selected="${modifypost.subcategory == 1}">혼잡도</option>
+                <option value="2" th:selected="${modifypost.subcategory == 2}">교통</option>
+                <option value="3" th:selected="${modifypost.subcategory == 3}">날씨</option>
+                <option value="4" th:selected="${modifypost.subcategory == 4}">주변</option>
+                <option value="5" th:selected="${modifypost.subcategory == 5}">사건사고</option>
+                <option value="6" th:selected="${modifypost.subcategory == 6}">행사</option>
+            </select>
+
+            <hr>
+            해시태그 (최대 5개 입력가능합니다. 엔터로 추가해주세요.)
+            <div id="tagContainer">
+                <input placeholder="#해시태그" name="hashtags" id="tagInput" type="hidden">
+            </div>
+            <div id="warningMessage" style="display: none; color: red;">
+                5개를 초과한 태그를 입력할 수 없습니다.(최대 5개)
+            </div>
+
+
+            <hr>
+            제  목  :
+
+            <input type="text" placeholder="제목을 입력해주세요." id="postTitle" name="title" required th:value="${modifypost.title}">
+
+            <!--썸머노트-->
+            <div>
+                <textarea id="summernote" name="contents"></textarea>
+                <!--            <textarea id="summernote" name="contents" th:text="${modifypost.contents}"></textarea>-->
+            </div>
+            <!--기존파일-->
+            <!--기존파일-->
+            <div id="existingFilesContainer">
+                <!-- Existing files will be displayed here -->
+            </div>
+            <div th:each="existingFile : ${existingFiles}">
+                <input type="hidden" name="existingSavenames" th:value="${existingFile.saveName}">
+            </div>
+
+
+            <!--파일-->
+            <!-- File Upload -->
+            <hr>
+            파일을 첨부하세요 (최대 5개):
+            <input type="file" name="files" id="fileInput" multiple>
+            <!-- 'multiple' attribute allows multiple file selection -->
+
+
+
+            <!--            미리보기-->
+            <div id="selectedFiles"></div>
+            <!-- A div to display the selected files -->
+
+
+
+
+
+            <button type="submit" id="submitButton">등록</button>
+
+        </form>
+
+
+        <!--                작성자id확인용-->
+        <!--                <span th:text="${user.id}"></span>-->
+        <!--     <span th:text="${tagslist}"></span>-->
+
+
+        <div th:insert="~{footer :: footer}"></div>
+    </div>
 </div>
-</div>
+
+
+
+<script src="https://unpkg.com/@yaireo/tagify"></script>
+<script src="https://unpkg.com/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
+
+
+
+
 <script th:inline="javascript">
     $(document).ready(function() {
+        // var existingTags = /*[[${tagslist}]]*/ [];
+        // alert(existingTags);
+
+        var tagslist = /*[[${tagslist}]]*/ [];
+        var existingTags = tagslist.map(function(tagObj) {
+            return tagObj.tag;
+        });
+
 
         //$여러번안쓰게 정의미리해둠.
         const summernote = $('#summernote');
@@ -148,6 +206,204 @@
 
         var markupStr =  [[${modifypost.contents}]];
         summernote.summernote('code', markupStr);
+
+
+        // 해시태그-수정용
+        var input = document.getElementById('tagInput');
+        var tagify = new Tagify(input);
+        tagify.addTags(existingTags.map(tag => ({ value: tag })));
+
+        // Custom event listener to prevent spacebar input
+        tagify.DOM.input.addEventListener('keydown', function(event) {
+            if (event.key === ' ') { // Check if the pressed key is spacebar
+                event.preventDefault(); // Prevent the default behavior (spacebar input)
+            }
+        });
+
+
+        // 태그 입력 5개 제한
+        tagify.on('input', function(e) {
+            var tags = tagify.value.map(tag => tag.value);
+            if (tags.length > 4) {
+                tagify.settings.mode = 'mix';
+                tagify.DOM.input.blur();
+
+                document.getElementById('warningMessage').style.display = 'block';
+            } else {
+                tagify.settings.mode = 'input';
+                document.getElementById('warningMessage').style.display = 'none';
+            }
+        });
+
+        tagify.on('keydown', function(e) {
+            var tags = tagify.value.map(tag => tag.value);
+            if (tags.length > 4) {
+                e.preventDefault();
+            }
+        });
+
+        tagify.on('focus', function(e) {
+            var tags = tagify.value.map(tag => tag.value);
+            if (tags.length > 4) {
+                tagify.DOM.input.blur();
+            }
+        });
+
+
+
+        // // submit event-tag
+        // $('#submitButton').on('click', function() {
+        //     input.value = tagify.value.map(tag => tag.value).join(',');
+        //     $('form').submit();
+        // });
+
+
+        //파일     ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ
+
+//기존파일테스트
+// Function to display existing files
+        function displayExistingFiles(existingFiles) {
+            const container = document.getElementById('existingFilesContainer');
+
+            existingFiles.forEach(file => {
+                const fileDiv = document.createElement('div');
+                const imageElement = document.createElement('img');
+                imageElement.src = `/image/${file.saveName}`; // Set the image URL
+                imageElement.alt = file.orginName; // Set the original file name as the image's alt text
+
+                fileDiv.appendChild(imageElement);
+                container.appendChild(fileDiv);
+            });
+        }
+
+        // Call the function to display existing files
+        displayExistingFiles(/*[[${existingFiles}]]*/);
+
+
+
+
+
+//파일 올리면 미리보기됨.이미지.
+// Function to display selected files and allow deleting them
+
+        //파일 미리보기 기능.
+        function displaySelectedFiles(files) {
+            const selectedFilesDiv = document.getElementById('selectedFiles'); //미리보기공간.
+            selectedFilesDiv.innerHTML = ''; //우선 비워.
+
+            files.forEach((file, index) => { //매개변수로 받은 파일을 반복.
+                const fileDiv = document.createElement('div');//div생성,
+                const fileName = file.name; //파일이름으로
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+
+                //삭제버튼 클릭하면클릭이벤트.
+                deleteButton.addEventListener('click', () => {
+                    selectedFiles.splice(index, 1); //한개삭제
+                    displaySelectedFiles(selectedFiles); //보여주자다시
+                });
+
+                fileDiv.textContent = fileName; //div파일이름설정 : textcontents  태그에 상관없이 해당 노드가 가지고 있는 텍스트 값을 모두 읽어온다.
+                fileDiv.appendChild(deleteButton);//div당 delete설정.
+
+                // Display image preview if it's an image file
+                // if (file.type.startsWith('image/')) {      //startswidh 파일뭐로시작하는지.startsWith() 메서드는 어떤 문자열이 특정 문자로 시작하는지 확인하여 결과를 true 혹은 false로 반환합니다.
+                if (file.type && file.type.indexOf('image/') === 0) {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file); //이미지 주소만들어줌. URL.createObjectURL() 정적 메서드는 주어진 객체를 가리키는 URL을 DOMString으로 반환합니다. 해당 URL은 자신을 생성한 창의 document가 사라지면 함께 무효화됩니다.
+                    img.width = 100; // You can adjust the preview size here//사이즈가로지정.
+                    fileDiv.appendChild(img);//자기이름공간에다가 이미지 첨부함.(미리보기)
+                }
+
+                selectedFilesDiv.appendChild(fileDiv);
+            });
+        }//displaySelectedFiles- end
+//---------기능 displaySelectedFiles 끝------------------
+        const existingFiles = /*[[${existingFiles}]]*/ [];//기존파일.
+
+        // Event listener for file input change
+        //인풋에 이벤트 리스너 추가. 인풋수정.
+        const fileInput = document.getElementById('fileInput');//파일첨부자리.
+        // const selectedFiles = []; //이미선택된파일들. 우선빈공간. //여기다가 선택한거넣음되겠다.
+        const selectedFiles = existingFiles;
+        displaySelectedFiles(selectedFiles);//미리보여줄까
+        alert(existingFiles);
+
+
+
+        fileInput.addEventListener('change', () => {
+            const files = fileInput.files;
+
+
+            //인풋된거(지금넣는거) +선택된거 합쳐서 5개 카운트
+            if (files.length + selectedFiles.length > 5) {
+                alert('You can only upload up to 5 files.');
+                fileInput.value = ''; // Reset file input
+                return;
+            }
+
+            // Add selected files to the list
+            //추가된파일리스트에넣는다.
+            for (let i = 0; i < files.length; i++) {
+                selectedFiles.push(files[i]);
+            }
+
+            //파일리스트를 보여주기.(공간만들고 , delete붙이고)
+            displaySelectedFiles(selectedFiles);
+        });
+
+        // //---------파일업로드때매 submit
+        // // Submit event for form validation
+        // $('#submitButton').on('click', function(event) {
+        //     event.preventDefault();
+        //
+        //     const files = fileInput.files;
+        //     let totalFileSize = 0;
+        //
+        //     // 전체 크기 계산
+        //     for (let i = 0; i < files.length; i++) {
+        //         totalFileSize += files[i].size;
+        //     }
+        //
+        //     // 전체 크기 체크.
+        //     const maxSize = 5 * 1024 * 1024; // 5 MB in bytes
+        //     if (totalFileSize > maxSize) {
+        //         alert('파일의 크기가 제한 크기를 넘었습니다. 파일 전체 총 합이 5MB까지 첨부가 가능합니다.');
+        //         return;
+        //     }
+        //
+        //     input.value = tagify.value.map(tag => tag.value).join(',');//해시태그용
+        //
+        //     //사이즈제한 맞으면 버튼동작.
+        //     $('form').submit();
+        // });
+        //---------파일업로드때매 submit
+        // Submit event for form validation
+        $('#submitButton').on('click', function(event) {
+            event.preventDefault();
+
+            const files = fileInput.files;
+            let totalFileSize = 0;
+
+            // 전체 크기 계산
+            for (let i = 0; i < files.length; i++) {
+                totalFileSize += files[i].size;
+            }
+
+            // 전체 크기 체크.
+            const maxSize = 5 * 1024 * 1024; // 5 MB in bytes
+            if (totalFileSize > maxSize) {
+                alert('파일의 크기가 제한 크기를 넘었습니다. 파일 전체 총 합이 5MB까지 첨부가 가능합니다.');
+                return;
+            }
+
+            input.value = tagify.value.map(tag => tag.value).join(',');//해시태그용
+
+            //사이즈제한 맞으면 버튼동작.
+            $('form').submit();
+        });
+
 
     });
 </script>
