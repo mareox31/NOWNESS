@@ -147,6 +147,13 @@
         VALUES (#{userId}, #{contents}, #{title}, #{boardType}, #{locale}, #{subcategory})
     </insert>
 
+    <!-- 게시글 저장 후, 글 번호 반환용. -->
+    <insert id="addPost2" parameterType="postDATA" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO Contents (`user_id`, `contents`, `title`, `board_type`, `locale`, `subcategory`)
+        VALUES (#{userId}, #{contents}, #{title}, #{boardType}, #{locale}, #{subcategory})
+    </insert>
+
+
 
     <!--    게시글 수정등록 -->
     <insert id="updatePost" parameterType="postDATA">
@@ -154,6 +161,15 @@
         SET  `contents` =#{contents}, `title` = #{title}, `board_type` = #{boardType}, `locale` = #{locale}, `subcategory` = #{subcategory}, edit_datetime =now()
         WHERE `id` = #{id};
     </insert>
+
+    <!--    게시글 수정등록22 -->
+    <insert id="updatePost2" parameterType="postDATA"  useGeneratedKeys="true" keyProperty="id">
+        UPDATE Contents
+        SET  `contents` =#{contents}, `title` = #{title}, `board_type` = #{boardType}, `locale` = #{locale}, `subcategory` = #{subcategory}, edit_datetime =now()
+        WHERE `id` = #{id};
+    </insert>
+
+
 
     <!--ajax테스트중-->
     <!--카테고리분류별 게시글가져오기 DTO //필요파라메터 지역, 섭카테고리-->
@@ -268,6 +284,81 @@
         and deleted=0
     </select>
 
+
+    <!--  태그저장 -->
+    <insert id="addHashtag" parameterType="java.util.List">
+        INSERT INTO Tags (contents_id, tag)
+        VALUES
+        <foreach collection="list" item="tag" separator=",">
+            (#{tag.contentsid}, #{tag.tag})
+        </foreach>
+    </insert>
+
+    <!--게시물에 해당하는 태그 조회-->
+    <select id="getTags" resultType="tagsDTO" parameterType="java.lang.Integer">
+        SELECT tags.*
+        FROM contents
+        JOIN tags ON tags.contents_id = contents.id
+        WHERE contents.id = #{id};
+    </select>
+
+
+    <!--태그 검색 : 해당하는 태그에 대한 게시물 갯수-->
+    <select id="searchTagListCount" resultType="java.lang.Integer" parameterType="String">
+        SELECT COUNT(*) FROM contents c
+        JOIN tags t ON t.contents_id = c.id
+        WHERE c.board_type = 1
+        AND c.deleted = 0
+        AND t.tag= #{tag}
+    </select>
+
+
+
+
+        <!-- 태그 검색 : 해당 글 DTO가져오기-->
+        <select id="searchPagingTagList" resultType="requestDTO" parameterType="java.util.Map">
+            SELECT c.* , u.nickname
+            FROM contents c
+            JOIN tags t ON c.id = t.contents_id
+            JOIN users u ON c.user_id = u.id
+            WHERE c.board_type = 1
+            AND c.deleted = 0
+            AND t.tag LIKE  #{tag}
+            ORDER BY c.id DESC LIMIT #{pageIndex}, #{pageSize}
+        </select>
+
+
+
+    <!--태그삭제 -->
+    <delete id="removeTags" parameterType="java.util.List">
+        DELETE FROM Tags
+        <foreach collection="list" item="tag" separator=",">
+            WHERE contents_id = #{tag.contentsid} AND tag = #{tag.tag};
+        </foreach>
+    </delete>
+
+
+    <!--파일저장-->
+    <insert id="saveFileData" parameterType="fileDATA">
+        INSERT INTO Files (contents_id, orgin_name, save_name, path, size, ext)
+        VALUES (#{contentsId}, #{orginName}, #{saveName}, #{path}, #{size}, #{ext})
+    </insert>
+
+
+    <!-- Retrieve FileData by fileId파일다운 -->
+    <select id="getFileById" resultType="fileDATA">
+        SELECT * FROM Files WHERE id = #{fileId}
+    </select>
+
+    <!-- 게시물에 해당하는 파일들 -->
+    <select id="getFileByContentsId" resultType="fileDATA">
+        SELECT * FROM Files WHERE contents_id = #{id}
+    </select>
+
+    <!-- Delete a file by its ID -->
+    <delete id="deleteFileById">
+        DELETE FROM Files WHERE id = #{fileId}
+    </delete>
 
 </mapper>
 

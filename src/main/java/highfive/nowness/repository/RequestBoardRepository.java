@@ -101,10 +101,23 @@ public class RequestBoardRepository {
         sql.insert("request.addPost", postData);
     }
 
+    //글 저장2(insert + 번호반환)
+    public int addPost2(PostData postData) {
+        sql.insert("request.addPost2", postData);
+        return postData.getId();
+    }
+
     //글"수정" 저장(update)
     public void updatePost(PostData postData) {
         sql.insert("request.updatePost", postData);
     }
+
+    //테스트중 태그 ------글"수정" 저장(update+ 번호반환)
+    public int updatePost2(PostData postData) {
+        sql.insert("request.updatePost2", postData);
+        return  postData.getId();
+    }
+
 
     //카테고리 리스트용-----
     public int getRequestsByBoardTypeCount(int boardType) {
@@ -170,7 +183,70 @@ public class RequestBoardRepository {
     }
 
 
+    //해시태그 저장.
+    public int addTags(List<TagsDTO> tags) {
+        return sql.insert("request.addHashtag", tags);
+    }
 
+
+    //해당 게시물에 해당하는 태그 가져오기(여러개라 뭘로 나올지..)
+    public List<TagsDTO> getTags(int id) {
+        return sql.selectList("request.getTags", id);
+    }
+
+    //태그 검색 : 태그에 해당하는 글 개수
+    public int searchTagListCount(String tag) {
+        return sql.selectOne("request.searchTagListCount", tag);
+    }
+
+
+
+    //태그 검색 : 해당 키워드로 조회 총 글 DTO
+    public List<RequestDTO> searchPagingTagList(Map<String, Object> pagingParams) {
+        List<RequestDTO> requestList = sql.selectList("request.searchPagingTagList", pagingParams);
+        for (RequestDTO requestDTO : requestList) {
+            String nickname = sql.selectOne("request.getNicknameByUserId", requestDTO.getUserId());
+            requestDTO.setNickname(nickname);
+
+            //테스트추가-댓글갯수,
+            int postId = requestDTO.getId();
+            int repliesCount = sql.selectOne("request.postRepliesCount", postId);
+            requestDTO.setRepliesCount(repliesCount);
+
+        }
+        return requestList;
+    }
+
+
+    //태그삭제
+    public int removeTags(List<TagsDTO> tags) {
+        return sql.insert("request.removeTags", tags);
+    }
+
+
+    //파일 DB저장
+    public void saveFileData(FileData fileData) {
+        sql.insert("request.saveFileData", fileData);}
+
+
+    //파일 다운로드 테스트용
+    // Retrieve FileData by fileId
+    // Retrieve FileData by fileId
+    public FileData getFileById(long fileId) {
+        return sql.selectOne("request.getFileById", fileId);
+    }
+
+
+    //게시물에해당하는 파일내용
+    public List<FileData>  getFileByContentsId(int id) {
+        return sql.selectList("request.getFileByContentsId", id);
+    }
+
+
+    // Delete a file by its ID
+    public void deleteFileById(long fileId) {
+        sql.delete("request.deleteFileById", fileId);
+    }
 
 }
 
