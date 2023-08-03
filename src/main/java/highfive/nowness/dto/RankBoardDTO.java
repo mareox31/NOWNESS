@@ -3,7 +3,9 @@ package highfive.nowness.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 @Getter
 @Setter
@@ -19,8 +21,11 @@ public class RankBoardDTO {
     private int likeCount; // 추천 개수
     private String daycount; // 날짜를 출력에 알맞게 변경하기
     private int viewsnum; // 게시판 페이징을 위한 실제 출력되는 값 가져오기
+    private String tagString; // 태그를 가져오기 위한 문자열 값입니다. (아직 정제되지 않음)
+    private ArrayList<String> tagarray = new ArrayList<>(); // 태그를 정리한 값입니다.
+    private boolean checklike;
 
-    public RankBoardDTO(int id, int user_id, String nickname, Date date, int views, String contents, String title, int likeCount)
+    public RankBoardDTO(int id, int user_id, String nickname, Date date, int views, String contents, String title, int likeCount, String tagString)
     {
         this.id = id;
         this.user_id = user_id;
@@ -30,7 +35,7 @@ public class RankBoardDTO {
         this.contents = contents;
         this.title = title;
         this.likeCount = likeCount;
-
+        this.tagString = tagString;
     }
 
 }

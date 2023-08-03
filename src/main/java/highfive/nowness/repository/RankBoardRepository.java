@@ -11,4 +11,6 @@ import java.util.Map;
 @Mapper
 public interface RankBoardRepository {
     List<RankBoardDTO> getRank(Map<String, Object> params);
+    boolean findLike(long userId, long contentsId);
+    void deleteOrInsertLike(Map<String, Object> params);
 }

@@ -4,9 +4,15 @@
 <mapper namespace="highfive.nowness.repository.RankBoardRepository">
 
 
+    <!--
     <select id="getRank" resultType="RankBoardDTO" parameterType="hashMap">
         SELECT contents.id, contents.user_id, users.nickname, contents.created_datetime,
-        contents.views, contents.contents, contents.title, IFNULL(count(likes.id), 0) AS count
+        contents.views, contents.contents, contents.title, IFNULL(count(likes.id), 0) AS count,
+        (
+            SELECT GROUP_CONCAT(tag SEPARATOR ' ')
+            FROM Tags
+            WHERE contents.id = Tags.contents_id
+        ) AS tag
         FROM contents
         LEFT JOIN likes ON contents.id = likes.contents_id
         INNER JOIN users ON contents.user_id = users.id
@@ -38,12 +44,18 @@
             ORDER BY views desc;
         </if>
     </select>
+    -->
 
 
-    <!--
+
     <select id="getRank" resultType="RankBoardDTO" parameterType="hashMap">
         SELECT t_contents.id, t_contents.user_id, t_users.nickname, t_contents.created_datetime,
-        t_contents.views, t_contents.contents, t_contents.title, IFNULL(count(t_likes.id), 0) AS count
+        t_contents.views, t_contents.contents, t_contents.title, IFNULL(count(t_likes.id), 0) AS count,
+        (
+            SELECT GROUP_CONCAT(tag SEPARATOR ' ')
+            FROM t_Tags
+            WHERE t_contents.id = t_Tags.contents_id
+        ) AS tag
         FROM t_contents
         LEFT JOIN t_likes ON t_contents.id = t_likes.contents_id
         INNER JOIN t_users ON t_contents.user_id = t_users.id
@@ -65,6 +77,32 @@
             AND t_contents.created_datetime between date_add(now(), interval -1 year ) and now()
         </if>
 
+        <!-- 좋아요한 글인지 확인! -->
+        <if test='FL == "findlike"'>
+            AND t_likes.user_id = #{userid}
+        </if>
+
+        <!-- 검색창 분류에 맞게 출력 -->
+        <if test='SS == "nickname"'>
+            AND t_users.nickname LIKE CONCAT('%', #{SW}, '%')
+        </if>
+
+        <if test='SS == "title"'>
+            AND t_contents.title LIKE CONCAT('%', #{SW}, '%')
+        </if>
+
+        <if test='SS == "contents"'>
+            AND t_contents.contents LIKE CONCAT('%', #{SW}, '%')
+        </if>
+
+        <if test='SS == "tag"'>
+            AND (
+            SELECT GROUP_CONCAT(tag SEPARATOR ' ')
+            FROM t_Tags
+            WHERE t_contents.id = t_Tags.contents_id
+            ) LIKE CONCAT('%', #{SW}, '%')
+        </if>
+
         GROUP BY t_contents.id
 
         <if test='SM == "likeCount"'>
@@ -75,7 +113,30 @@
             ORDER BY views desc;
         </if>
     </select>
-    -->
+
+    <!-- 좋아요가 존재하는 값인지 확인하기 -->
+    <select id="findLike" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1 FROM t_likes WHERE contents_id = #{contentsId} AND user_id = #{userId}
+        ) AS exist
+    </select>
+
+    <!-- 좋아요 삭제 혹은 추가 -->
+    <update id="deleteOrInsertLike" parameterType="map">
+        <choose>
+            <when test="action == 'delete'">
+                DELETE FROM t_likes
+                WHERE contents_id = #{contentsId} AND user_id = #{userId}
+            </when>
+            <when test="action == 'insert'">
+                INSERT INTO t_likes (contents_id, user_id)
+                SELECT #{contentsId}, #{userId} FROM dual
+                WHERE NOT EXISTS (
+                SELECT 1 FROM t_likes WHERE contents_id = #{contentsId} AND user_id = #{userId}
+                )
+            </when>
+        </choose>
+    </update>
 
     <!--
     <insert id="addTest">
