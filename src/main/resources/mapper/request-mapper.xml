@@ -82,7 +82,7 @@
 
     <!--해당 게시글 좋아요 (총 개수)  -->
     <select id="getLikes" resultType="java.lang.Integer">
-        SELECT COUNT(*) FROM Likes
+        SELECT COUNT(*) FROM likes
         where contents_id = #{id}
     </select>
 
@@ -121,13 +121,13 @@
 
     <!--    댓글등록-->
     <insert id="addReply" parameterType="replyDATA">
-        INSERT INTO Replies (contents_id, user_id, reply)
+        INSERT INTO replies (contents_id, user_id, reply)
         VALUES (#{contentsId}, #{userId}, #{reply})
     </insert>
 
     <!--    대댓글등록-->
     <insert id="add_reReply" parameterType="replyDATA">
-        INSERT INTO Replies (contents_id, user_id, reply, parent_id)
+        INSERT INTO replies (contents_id, user_id, reply, parent_id)
         VALUES (#{contentsId}, #{userId}, #{reply}, #{parentid})
     </insert>
 
@@ -143,7 +143,7 @@
 
     <!--    게시글 등록-->
     <insert id="addPost" parameterType="postDATA">
-        INSERT INTO Contents (`user_id`, `contents`, `title`, `board_type`, `locale`, `subcategory`)
+        INSERT INTO contents (`user_id`, `contents`, `title`, `board_type`, `locale`, `subcategory`)
         VALUES (#{userId}, #{contents}, #{title}, #{boardType}, #{locale}, #{subcategory})
     </insert>
 
