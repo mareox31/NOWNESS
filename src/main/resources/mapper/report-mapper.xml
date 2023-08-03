@@ -45,5 +45,47 @@
             LIMIT #{pageSize} OFFSET #{offset};
     </select>
 
-</mapper>
+    <!-- 제보요청카테고리만 게시물 목록 출력 -->
+    <select id="getTotalPostsCountByBoardType" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM Contents WHERE board_type = #{boardType};
+    </select>
 
+    <select id="getPostsByBoardTypeAndPage" parameterType="map" resultType="reportDTO">
+        SELECT * FROM Contents
+        WHERE board_type = #{boardType}
+        ORDER BY id DESC
+            LIMIT #{pageSize} OFFSET #{offset};
+    </select>
+
+    <!-- 제보요청카테고리만 검색 목록 출력 -->
+    <select id="getTotalPostsCountByTitleAndBoardType" parameterType="map" resultType="int">
+        SELECT COUNT(*) FROM Contents WHERE title LIKE CONCAT('%', #{searchTitle}, '%') AND board_type = #{boardType};
+    </select>
+
+    <select id="getPostsByTitleAndBoardTypeAndPage" parameterType="map" resultType="reportDTO">
+        SELECT * FROM Contents
+        WHERE title LIKE CONCAT('%', #{searchTitle}, '%') AND board_type = #{boardType}
+        ORDER BY id DESC
+            LIMIT #{pageSize} OFFSET #{offset};
+    </select>
+
+    <!-- 게시글 삭제 -->
+    <delete id="deletePostById" parameterType="int">
+        DELETE FROM Contents WHERE id = #{postId}
+    </delete>
+
+    <!-- 게시글 수정 -->
+    <update id="updatePost" parameterType="reportDTO">
+        UPDATE Contents
+        SET board_type = #{boardtype},
+            title = #{title},
+            contents = #{contents}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 글 상세 정보 조회 시 해당 글의 태그 정보도 함께 조회 -->
+    <select id="getTagsByContentsId" parameterType="int" resultType="tagsDTO">
+        SELECT * FROM Tags WHERE contents_id = #{contentsId}
+    </select>
+
+</mapper>

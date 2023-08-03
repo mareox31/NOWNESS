@@ -51,7 +51,7 @@
         placeholder: '최대 2048자까지 쓸 수 있습니다'	//placeholder 설정
       });
 
-      $('#summernote').summernote('code', '써머노트에 쓸 텍스트');
+      $('#summernote').summernote('code');
     });
 
     // 서머노트 쓰기 비활성화
@@ -76,7 +76,7 @@
   <div class="main-wrapper">
     <main>
       <div class="post-header-wrapper">
-        <h1>게시글 작성</h1>
+        <h1>게시글 수정</h1>
         <!--        <input-->
         <!--                id="postCategory"-->
         <!--                type="text"-->
@@ -84,7 +84,7 @@
         <!--                placeholder="게시판을 선택하세요. ▼"-->
         <!--        />-->
       </div>
-      <form id="post-form" th:action="@{/report/writer}" method="post">
+      <form id="edit-form" th:action="@{'/report/board/' + ${post.id}/update}" method="post">
 
         게시판을 선택하세요(공유/요청)
         <select name="boardType" id="boardType">
@@ -107,15 +107,8 @@
             <input type="hidden" name="userId"  value=7>
             <input type="hidden" name="locale"  value=1>
             <input type="hidden" name="subcategory"  value=1>
-
-
-            <input
-                    type="text"
-                    name="title"
-                    placeholder="제목을 입력해주세요."
-                    id="postTitle"
-                    required
-            />
+            <input type="hidden" name="boardType" value="2" />
+            <input type="text" id="postTitle" name="title" th:value="${post.title}" required>
           </div>
         </div>
 
@@ -123,15 +116,15 @@
         <div class="form-group">
           <!-- 썸머노트 -->
           <div>
-            <textarea id="summernote" name="contents"></textarea>
+            <textarea id="summernote" name="contents" required th:text="${post.contents}"></textarea>
           </div>
         </div>
         <div id="tags-container">
-          <input type="text" placeholder="태그 입력 (최대 5개)" name="tag" id="tag-input">
+          <label>태그 추가:</label>
+          <input type="text" name="tag" id="tag-input">
           <button type="button" onclick="addTag()">추가</button>
         </div>
-
-        <button type="submit" id="submitButton">등록</button>
+        <button type="submit" id="submitButton">수정 완료</button>
       </form>
     </main>
   </div>

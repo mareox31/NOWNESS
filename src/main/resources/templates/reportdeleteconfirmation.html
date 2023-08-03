@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 삭제 확인</title>
+  <link th:href="@{/css/reportdelete.css}" rel="stylesheet">
+</head>
+<body>
+<div>
+  <div class="main-wrapper">
+    <div class="view_body_wrap">
+      <div class="board_title">
+        <div class="back-to-board-wrapper" onclick="history.back()">
+          <h1>게시글 삭제 확인</h1>
+        </div>
+      </div>
+      <main class="main">
+        <div class="board_view_wrap">
+          <div class="board_view">
+            <div class="info2">
+              <div class="info2_left">
+                <dl>
+                  <dt>제목: <span th:text="${post.title}"></span></dt>
+                </dl>
+                <dl>
+                  <dt>작성자: 김한강</dt>
+                </dl>
+                <dl>
+                  <dt>작성일: <span th:text="${#temporals.format(post.createddatetime, 'yyyy.MM.dd')}"></span></dt>
+                </dl>
+                <dl>
+                  <dt>조회: <span th:text="${post.views}"></span></dt>
+                </dl>
+                <dl>
+                  <dt>내용: <span th:text="${post.contents}"></span></dt>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="post-actions">
+          <button type="button" onclick="history.back()">취소</button>
+          <!-- 삭제 요청을 전달하는 폼을 생성합니다. -->
+          <form th:action="@{/report/board/{postId}/delete(postId=${post.id})}" method="post">
+            <button type="submit" onclick="return confirm('정말로 이 게시글을 삭제하시겠습니까?')">삭제</button>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+</body>
+</html>
