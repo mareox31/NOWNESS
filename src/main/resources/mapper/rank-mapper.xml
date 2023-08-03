@@ -4,14 +4,13 @@
 <mapper namespace="highfive.nowness.repository.RankBoardRepository">
 
 
-    <!--
     <select id="getRank" resultType="RankBoardDTO" parameterType="hashMap">
         SELECT contents.id, contents.user_id, users.nickname, contents.created_datetime,
         contents.views, contents.contents, contents.title, IFNULL(count(likes.id), 0) AS count,
         (
-            SELECT GROUP_CONCAT(tag SEPARATOR ' ')
-            FROM Tags
-            WHERE contents.id = Tags.contents_id
+        SELECT GROUP_CONCAT(tag SEPARATOR ' ')
+        FROM Tags
+        WHERE contents.id = Tags.contents_id
         ) AS tag
         FROM contents
         LEFT JOIN likes ON contents.id = likes.contents_id
@@ -34,6 +33,30 @@
             AND contents.created_datetime between date_add(now(), interval -1 year ) and now()
         </if>
 
+        <if test='FL == "findlike"'>
+            AND likes.user_id = #{userid}
+        </if>
+
+        <if test='SS == "nickname"'>
+            AND users.nickname LIKE CONCAT('%', #{SW}, '%')
+        </if>
+
+        <if test='SS == "title"'>
+            AND contents.title LIKE CONCAT('%', #{SW}, '%')
+        </if>
+
+        <if test='SS == "contents"'>
+            AND contents.contents LIKE CONCAT('%', #{SW}, '%')
+        </if>
+
+        <if test='SS == "tag"'>
+            AND (
+            SELECT GROUP_CONCAT(tag SEPARATOR ' ')
+            FROM Tags
+            WHERE contents.id = Tags.contents_id
+            ) LIKE CONCAT('%', #{SW}, '%')
+        </if>
+
         GROUP BY contents.id
 
         <if test='SM == "likeCount"'>
@@ -44,10 +67,33 @@
             ORDER BY views desc;
         </if>
     </select>
-    -->
 
 
+    <select id="findLike" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1 FROM likes WHERE contents_id = #{contentsId} AND user_id = #{userId}
+        ) AS exist
+    </select>
 
+
+    <update id="deleteOrInsertLike" parameterType="map">
+        <choose>
+            <when test="action == 'delete'">
+                DELETE FROM likes
+                WHERE contents_id = #{contentsId} AND user_id = #{userId}
+            </when>
+            <when test="action == 'insert'">
+                INSERT INTO likes (contents_id, user_id)
+                SELECT #{contentsId}, #{userId} FROM dual
+                WHERE NOT EXISTS (
+                SELECT 1 FROM likes WHERE contents_id = #{contentsId} AND user_id = #{userId}
+                )
+            </when>
+        </choose>
+    </update>
+
+
+<!--
     <select id="getRank" resultType="RankBoardDTO" parameterType="hashMap">
         SELECT t_contents.id, t_contents.user_id, t_users.nickname, t_contents.created_datetime,
         t_contents.views, t_contents.contents, t_contents.title, IFNULL(count(t_likes.id), 0) AS count,
@@ -77,12 +123,10 @@
             AND t_contents.created_datetime between date_add(now(), interval -1 year ) and now()
         </if>
 
-        <!-- 좋아요한 글인지 확인! -->
         <if test='FL == "findlike"'>
             AND t_likes.user_id = #{userid}
         </if>
 
-        <!-- 검색창 분류에 맞게 출력 -->
         <if test='SS == "nickname"'>
             AND t_users.nickname LIKE CONCAT('%', #{SW}, '%')
         </if>
@@ -114,14 +158,14 @@
         </if>
     </select>
 
-    <!-- 좋아요가 존재하는 값인지 확인하기 -->
+
     <select id="findLike" resultType="boolean">
         SELECT EXISTS (
             SELECT 1 FROM t_likes WHERE contents_id = #{contentsId} AND user_id = #{userId}
         ) AS exist
     </select>
 
-    <!-- 좋아요 삭제 혹은 추가 -->
+
     <update id="deleteOrInsertLike" parameterType="map">
         <choose>
             <when test="action == 'delete'">
@@ -137,6 +181,7 @@
             </when>
         </choose>
     </update>
+    -->
 
     <!--
     <insert id="addTest">

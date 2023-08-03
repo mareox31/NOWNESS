@@ -5,28 +5,18 @@ import highfive.nowness.dto.RankBoardPaginationDTO;
 import highfive.nowness.service.RankBoardService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
 import org.springframework.web.bind.annotation.*;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-//import highfive.nowness.util.UserUtil;
 
 import java.util.*;
 
 // 로그 테스트용
 @Slf4j
 @Controller
-@SpringBootApplication(exclude = SecurityAutoConfiguration.class) // 스프링 부트 로그인 화면 제거
+//@SpringBootApplication(exclude = SecurityAutoConfiguration.class) // 스프링 부트 로그인 화면 제거
 public class RankBoardController {
 
     @Autowired
