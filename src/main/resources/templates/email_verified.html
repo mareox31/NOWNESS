@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+  <link th:href="@{/css/styles.css}" rel="stylesheet" type="text/css">
+  <title>NOWNESS</title>
+</head>
+<body>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="card pb-3 pt-3" style="border-radius: 1rem; min-width: 400px; max-width: 450px; text-align: center">
+      <p>이메일 인증이 완료되었습니다.</p>
+      <p>이제 Nowness의 모든 기능을 이용하실 수 있습니다.</p>
+      <a th:href="@{/user/login}">로그인하러 가기</a>
+    </div>
+  </div>
+</div>
+<div th:insert="~{footer :: footer}"></div>
+</body>
+</html>
