@@ -79,7 +79,6 @@ public class RequestBoardController {
 
         int postId = requestBoardService.addPost2(postData); //글 저장 + 글 번호 반환.
 
-        System.out.println(hashtags +":"+ postId);
 
         //글에 대한 해시태그 저장
         requestBoardService.addTags(hashtags, postId);
@@ -270,8 +269,6 @@ public class RequestBoardController {
         //파일정보 가져오기.
         List<FileData>  fileDatalist = requestBoardService.getFileByContentsId(id);
 
-        System.out.println("파일들내용 : " +fileDatalist);
-
 
         //게시글에 좋아요 한 적있는지 로그인유저, 글번호로 체크 후 하트 이미지결정. heart-empty/full
         boolean booleanResult = false;
@@ -340,11 +337,6 @@ public class RequestBoardController {
         model.addAttribute("tagslist", requestBoardService.getTags(id));
         //테스트중/파일정보 가져오기.
         model.addAttribute("existingFiles", requestBoardService.getFileByContentsId(id)); // Add the existing files to the model
-
-
-
-        System.out.println("파일들내용 : " +requestBoardService.getFileByContentsId(id));
-
 
         return "requestmodifypost";
     }
@@ -454,7 +446,6 @@ public class RequestBoardController {
                 }
             }
 
-            System.out.println(fileData);
             // DB저장
             requestBoardService.saveFileData(fileData);
 

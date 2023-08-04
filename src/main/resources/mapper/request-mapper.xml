@@ -170,14 +170,14 @@
     <insert id="updatePost" parameterType="postDATA">
         UPDATE Contents
         SET  `contents` =#{contents}, `title` = #{title}, `board_type` = #{boardType}, `locale` = #{locale}, `subcategory` = #{subcategory}, edit_datetime =now()
-        WHERE `id` = #{id};
+        WHERE `id` = #{id}
     </insert>
 
     <!--    게시글 수정등록22 -->
     <insert id="updatePost2" parameterType="postDATA"  useGeneratedKeys="true" keyProperty="id">
         UPDATE Contents
         SET  `contents` =#{contents}, `title` = #{title}, `board_type` = #{boardType}, `locale` = #{locale}, `subcategory` = #{subcategory}, edit_datetime =now()
-        WHERE `id` = #{id};
+        WHERE `id` = #{id}
     </insert>
 
 
@@ -190,7 +190,7 @@
           and locale = #{locale}
           and subcategory =#{subcategory}
           and deleted=0
-        order by id desc;
+        order by id desc
     </select>
 
     <!--맵사용 테스트용 카테고리-->
@@ -200,7 +200,7 @@
           and locale = #{locale}
           and subcategory =#{subcategory}
           and deleted=0
-        order by id desc;
+        order by id desc
     </select>
 
 
@@ -310,7 +310,7 @@
         SELECT tags.*
         FROM contents
         JOIN tags ON tags.contents_id = contents.id
-        WHERE contents.id = #{id};
+        WHERE contents.id = #{id}
     </select>
 
 
@@ -343,11 +343,12 @@
     <!--태그삭제 -->
     <delete id="removeTags" parameterType="java.util.List">
         DELETE FROM Tags
-        <foreach collection="list" item="tag" separator=",">
-            WHERE contents_id = #{tag.contentsid} AND tag = #{tag.tag};
-        </foreach>
+        <where>
+            <foreach collection="list" item="tag" separator=" OR ">
+                contents_id = #{tag.contentsid} AND tag = #{tag.tag}
+            </foreach>
+        </where>
     </delete>
-
 
     <!--파일저장-->
     <insert id="saveFileData" parameterType="fileDATA">
