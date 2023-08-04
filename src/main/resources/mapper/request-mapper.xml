@@ -23,25 +23,25 @@
 
     <!--해당 번호 게시글 상세내용 DTO-->
     <select id="getBoard" resultType="requestDTO">
-        select
+        SELECT
             *
-        from contents where id= #{id}
-                        and deleted = 0
+        FROM contents where id= #{id}
+                        AND deleted = 0
     </select>
 
 
     <!-- 게시글 전체 (개수) -->
     <select id="getTotalRequestCount" resultType="java.lang.Integer">
-        select count(*) from contents
+        SELECT COUNT(*) FROM contents
         where deleted=0
     </select>
 
 
     <!-- 조회수 1증가 -->
     <update id="updateContentViews" parameterType="java.lang.Integer">
-        update contents
-        set views = views + 1
-        where id = #{id}
+        UPDATE contents
+        SET views = views + 1
+        WHERE id = #{id}
     </update>
 
 
@@ -55,19 +55,19 @@
 
     <!--   게시글리스트 닉네임가져오기-->
     <select id="getNickname2" parameterType="requestDTO" resultType="String" useCache="false">
-        select users.nickname as nickname
-        from users
-                 join contents on contents.user_id = users.id
-        where contents.id = #{id}
+        SELECT users.nickname AS nickname
+        FROM users
+                 JOIN contents ON contents.user_id = users.id
+        WHERE contents.id = #{id}
     </select>
 
     <!--  ajax카테고리 분류시 닉네임가져오기-->
     <select id="getNicknameByUserId" parameterType="int" resultType="String">
-        select users.nickname as nickname
-        from users
-                 join contents on contents.user_id = users.id
-        where contents.user_id = #{userId}
-            limit 1
+        SELECT users.nickname AS nickname
+        FROM users
+                 JOIN contents ON contents.user_id = users.id
+        WHERE contents.user_id = #{userId}
+            LIMIT 1
     </select>
 
 
@@ -82,38 +82,38 @@
 
     <!--해당 게시글 좋아요 (총 개수)  -->
     <select id="getLikes" resultType="java.lang.Integer">
-        select count(*) from likes
+        SELECT COUNT(*) FROM likes
         where contents_id = #{id}
     </select>
 
 
     <!-- 게시글 삭제 deleted =1로. -->
     <update id="deleteContents" parameterType="java.lang.Integer">
-        update contents
-        set deleted = 1
-        where id = #{id}
+        UPDATE contents
+        SET deleted = 1
+        WHERE id = #{id}
     </update>
 
 
     <!--카테고리계열  //미완 페이징 불완전. 아직 더 추가해야함.-->
     <!--보드타입으로 분류된 글 갯수-->
     <select id="getRequestsByBoardTypeCount" resultType="java.lang.Integer">
-        select count(*) from contents where board_type = #{boardType}
-                                        and deleted = 0
+        SELECT count(*) FROM contents WHERE board_type = #{boardType}
+                                        AND deleted = 0
     </select>
 
     <!--페이징 - '맵' 사용. DTO-->
     <select id="boardPagingList" resultType="requestDTO" parameterType="java.util.Map">
-        select * from contents where board_type = #{boardtype}
-                                 and  deleted=0
-        order by id desc limit #{pageIndex}, #{pageSize}
+        SELECT * FROM contents WHERE board_type = #{boardType}
+                                 AND  deleted=0
+        ORDER BY id DESC LIMIT #{pageIndex}, #{pageSize}
 
     </select>
 
     <!--댓글 조회-->
     <select id="getReply" resultType="repliesDTO">
-        select * from replies
-        where contents_id = #{id}
+        SELECT * FROM replies
+        WHERE contents_id = #{id}
 --           AND deleted=0
         order by parent_id asc
     </select>
@@ -121,7 +121,7 @@
 
     <!--자식 댓글 개수조회(삭제X)-->
     <select id="childCommentsCount" resultType="java.lang.Integer">
-        select count(*) from replies
+        SELECT COUNT(*) FROM replies
         where parent_id=#{id}
           and deleted=0
     </select>
@@ -130,54 +130,54 @@
 
     <!--    댓글등록-->
     <insert id="addReply" parameterType="replyDATA">
-        insert into replies (contents_id, user_id, reply)
-        values (#{contentsId}, #{userId}, #{reply})
+        INSERT INTO replies (contents_id, user_id, reply)
+        VALUES (#{contentsId}, #{userId}, #{reply})
     </insert>
 
     <!--    대댓글등록-->
     <insert id="add_reReply" parameterType="replyDATA">
-        insert into replies (contents_id, user_id, reply, parent_id)
-        values (#{contentsId}, #{userId}, #{reply}, #{parentid})
+        INSERT INTO replies (contents_id, user_id, reply, parent_id)
+        VALUES (#{contentsId}, #{userId}, #{reply}, #{parentid})
     </insert>
 
 
 
     <!-- 댓글 삭제 deleted =1로. +내용 -->
     <update id="deleteReply" parameterType="java.lang.Integer">
-        update replies
-        set deleted = 1
+        UPDATE replies
+        SET deleted = 1
 --             ,
 --         reply = "삭제된 댓글입니다"
-        where id = #{replyId}
+        WHERE id = #{replyId}
     </update>
 
 
     <!--    게시글 등록-->
     <insert id="addPost" parameterType="postDATA">
-        insert into contents (`user_id`, `contents`, `title`, `board_type`, `locale`, `subcategory`)
-        values (#{userId}, #{contents}, #{title}, #{boardType}, #{locale}, #{subcategory})
+        INSERT INTO contents (`user_id`, `contents`, `title`, `board_type`, `locale`, `subcategory`)
+        VALUES (#{userId}, #{contents}, #{title}, #{boardType}, #{locale}, #{subcategory})
     </insert>
 
     <!-- 게시글 저장 후, 글 번호 반환용. -->
     <insert id="addPost2" parameterType="postDATA" useGeneratedKeys="true" keyProperty="id">
-        insert into contents (`user_id`, `contents`, `title`, `board_type`, `locale`, `subcategory`)
-        values (#{userId}, #{contents}, #{title}, #{boardType}, #{locale}, #{subcategory})
+        INSERT INTO contents (`user_id`, `contents`, `title`, `board_type`, `locale`, `subcategory`)
+        VALUES (#{userId}, #{contents}, #{title}, #{boardType}, #{locale}, #{subcategory})
     </insert>
 
 
 
     <!--    게시글 수정등록 -->
     <insert id="updatePost" parameterType="postDATA">
-        update contents
-        set  `contents` =#{contents}, `title` = #{title}, `board_type` = #{boardType}, `locale` = #{locale}, `subcategory` = #{subcategory}, edit_datetime =now()
-        where `id` = #{id}
+        UPDATE contents
+        SET  `contents` =#{contents}, `title` = #{title}, `board_type` = #{boardType}, `locale` = #{locale}, `subcategory` = #{subcategory}, edit_datetime =now()
+        WHERE `id` = #{id}
     </insert>
 
     <!--    게시글 수정등록22 -->
     <insert id="updatePost2" parameterType="postDATA"  useGeneratedKeys="true" keyProperty="id">
-        update contents
-        set  `contents` =#{contents}, `title` = #{title}, `board_type` = #{boardType}, `locale` = #{locale}, `subcategory` = #{subcategory}, edit_datetime =now()
-        where `id` = #{id}
+        UPDATE contents
+        SET  `contents` =#{contents}, `title` = #{title}, `board_type` = #{boardType}, `locale` = #{locale}, `subcategory` = #{subcategory}, edit_datetime =now()
+        WHERE `id` = #{id}
     </insert>
 
 
@@ -215,91 +215,91 @@
 
 
 
-<!-- 카테고리별   동적쿼리-->
+    <!-- 카테고리별   동적쿼리-->
     <select id="categoryPagingList" resultType="requestDTO" parameterType="java.util.Map">
-        select * from contents
+        SELECT * FROM contents
         where board_type=1
 
-            <if test="#{locale} != null">
-                and locale = #{locale}
-            </if>
-            <if test="#{subcategory} != null">
-                and subcategory =#{subcategory}
-            </if>
-          and deleted=0
-        order by id desc limit #{pageIndex}, #{pageSize}
+        <if test="#{locale} != null">
+            and locale = #{locale}
+        </if>
+        <if test="#{subcategory} != null">
+            and subcategory =#{subcategory}
+        </if>
+        and deleted=0
+        ORDER BY id DESC LIMIT #{pageIndex}, #{pageSize}
     </select>
 
 
     <!-- 검색 : 해당 글 갯수 가져오기(개수)-->
     <select id="searchListMapCount" resultType="java.lang.Integer" parameterType="java.util.Map">
-        select count(*) from contents c
-        join users u on c.user_id = u.id
-        where c.board_type = 1
-        and c.deleted = 0
+        SELECT COUNT(*) FROM contents c
+        JOIN users u ON c.user_id = u.id
+        WHERE c.board_type = 1
+        AND c.deleted = 0
         <if test="searchType == 'title'">
-            and c.title like concat('%', #{searchKeyword}, '%')
+            AND c.title LIKE CONCAT('%', #{searchKeyword}, '%')
         </if>
         <if test="searchType == 'contents'">
-            and c.contents like concat('%', #{searchKeyword}, '%')
+            AND c.contents LIKE CONCAT('%', #{searchKeyword}, '%')
         </if>
         <if test="searchType == 'user_id'">
-            and u.nickname like concat('%', #{searchKeyword}, '%')
+            AND u.nickname LIKE CONCAT('%', #{searchKeyword}, '%')
         </if>
     </select>
 
 
     <!-- 검색 : 해당 글 DTO가져오기.(닉네임포함)-->
     <select id="searchPagingList" resultType="requestDTO" parameterType="java.util.Map">
-        select c.* , u.nickname
-        from contents c
-        join users u on c.user_id = u.id
-        where c.board_type = 1
-        and c.deleted = 0
+        SELECT c.* , u.nickname
+        FROM contents c
+        JOIN users u ON c.user_id = u.id
+        WHERE c.board_type = 1
+        AND c.deleted = 0
         <if test="searchType == 'title'">
-            and c.title like concat('%', #{searchKeyword}, '%')
+            AND c.title LIKE CONCAT('%', #{searchKeyword}, '%')
         </if>
         <if test="searchType == 'contents'">
-            and c.contents like concat('%', #{searchKeyword}, '%')
+            AND c.contents LIKE CONCAT('%', #{searchKeyword}, '%')
         </if>
         <if test="searchType == 'user_id'">
-            and u.nickname like concat('%', #{searchKeyword}, '%')
+            AND u.nickname LIKE CONCAT('%', #{searchKeyword}, '%')
         </if>
-        order by id desc limit #{pageIndex}, #{pageSize}
+        ORDER BY id DESC LIMIT #{pageIndex}, #{pageSize}
     </select>
 
 
 
     <!-- 해당 게시글 좋아요 기록이 있는지 검사(개수)-->
     <select id="checkIfUserLikedPost" resultType="java.lang.Integer" parameterType="java.util.Map">
-        select count(*) as like_count
-        from contents c
-                 join likes l on c.id = l.contents_id
-        where c.deleted = 0
-          and l.user_id =  #{userId}
+        SELECT COUNT(*) as like_count
+        FROM contents c
+                 JOIN likes l ON c.id = l.contents_id
+        WHERE c.deleted = 0
+          AND l.user_id =  #{userId}
           AND c.id = #{contentsid}
     </select>
 
     <!--  해당 게시글에 좋아요 기록 저장.-->
     <insert id="insertLike" parameterType="java.util.Map">
-        insert into likes (contents_id, user_id)
-        values  (#{contentsid}, #{userid})
+        INSERT INTO likes (contents_id, user_id)
+        VALUES (#{contentsid}, #{userid})
     </insert>
 
 
 
     <!--해당 게시글 댓글 개수 조회-->
     <select id="postRepliesCount" resultType="java.lang.Integer">
-        select count(*) from replies
+        SELECT COUNT(*) FROM replies
         where contents_id=#{id}
-        and deleted=0
+          and deleted=0
     </select>
 
 
     <!--  태그저장 -->
     <insert id="addHashtag" parameterType="java.util.List">
-        insert into tags (contents_id, tag)
-        values
+        INSERT INTO tags (contents_id, tag)
+        VALUES
         <foreach collection="list" item="tag" separator=",">
             (#{tag.contentsid}, #{tag.tag})
         </foreach>
@@ -307,76 +307,76 @@
 
     <!--게시물에 해당하는 태그 조회-->
     <select id="getTags" resultType="tagsDTO" parameterType="java.lang.Integer">
-        select tags.*
-        from contents
-                 join tags on tags.contents_id = contents.id
-        where contents.id = #{id}
+        SELECT tags.*
+        FROM contents
+                 JOIN tags ON tags.contents_id = contents.id
+        WHERE contents.id = #{id}
     </select>
 
 
     <!--태그 검색 : 해당하는 태그에 대한 게시물 갯수-->
     <select id="searchTagListCount" resultType="java.lang.Integer" parameterType="String">
-        select count(*) from contents c
-                                 join tags t on t.contents_id = c.id
-        where c.board_type = 1
-          and c.deleted = 0
-          and t.tag= #{tag}
+        SELECT COUNT(*) FROM contents c
+                                 JOIN tags t ON t.contents_id = c.id
+        WHERE c.board_type = 1
+          AND c.deleted = 0
+          AND t.tag= #{tag}
     </select>
 
 
 
 
-        <!-- 태그 검색 : 해당 글 DTO가져오기-->
-        <select id="searchPagingTagList" resultType="requestDTO" parameterType="java.util.Map">
-            select c.* , u.nickname
-            from contents c
-                     join tags t on c.id = t.contents_id
-                     join users u on c.user_id = u.id
-            where c.board_type = 1
-              and c.deleted = 0
-              and t.tag like  #{tag}
-            order by c.id desc limit #{pageIndex}, #{pageSize}
-        </select>
+    <!-- 태그 검색 : 해당 글 DTO가져오기-->
+    <select id="searchPagingTagList" resultType="requestDTO" parameterType="java.util.Map">
+        SELECT c.* , u.nickname
+        FROM contents c
+                 JOIN tags t ON c.id = t.contents_id
+                 JOIN users u ON c.user_id = u.id
+        WHERE c.board_type = 1
+          AND c.deleted = 0
+          AND t.tag LIKE  #{tag}
+        ORDER BY c.id DESC LIMIT #{pageIndex}, #{pageSize}
+    </select>
 
 
 
     <!--태그삭제 -->
     <delete id="removeTags" parameterType="java.util.List">
-        delete from tags
+        DELETE FROM tags
         <where>
-            <foreach collection="list" item="tag" separator=" or ">
-                contents_id = #{tag.contentsid} and tag = #{tag.tag}
+            <foreach collection="list" item="tag" separator=" OR ">
+                contents_id = #{tag.contentsid} AND tag = #{tag.tag}
             </foreach>
         </where>
     </delete>
 
     <!--파일저장-->
     <insert id="saveFileData" parameterType="fileDATA">
-        insert into files (contents_id, orgin_name, save_name, path, size, ext)
-        values (#{contentsId}, #{orginName}, #{saveName}, #{path}, #{size}, #{ext})
+        INSERT INTO files (contents_id, orgin_name, save_name, path, size, ext)
+        VALUES (#{contentsId}, #{orginName}, #{saveName}, #{path}, #{size}, #{ext})
     </insert>
 
 
     <!-- Retrieve FileData by fileId파일다운 -->
     <select id="getFileById" resultType="fileDATA">
-        select * from files where id = #{fileId}
+        SELECT * FROM files WHERE id = #{fileId}
     </select>
 
     <!-- 게시물에 해당하는 파일들 -->
     <select id="getFileByContentsId" resultType="fileDATA">
-        select * from files where contents_id = #{id}
+        SELECT * FROM files WHERE contents_id = #{id}
     </select>
 
     <!-- 파일 1개 삭제(id로) -->
     <delete id="deleteFileById">
-        delete from files where id = #{fileId}
+        DELETE FROM files WHERE id = #{fileId}
     </delete>
 
 
     <!--파일 여러개 삭제 -->
     <delete id="deleteFilesByIds" parameterType="java.util.List">
-        delete from files
-        where id in
+        DELETE FROM files
+        WHERE id IN
         <foreach collection="list" item="fileId" separator="," open="(" close=")">
             #{fileId}
         </foreach>
