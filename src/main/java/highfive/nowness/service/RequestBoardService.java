@@ -56,6 +56,10 @@ public class RequestBoardService {
     //댓글 조회
     public List<RepliesDTO> getReply(int id) { return requestBoardRepository.getReply(id); }
 
+    //자식댓글 개수
+    public int childCommentsCount(int id) { return requestBoardRepository.childCommentsCount(id); }
+
+
     //테스트 해당 글 댓글갯수 - postRepliesCount
     public int postRepliesCount(int id) { return requestBoardRepository.postRepliesCount(id); }
 
@@ -188,7 +192,6 @@ public class RequestBoardService {
     }
 
 
-
     //파일 DB저장
     public void saveFileData(FileData fileData) {
         requestBoardRepository.saveFileData(fileData);
@@ -205,13 +208,15 @@ public class RequestBoardService {
         return requestBoardRepository.getFileByContentsId(id);
     }
 
-//
-
-    // Delete a file by its ID
+    //파일 삭제 (id)
     public void deleteFileById(long fileId) {
         requestBoardRepository.deleteFileById(fileId);
     }
 
+    //파일 삭제(여러개)
+    public void deleteFilesByIds(List<Long> fileIds) {
+        requestBoardRepository.deleteFilesByIds(fileIds);
+    }
 
 }
 
