@@ -15,7 +15,7 @@
         FROM contents
         LEFT JOIN likes ON contents.id = likes.contents_id
         INNER JOIN users ON contents.user_id = users.id
-        WHERE contents.blind = 0 AND contents.board_type = 1
+        WHERE contents.blind = 0 AND contents.board_type = 1 AND 'contents.delete' = 0
 
         <if test='ST == "day"'>
             AND contents.created_datetime between date_add(now(), interval -1 day ) and now()

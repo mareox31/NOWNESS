@@ -2,11 +2,22 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.w3.org/1999/xhtml" th:lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <link th:href="@{/css/rankboard/rankboard.css}" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <title>NOWNESS</title>
     <script>
+
+        // 페이지 처음 출력 시 화면 조절
+        $(document).ready(function() {
+            var rankListSize = parseInt($("#rankListCount").val());
+
+            var rankListSize = parseInt($("#rankListCount").val());
+            var newHeight = Math.ceil(rankListSize / 3) * 650 + 100;
+            $("#contents").css("height", newHeight + "px");
+        })
 
         // 정렬 변경, 좋아요 및 조회수
         function dataSend() {
@@ -24,19 +35,28 @@
             console.log(searchSort);
             console.log(searchWord);
 
-
             $.ajax({
                 url:"/dataSend",
                 data: {ST:searchTime, SM:sortMethod, FL:findlikeValue, SS:searchSort, SW:searchWord},
                 type:"POST",
+                beforeSend: function (jqXHR, settings) {
+                    var header = $("meta[name='_csrf_header']").attr("content");
+                    var token = $("meta[name='_csrf']").attr("content");
+                    jqXHR.setRequestHeader(header, token);
+                }
             })
                 .done(function (result) {
                     $("#contents").replaceWith(result);
+
+                    // #contents 크기 조절
+                    var rankListSize = parseInt($("#rankListCount").val());
+                    var newHeight = Math.ceil(rankListSize / 3) * 650 + 100;
+                    $("#contents").css("height", newHeight + "px");
             })
                 .fail(function(result) {
                     console.log("값 전송을 실패했습니다.");
             });
-        };
+        }
 
         // 좋아요 누를 경우 변경
         function likeclick(element, id) {
@@ -51,7 +71,12 @@
                 url:"/dataSendlike",
                 data: {id:id},
                 type:"POST",
-                dataType:"json"
+                dataType:"json",
+                beforeSend: function (jqXHR, settings) {
+                    var header = $("meta[name='_csrf_header']").attr("content");
+                    var token = $("meta[name='_csrf']").attr("content");
+                    jqXHR.setRequestHeader(header, token);
+                }
             })
             .done(function (result) {
                 if (result.checklike) {
@@ -66,20 +91,27 @@
                         imageElement.src = '/css/image/rankboard/like.jpg';
                     }
                 }
+                else {
+                    alert("로그인이 필요합니다.");
+                }
             })
                 .fail(function(result) {
                     console.log("값 전송을 실패했습니다.");
             });
-        };
+        }
 
         // 좋아요 누른 글만 보기 확인값
         function dataSendonlylike(element){
-            var findlikeValue = element.value;
 
             $.ajax({
                 url:"/dataSendonlylike",
                 data: {},
                 type:"POST",
+                beforeSend: function (jqXHR, settings) {
+                    var header = $("meta[name='_csrf_header']").attr("content");
+                    var token = $("meta[name='_csrf']").attr("content");
+                    jqXHR.setRequestHeader(header, token);
+                }
             })
             .done(function (result) {
                 if (result.checklogin) {
@@ -93,12 +125,15 @@
                 }
                 else {
                     alert("로그인이 필요합니다.");
+                    element.checked = false;
                 }
             })
             .fail(function(result) {
                 console.log("값 전송을 실패했습니다.");
             });
         }
+
+        //태그 눌렀을 경우 해당 값 검색
         function tagClick(elemenet)
         {
             var tagtext = elemenet.textContent;
@@ -116,11 +151,18 @@
             }
             dataSend();
         }
+
+        //입력창 엔터
+        function enterkey() {
+            if (window.event.keyCode === 13) {
+                dataSend();
+            }
+        }
     </script>
 </head>
 <body>
 
-<!-- <div th:insert="~{header :: header}"></div> -->
+<div th:insert="~{header :: header}"></div>
 
 <div class = "sortmotherdiv">
     <div class="sortmethod">
@@ -160,7 +202,7 @@
             <option value="tag">태그</option>
         </select>
         <div class="search-container">
-            <input type="text" id="searchInput" placeholder="검색어를 입력하세요...">
+            <input type="text" id="searchInput" placeholder="검색어를 입력하세요..." onkeyup="enterkey();">
             <button id="searchButton" onclick="dataSend()">검색</button>
         </div>
     </div>
@@ -183,7 +225,7 @@
             <img src="@{/css/image/rankboard/testimg.jpg}" rel="stylesheet" alt="이미지" style="width:100%; height:100%;"/> <!-- 테스트용! -->
         </div>
         <div class = "title"><a th:href="@{/request/post/{id}(id=${rank.id})}" th:text="${rank.title}"></a></div>
-        <div class = "contents"><a th:href="@{/request/post/{id}(id=${rank.id})}" th:text="${rank.contents}"></a></div>
+        <div class = "contents"><a th:href="@{/request/post/{id}(id=${rank.id})}" th:utext="${rank.contents}"></a></div>
         <div class = "tag"><a th:each="tagarr : ${rank.tagarray}" href="#" th:attr="onclick='tagClick(this)'" th:text="${tagarr}">태그</a>&nbsp;</div>
         <!-- <div class = "likes" th:value="${rank.checklike ? 'like' : 'unlike'}"  th:attr="onclick='likeclick(this, ' + ${rank.id} + ')'">
             <img th:src="@{/css/image/rankboard/unlike.jpg}" alt = "Like/Unlike" class="image">&nbsp;&nbsp;<span class="liketext" th:text="${ rank.likeCount }"></span></div> -->
@@ -202,6 +244,7 @@
         <div class = "view">조회수 <span th:text="${ rank.views }"></span>회</div>
     </div>
 
+    <input type="hidden" id="rankListCount" th:value="${RankListCount}" />
 
     <br><br>
     <nav aria-label="Page navigation example">
@@ -215,7 +258,7 @@
     <br><br>
 </div>
 
-<!-- <div th:insert="~{footer :: footer}"></div> -->
+<div th:insert="~{footer :: footer}"></div>
 
 </body>
 </html>

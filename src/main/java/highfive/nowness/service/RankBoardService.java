@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -34,6 +35,32 @@ public class RankBoardService {
             LocalDateTime date = LocalDateTime.parse(dateString, formatter);
 
 
+
+            Duration duration = Duration.between(date, nowtime);
+
+            long years = duration.toDays() / 365;
+            long months = duration.toDays() / 30;
+            long days = duration.toDays();
+            long hours = duration.toHours();
+            long minutes = duration.toMinutes();
+            long seconds = duration.getSeconds();
+
+            if (years > 0) {
+                Datediff = years + "년 전";
+            } else if (months > 0) {
+                Datediff = months + "개월 전";
+            } else if (days > 0) {
+                Datediff = days + "일 전";
+            } else if (hours > 0) {
+                Datediff = hours + "시간 전";
+            } else if (minutes > 0) {
+                Datediff = minutes + "분 전";
+            } else {
+                Datediff = seconds + "초 전";
+            }
+
+
+            /*
             if (nowtime.getYear() != date.getYear()) {
                 Datediff = nowtime.getYear() - date.getYear() + "년 전";
             } else if (nowtime.getMonthValue() != date.getMonthValue()) {
@@ -47,6 +74,7 @@ public class RankBoardService {
             } else if (nowtime.getSecond() != date.getSecond()) {
                 Datediff = nowtime.getSecond() - date.getSecond() + "초 전";
             }
+             */
 
             if(temp.getTagString() != null) {
                 String[] tagarr = temp.getTagString().split(" ");
@@ -98,7 +126,7 @@ public class RankBoardService {
             if(pageDTO.getTotalPageCnt() <= pageDTO.getPageSize()) {
                 pageDTO.setPageSize(pageDTO.getTotalPageCnt());
             }
-            else pageDTO.setPageSize(pageDTO.getTotalPageCnt()/pageDTO.getPageSize()); // 마지막 블록일 경우 페이지 출력 개수 값을 조정해줍니다.
+            else pageDTO.setPageSize(pageDTO.getTotalPageCnt()%pageDTO.getPageSize()); // 마지막 블록일 경우 페이지 출력 개수 값을 조정해줍니다.
         }
 
         if(pageDTO.getEndBlock() == 0) pageDTO.setEndBlock(1); // 0일 경우를 대비하여 1로 설정
