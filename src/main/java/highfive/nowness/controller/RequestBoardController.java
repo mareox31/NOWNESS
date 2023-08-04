@@ -146,6 +146,13 @@ public class RequestBoardController {
         return comments;
     }
 
+    //자식 댓글 갯수 가져오기(삭제x)
+    @GetMapping("/childCommentsCount")
+    @ResponseBody
+    public int childCommentsCount(@RequestParam("id") int id) {
+        return requestBoardService.childCommentsCount(id);
+    }
+
 
     //댓글등록
     @RequestMapping(value = "/writeReply", method = RequestMethod.POST)
@@ -388,139 +395,76 @@ public class RequestBoardController {
         }
 
 
-//ㅌ스투ㅡ중----------
-        // Update files
-System.out.println("넘어온파일리스트 " + files.toString() + " 기존존재 세이브네임: " + existingSavenames);
-        // Get the list of existing files for the current post
+        //파일 관련--
+        //DB 해당게시글에 저장된 첨부파일(전체파일DTO)
         List<FileData> existingFilesList = requestBoardService.getFileByContentsId(postId);
 
+        //지울 목록 생성
+        List<Long> deleteFileList = new ArrayList<>();
 
-        System.out.println("기존 저장된 파일DTO: " +existingFilesList);
+        if (existingSavenames != null) {
+            for (FileData fileData : existingFilesList) {
+                if (!existingSavenames.contains(fileData.getSaveName())) {
+                    deleteFileList.add(fileData.getId());
+                }
+            }
+        } else {
+            for (FileData fileData : existingFilesList) {
+                deleteFileList.add(fileData.getId());
+            }
+        }
 
-// Create a set to keep track of existing save names
-        Set<String> existingSaveNames = existingFilesList.stream()
-                .map(FileData::getSaveName)
-                .collect(Collectors.toSet());
+        //DB서 파일정보 삭제
+        if (!deleteFileList.isEmpty()) {
+            requestBoardService.deleteFilesByIds(deleteFileList);
+        }
 
 
-        System.out.println("기존 존재하는 DTO에서가져온.  existingSaveNames: "+ existingSaveNames);
+        //파일저장 :DB와 서버에 저장
+        String savePath = "c:/kdt/upload/nowness/"; //파일저장경로.
 
-
-        //새파일리스트를만든다.
-// Create a list to store the new files
-        List<FileData> newFilesList = new ArrayList<>();
-// Create a list to store the files to keep (Comparison 1)
-        List<FileData> filesToKeep = new ArrayList<>();
-
-        // Process the uploaded files
         for (MultipartFile file : files) {
             if (file.isEmpty() || file.getOriginalFilename() == null || file.getOriginalFilename().isEmpty()) {
                 continue;
             }
 
             FileData fileData = new FileData();
-            String savePath = "c:/kdt/upload/nowness/"; // 파일 저장 경로.
 
-            String originalFilename = file.getOriginalFilename();
-            String fileExtension = originalFilename.substring(originalFilename.lastIndexOf('.') + 1);
+            fileData.setContentsid(postId);//글번호저장.
+            //원본이름+ _ +uuid + . + 확장자로 저장됨.
             String originalFilenameWithoutExtension = file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf('.'));
+            String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.') + 1);
             String savedFileName = originalFilenameWithoutExtension + "_" + UUID.randomUUID().toString() + "." + fileExtension;
 
-            fileData.setContentsid(postId); // Set the post ID
             fileData.setSaveName(savedFileName);
             fileData.setPath(savePath);
             fileData.setSize(file.getSize());
             fileData.setExt(fileExtension);
 
-            // Set the original name (remove the UUID and extension)
-            fileData.setOrginName(originalFilename);
-
-            // Check if the file already exists in the database (based on savename)
-            if (!existingSaveNames.contains(savedFileName)) {
-                // File is new, save it to the database and add it to the newFilesList (Comparison 2)
-                newFilesList.add(fileData);
-                requestBoardService.saveFileData(fileData);
-            } else {
-                // File already exists, add it to the filesToKeep list (Comparison 1)
-                filesToKeep.add(fileData);
+            //파일 뒤에 _로 끝나는거 에러 방지.
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename != null) {
+                if (originalFilename.endsWith("_")) {
+                    String[] parts = originalFilename.split("_");
+                    if (parts.length >= 2) {
+                        fileData.setOrginName(parts[0]);
+                    }
+                } else {
+                    fileData.setOrginName(originalFilename);
+                }
             }
 
-            System.out.println("새파일리스트2222 newFilesList: "+ newFilesList);
+            System.out.println(fileData);
+            // DB저장
+            requestBoardService.saveFileData(fileData);
 
-            // Save the new file to the server (regardless of whether it's new or existing)
+            // 서버에 저장
             Path filePath = Paths.get(savePath, savedFileName);
             try {
                 Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
-                // Handle the exception as required
             }
         }
-
-        System.out.println("존--------재세이브네임: "+ existingSaveNames);
-// Identify existing files to delete (Comparison 3)
-        if (existingSavenames != null && !existingSavenames.isEmpty()) {
-            List<FileData> filesToDelete = existingFilesList.stream()
-                    .filter(file -> !existingSaveNames.contains(file.getSaveName()))
-                    .collect(Collectors.toList());
-
-
-// Delete the identified files from the database and server
-            for (FileData fileToDelete : filesToDelete) {
-                requestBoardService.deleteFileById(fileToDelete.getId());
-
-                Path filePath = Paths.get(fileToDelete.getPath(), fileToDelete.getSaveName());
-                try {
-                    Files.deleteIfExists(filePath);
-                } catch (IOException e) {
-                    // Handle the exception as required
-                }
-            }
-        }
-//        //파일저장 :DB와 서버에 저장===================================테스트중
-//
-//        String savePath = "c:/kdt/upload/nowness/"; //파일저장경로.
-//
-//        for (MultipartFile file : files) {
-//            if (file.isEmpty() || file.getOriginalFilename() == null || file.getOriginalFilename().isEmpty()) {
-//                continue;
-//            }
-//
-//            FileData fileData = new FileData();
-//
-//            fileData.setContentsid(postId);//글번호저장.
-//            //원본이름+ _ +uuid + . + 확장자로 저장됨.
-//            String originalFilenameWithoutExtension = file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf('.'));
-//            String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.') + 1);
-//            String savedFileName = originalFilenameWithoutExtension + "_" + UUID.randomUUID().toString() + "." + fileExtension;
-//
-//            fileData.setSaveName(savedFileName);
-//            fileData.setPath(savePath);
-//            fileData.setSize(file.getSize());
-//            fileData.setExt(fileExtension);
-//
-//            //파일 뒤에 _로 끝나는거 에러 방지.
-//            String originalFilename = file.getOriginalFilename();
-//            if (originalFilename != null) {
-//                if (originalFilename.endsWith("_")) {
-//                    String[] parts = originalFilename.split("_");
-//                    if (parts.length >= 2) {
-//                        fileData.setOrginName(parts[0]);
-//                    }
-//                } else {
-//                    fileData.setOrginName(originalFilename);
-//                }
-//            }
-//
-//            // DB저장
-//            requestBoardService.saveFileData(fileData);
-//
-//            // 서버에 저장
-//            Path filePath = Paths.get(savePath, savedFileName);
-//            try {
-//                Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-//            } catch (IOException e) {
-//            }
-//        }
 
 
         return "redirect:/request/post/"+id;
@@ -848,7 +792,7 @@ System.out.println("넘어온파일리스트 " + files.toString() + " 기존존�
 
 //리스트 - 왜......없는 페이지번호 쓰면, 에러로가고.. 페이지 보정이안됨??
 
-//첨부파일 : 미구현--->해야함
+//이미지 서버이미지 보여줘야하는데.....
 
 //지도 : 미구현--->해야함
 
@@ -871,19 +815,9 @@ System.out.println("넘어온파일리스트 " + files.toString() + " 기존존�
 //게시판리스트 :카테고리별구현O
 
 //---------완료
+//첨부파일 :o 첨부, 다운, 조회,삭제o
 //해시태그 ok 등록,수정,삭제,조회,검색 가능.
 //글 수정, post변경o
 //게시글 삭제 : 구현O
 //대댓글 등록: 구현(1단계대댓만 가능)
 
-
-//태그저장.테스트--------
-
-//        requestBoardService.addTag(postData);
-//        // Save hashtags to Tags table
-//        for (String tag : hashtags) {
-//            StartupStep.Tags tagData = new StartupStep.Tags();
-//            tagData.setContentsId(postData.getId()); // Assuming you have a getId() method in Contents class
-//            tagData.setTag(tag);
-//            tagsService.addTag(tagData);
-//        }

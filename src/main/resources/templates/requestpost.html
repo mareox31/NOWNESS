@@ -272,34 +272,40 @@
                 if (loginuser == null) {
                     alert("로그인해주세요");
                 } else {
-                    if (liked) {
-                        alert("이미 좋아요를 누르셨습니다. 더 이상 좋아요를 누를 수 없습니다.");
-                    } else {
-                        var wantToLike = window.confirm("좋아요를 하시겠습니까?");
-                        //좋아요 저장
-                        if (wantToLike) {
-                            $.ajax({
-                                url: "/request/insertlike",
-                                data: {
-                                    "contentsid": boardId,
-                                    "userid": loginuser,
-                                },
-                                beforeSend: function (xhr) {
-                                    xhr.setRequestHeader(header, token);
-                                },
-                                type: "post",
-                                success: function (result) {
-                                    liked = result;
-                                    updateHeartState(liked, result ? likes + 1 : likes);
-                                },
-                                error: function () {
-                                    alert("error occur");
-                                }
-                            });//ajax end-좋아요등록 end
+                    if(verifiedUser == true) {
+                        if (liked) {
+                            alert("이미 좋아요를 누르셨습니다. 더 이상 좋아요를 누를 수 없습니다.");
+                        } else {
+                            var wantToLike = window.confirm("좋아요를 하시겠습니까?");
+                            //좋아요 저장
+                            if (wantToLike) {
+                                $.ajax({
+                                    url: "/request/insertlike",
+                                    data: {
+                                        "contentsid": boardId,
+                                        "userid": loginuser,
+                                    },
+                                    beforeSend: function (xhr) {
+                                        xhr.setRequestHeader(header, token);
+                                    },
+                                    type: "post",
+                                    success: function (result) {
+                                        liked = result;
+                                        updateHeartState(liked, result ? likes + 1 : likes);
+                                    },
+                                    error: function () {
+                                        alert("error occur");
+                                    }
+                                });//ajax end-좋아요등록 end
 
-                        } else { alert("좋아요를 취소하셨습니다."); }
+                            } else {
+                                alert("좋아요를 취소하셨습니다.");
+                            }
+                        }//좋아요OX,인증된사람만.
+                    }else{
+                        alert("이메일 인증을 완료해주시기 바랍니다.");
                     }
-                }
+                }//if end
             });//좋아요 클릭이벤트end
 
 
@@ -362,6 +368,27 @@
         }//getnicknameforcomment end
 
 
+      //삭제되지않은 자식댓글개수 체크
+            function childCommentsCount(id) {
+                    var childcount='';
+                $.ajax({
+                    url: "/request/childCommentsCount",
+                    data: {
+                        "id": id
+                    },
+                    type: "get",
+                    success: function(result) {
+
+                        console.log(result);
+                      return childcount=result;
+
+                    },
+                    error: function() {
+                    }
+                });
+
+            }//
+
 
         // 댓글 리스트 가져오기
         function getReplyList(boardId) {
@@ -381,61 +408,104 @@
         }//getreplylist end
 
 
-        // 댓글 보여주는 기능
-        function drawReply(replys) {
-            var html = '';
+            // 댓글 보여주는 기능
+            function drawReply(replys) {
+                var html = '';
 
-            replys.forEach(function(reply) {
-                if (reply.parentid == 0) {
-                    var nickname = getNicknameForComment(reply.id);
+                replys.forEach(function(reply) {
+                    if (reply.parentid == 0) {
+                        if (reply.deleted == 1) {
+                            //글삭제되면, 칸없어짐.
+                            html += '<div class="row">';
+                            html += '<div class="col-sm-12" id="delete_' + reply.id + '">';
+                            html += '<span></span>';
+                            // html += '<hr>';
+                            html += '</div></div>';
+                            html += '<div class="row"><div class="col-sm-12 sub' + reply.id + '"></div></div>';
+                            return; // Skip the rest of the iteration
+                        }
 
-                    html += '<div class="row"><div class="col-sm-12">';
-                    html += '<form class="form-inline" action="/writeReply" method="post">';
-                    html += '<label for="pwd" class="mr-sm-2">' + "[작성자 : " + nickname + " ] " + '</label>';
-                    html += '<label for="pwd" class="mr-sm-2">' + "( " + reply.createddatetime + ")"+ '</label>';
+                        var nickname = getNicknameForComment(reply.id);
 
-                    html += '<button type="button" id="re_replyaddbtn" class="btn btn-primary mb-2 re_replyaddbtn" data-replyid="' + reply.id + '" ' +
-                        'style="background-color: transparent; border-color: transparent; width: 48.46px; height: 38.48px; ">';
-                    html += '<img src="/images/reply.png" alt="Button Image" width="18px" height="18px" style="vertical-align: middle;">';
-                    html += '</button>';
+                        html += '<div class="row"><div class="col-sm-12">';
+                        html += '<form class="form-inline" action="/writeReply" method="post">';
+                        html += '<label for="pwd" class="mr-sm-2">' + "[작성자 : " + nickname + " ] " + '</label>';
+                        html += '<label for="pwd" class="mr-sm-2">' + "( " + reply.createddatetime + ")"+ '</label>';
 
-                    html += '<button type="button" class="btn btn-primary mb-2 deletereplybtn" data-replyid="' + reply.id + '" data-replyuserid="' + reply.userid + '">❌</button>';
-                    html += '<br>';
-                    html += '<label for="pwd" class="mr-sm-2">' + reply.reply.replace(/\n/g, '<br>') + '</label>';
-                    html += '<hr>';
+                        html += '<button type="button" id="re_replyaddbtn" class="btn btn-primary mb-2 re_replyaddbtn" data-replyid="' + reply.id + '" ' +
+                            'style="background-color: transparent; border-color: transparent; width: 48.46px; height: 38.48px; ">';
+                        html += '<img src="/images/reply.png" alt="Button Image" width="18px" height="18px" style="vertical-align: middle;">';
+                        html += '</button>';
 
-                    html += '</div></div>'; // Close the main comment div
-                    html += '<div class="row"><div class="col-sm-12 sub' + reply.id + '"></div></div>'; // Container for re-replies
+                        html += '<button type="button" class="btn btn-primary mb-2 deletereplybtn" data-replyid="' + reply.id + '" data-replyuserid="' + reply.userid + '">❌</button>';
+                        html += '<br>';
+                        html += '<label for="pwd" class="mr-sm-2">' + reply.reply.replace(/\n/g, '<br>') + '</label>';
+                        html += '<hr>';
 
-                    html += '<div class="row re-reply-input" style="display: none;">';
-                    html += '<div class="col-sm-12">';
-                    html += '<textarea class="form-control mb-2 mr-sm-2 re-reply-textarea" placeholder="Enter your re-reply"></textarea>';
-                    html += '<button type="button" class="btn btn-outline-dark re-reply-submitbtn" data-replyid="' + reply.id + '">Submit</button>';
-                    html += '</div></div>';
-                    // html += '<br>';
+                        html += '</div></div>'; // Close the main comment div
+                        html += '<div class="row"><div class="col-sm-12 sub' + reply.id + '"></div></div>'; // Container for re-replies
 
-                    html += '<input type="hidden" name="id" th:value="${postdetail.id}">';
-                    html += '<input type="hidden" name="parentid" th:value="' + reply.id + '">';
-                    html += '</form>';
-                }
-            });
+                        html += '<div class="row re-reply-input" style="display: none;">';
+                        html += '<div class="col-sm-12">';
+                        html += '<textarea class="form-control mb-2 mr-sm-2 re-reply-textarea" placeholder="Enter your re-reply"></textarea>';
+                        html += '<button type="button" class="btn btn-outline-dark re-reply-submitbtn" data-replyid="' + reply.id + '">Submit</button>';
+                        html += '</div></div>';
+                        // html += '<br>';
 
-            $("#replyArea").html(html);
-            replys.forEach(function(reply) {
-                if (reply.parentid != 0) {
-                    var nickname = getNicknameForComment(reply.id);
-                    var subHtml = '';
-                    subHtml = '<div class="row"><div class="col-sm-12 subReply subReplyWithMargin">';
-                    subHtml += '<label for="pwd" class="mr-sm-2 sub">' + "└[작성자 : " + nickname + " ] " + "( " + reply.createddatetime + ")" + '</label>';
-                    subHtml += '<button type="button" class="mr-sm-2 sub deletereplybtn" data-replyid="' + reply.id + '" data-replyuserid="' + reply.userid + '">❌</button>';
-                    subHtml += '<label for="pwd" class="col-sm-12 sub">' + reply.reply.replace(/\n/g, '<br>') + '</label>';
-                    subHtml += '<div class="row"><div class="col-sm-12 sub' + reply.id + '"></div></div></div></div>';
-                    subHtml += '<hr>';
+                        html += '<input type="hidden" name="id" th:value="${postdetail.id}">';
+                        html += '<input type="hidden" name="parentid" th:value="' + reply.id + '">';
+                        html += '</form>';
+                    }
 
-                    $(".sub" + reply.parentid).append(subHtml);
-                }
-            });
-        }
+                });
+
+                $("#replyArea").html(html);
+                replys.forEach(function(reply) {
+                    if (reply.parentid != 0) {
+                        var subHtml = '';
+                        var nickname = getNicknameForComment(reply.id);
+
+                        // 부모 확인
+                        var parentReply = replys.find(function(parent) {
+                            return parent.id === reply.parentid;
+                        });
+
+                        if (parentReply && parentReply.deleted == 1) {
+                            if(reply.deleted==1){//부모없음, 자식없음
+                                // document.getElementById('delete_' + parentReply.id).innerHTML = '';
+                            }else{ //부모없음 /자식있음
+                                subHtml += '<div class="row">';
+                                subHtml += '<div class="col-sm-12 subReply subReplyWithMargin">';
+                                subHtml += '<label for="pwd" class="mr-sm-2 sub">' + "└[작성자 : " + nickname + " ] " + "( " + reply.createddatetime + ")" + '</label>';
+                                subHtml += '<button type="button" class="mr-sm-2 sub deletereplybtn" data-replyid="' + reply.id + '" data-replyuserid="' + reply.userid + '">❌</button>';
+                                subHtml += '<label for="pwd" class="col-sm-12 sub">' + reply.reply.replace(/\n/g, '<br>') + '</label>';
+                                subHtml += '<div class="row"><div class="col-sm-12 sub' + reply.id + '"></div></div></div></div>';
+                                subHtml += '<hr>';
+                            }
+                        }
+                        else {//부모 존재
+                            if(reply.deleted==1){//부모존재, 자식삭제   "부모존재, 자식삭제"+
+                                subHtml += '<div class="row">';
+                                subHtml += '<div class="col-sm-12 subReply subReplyWithMargin">';
+                                // subHtml += '<label for="pwd" class="col-sm-12 sub">' + '</label>';
+                                subHtml += '<div class="row"></div></div></div>';
+                                // subHtml += '<hr>';
+                            }else{//부모있음, 자식있음.
+                                subHtml += '<div class="row">';
+                                subHtml += '<div class="col-sm-12 subReply subReplyWithMargin">';
+                                subHtml += '<label for="pwd" class="mr-sm-2 sub">' + "└[작성자 : " + nickname + " ] " + "( " + reply.createddatetime + ")" + '</label>';
+                                subHtml += '<button type="button" class="mr-sm-2 sub deletereplybtn" data-replyid="' + reply.id + '" data-replyuserid="' + reply.userid + '">❌</button>';
+                                subHtml += '<label for="pwd" class="col-sm-12 sub">' + reply.reply.replace(/\n/g, '<br>') + '</label>';
+                                subHtml += '<div class="row"><div class="col-sm-12 sub' + reply.id + '"></div></div></div></div>';
+                                subHtml += '<hr>';
+                            }
+                        }
+
+                        $(".sub" + reply.parentid).append(subHtml);
+                    }
+                });
+
+            }
 
 
 

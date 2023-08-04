@@ -10,7 +10,17 @@
     <link rel="stylesheet" th:href="@{/css/summernote/summernote-lite.css}">
 
     <link rel="stylesheet" href="https://unpkg.com/@yaireo/tagify/dist/tagify.css">
+<style>
+    #existingFilesContainer{
+        background-color: red;
+        display: none;
+    }
 
+    #file_count{
+        background-color: blue;
+    }
+
+</style>
 </head>
 <body>
 <div th:insert="~{header :: header}"></div>
@@ -85,12 +95,13 @@
                 <textarea id="summernote" name="contents"></textarea>
                 <!--            <textarea id="summernote" name="contents" th:text="${modifypost.contents}"></textarea>-->
             </div>
-            <!--기존파일-->
+
+
             <!--기존파일-->
             <div id="existingFilesContainer">
                 <!-- Existing files will be displayed here -->
             </div>
-            <div th:each="existingFile : ${existingFiles}">
+            <div id="file_count" th:each="existingFile : ${existingFiles}">
                 <input type="hidden" name="existingSavenames" th:value="${existingFile.saveName}">
             </div>
 
@@ -103,13 +114,8 @@
             <!-- 'multiple' attribute allows multiple file selection -->
 
 
-
             <!--            미리보기-->
             <div id="selectedFiles"></div>
-            <!-- A div to display the selected files -->
-
-
-
 
 
             <button type="submit" id="submitButton">등록</button>
@@ -250,35 +256,43 @@
         });
 
 
-
-        // // submit event-tag
-        // $('#submitButton').on('click', function() {
-        //     input.value = tagify.value.map(tag => tag.value).join(',');
-        //     $('form').submit();
-        // });
-
-
         //파일     ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ
-
-//기존파일테스트
-// Function to display existing files
+//테스트3---------------
         function displayExistingFiles(existingFiles) {
             const container = document.getElementById('existingFilesContainer');
+            container.innerHTML = ''; // Clear the container before adding new files
 
             existingFiles.forEach(file => {
                 const fileDiv = document.createElement('div');
-                const imageElement = document.createElement('img');
-                imageElement.src = `/image/${file.saveName}`; // Set the image URL
-                imageElement.alt = file.orginName; // Set the original file name as the image's alt text
 
-                fileDiv.appendChild(imageElement);
+                const fileInfo = document.createElement('span');
+                fileInfo.textContent = file.orginName; // Display the original file name
+                fileDiv.appendChild(fileInfo);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                fileDiv.appendChild(deleteButton);
+
                 container.appendChild(fileDiv);
+
+                deleteButton.addEventListener('click', () => {
+                    deleteExistingFile(file.saveName);
+                    // Remove the corresponding <div> from the DOM
+                    container.removeChild(fileDiv);
+                });
             });
         }
+        function deleteExistingFile(saveName) {
+            // Remove the file from the DOM and update the selectedFiles array
+            selectedFiles = selectedFiles.filter(file => file.saveName !== saveName);
+            displaySelectedFiles(selectedFiles);
 
-        // Call the function to display existing files
-        displayExistingFiles(/*[[${existingFiles}]]*/);
-
+            // Remove the corresponding hidden input field
+            const inputField = document.querySelector(`input[name="existingSavenames"][value="${saveName}"]`);
+            if (inputField) {
+                inputField.remove();
+            }
+        }
 
 
 
@@ -296,15 +310,44 @@
                 const fileName = file.name; //파일이름으로
 
                 const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete';
+                deleteButton.textContent = 'Delete여기가 그거냐';
+
+                // //삭제버튼 클릭하면클릭이벤트.
+                // deleteButton.addEventListener('click', () => {
+                //     selectedFiles.splice(index, 1); //한개삭제
+                //     displaySelectedFiles(selectedFiles); //보여주자다시
+                //
+                //     deleteExistingFile(file.saveName);
+                //     // Remove the corresponding <div> from the DOM
+                //     container.removeChild(fileDiv);
+                //
+                // });
 
                 //삭제버튼 클릭하면클릭이벤트.
                 deleteButton.addEventListener('click', () => {
-                    selectedFiles.splice(index, 1); //한개삭제
-                    displaySelectedFiles(selectedFiles); //보여주자다시
+                    // Find the index of the file in the existingFiles list
+                    const index = existingFiles.findIndex((existingFile) => existingFile.saveName === file.saveName);
+
+                    if (index !== -1) {
+                        // Remove the file from the existingFiles list
+                        existingFiles.splice(index, 1);
+
+                        // Update the display of selected files
+                        displaySelectedFiles(existingFiles);
+
+                        // Call the deleteExistingFile function
+                        deleteExistingFile(file.saveName);
+
+                        // Remove the corresponding <div> from the DOM
+                        container.removeChild(fileDiv);
+                    }
                 });
 
+
                 fileDiv.textContent = fileName; //div파일이름설정 : textcontents  태그에 상관없이 해당 노드가 가지고 있는 텍스트 값을 모두 읽어온다.
+                if(file.orginName!=null){
+                    fileDiv.textContent =file.orginName;
+                }
                 fileDiv.appendChild(deleteButton);//div당 delete설정.
 
                 // Display image preview if it's an image file
@@ -321,12 +364,16 @@
         }//displaySelectedFiles- end
 //---------기능 displaySelectedFiles 끝------------------
         const existingFiles = /*[[${existingFiles}]]*/ [];//기존파일.
+        displayExistingFiles(/*[[${existingFiles}]]*/);
 
         // Event listener for file input change
         //인풋에 이벤트 리스너 추가. 인풋수정.
         const fileInput = document.getElementById('fileInput');//파일첨부자리.
+
+        let selectedFiles = /*[[${existingFiles}]]*/ [];
         // const selectedFiles = []; //이미선택된파일들. 우선빈공간. //여기다가 선택한거넣음되겠다.
-        const selectedFiles = existingFiles;
+        // let selectedFiles = existingFiles;
+        // let selectedFiles = [];
         displaySelectedFiles(selectedFiles);//미리보여줄까
         alert(existingFiles);
 
@@ -334,52 +381,24 @@
 
         fileInput.addEventListener('change', () => {
             const files = fileInput.files;
+            const totalSelectedFiles = selectedFiles.length + files.length;
 
-
-            //인풋된거(지금넣는거) +선택된거 합쳐서 5개 카운트
-            if (files.length + selectedFiles.length > 5) {
+            if (totalSelectedFiles > 5) {
                 alert('You can only upload up to 5 files.');
                 fileInput.value = ''; // Reset file input
                 return;
             }
 
             // Add selected files to the list
-            //추가된파일리스트에넣는다.
             for (let i = 0; i < files.length; i++) {
                 selectedFiles.push(files[i]);
             }
 
-            //파일리스트를 보여주기.(공간만들고 , delete붙이고)
             displaySelectedFiles(selectedFiles);
         });
 
-        // //---------파일업로드때매 submit
-        // // Submit event for form validation
-        // $('#submitButton').on('click', function(event) {
-        //     event.preventDefault();
-        //
-        //     const files = fileInput.files;
-        //     let totalFileSize = 0;
-        //
-        //     // 전체 크기 계산
-        //     for (let i = 0; i < files.length; i++) {
-        //         totalFileSize += files[i].size;
-        //     }
-        //
-        //     // 전체 크기 체크.
-        //     const maxSize = 5 * 1024 * 1024; // 5 MB in bytes
-        //     if (totalFileSize > maxSize) {
-        //         alert('파일의 크기가 제한 크기를 넘었습니다. 파일 전체 총 합이 5MB까지 첨부가 가능합니다.');
-        //         return;
-        //     }
-        //
-        //     input.value = tagify.value.map(tag => tag.value).join(',');//해시태그용
-        //
-        //     //사이즈제한 맞으면 버튼동작.
-        //     $('form').submit();
-        // });
-        //---------파일업로드때매 submit
-        // Submit event for form validation
+
+//기존서브밋------------
         $('#submitButton').on('click', function(event) {
             event.preventDefault();
 
@@ -403,7 +422,6 @@
             //사이즈제한 맞으면 버튼동작.
             $('form').submit();
         });
-
 
     });
 </script>
