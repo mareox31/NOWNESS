@@ -74,6 +74,10 @@ public class RequestBoardRepository {
     //댓글조회 - 콘텐츠이름.
     public List<RepliesDTO> getReply(int id) { return sql.selectList("request.getReply",id); }
 
+    //자식댓글개수조회
+    public int childCommentsCount(int id) { return sql.selectOne("request.childCommentsCount",id); }
+
+
     //테스트 해당 글 댓글갯수 - postRepliesCount
     public int postRepliesCount(int id) {
         return sql.selectOne("request.postRepliesCount", id);
@@ -229,9 +233,7 @@ public class RequestBoardRepository {
         sql.insert("request.saveFileData", fileData);}
 
 
-    //파일 다운로드 테스트용
-    // Retrieve FileData by fileId
-    // Retrieve FileData by fileId
+    //파일 다운로드
     public FileData getFileById(long fileId) {
         return sql.selectOne("request.getFileById", fileId);
     }
@@ -243,9 +245,14 @@ public class RequestBoardRepository {
     }
 
 
-    // Delete a file by its ID
+    //파일 삭제 (id)
     public void deleteFileById(long fileId) {
         sql.delete("request.deleteFileById", fileId);
+    }
+
+    //파일 삭제(여러개)
+    public void deleteFilesByIds(List<Long> fileIds) {
+        sql.delete("request.deleteFilesByIds", fileIds);
     }
 
 }
