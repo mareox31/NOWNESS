@@ -1,7 +1,7 @@
 $(document).ready(function() {
 
     $('#btnLogout').click(() => {
-        requestAjax('token', 'DELETE');
+        requestAjax('logout', 'POST');
     });
 
     function requestAjax(resource, method) {
@@ -14,7 +14,8 @@ $(document).ready(function() {
                 'X-CSRF-TOKEN': $('input[name="_csrf"]').val(),
             },
             success: function (xhr, status, response) {
-                if (status === 'success') {
+                console.log(response);
+                if (status === 'nocontent') {
                     alert('로그아웃 되었습니다.');
                     location.reload();
                 }

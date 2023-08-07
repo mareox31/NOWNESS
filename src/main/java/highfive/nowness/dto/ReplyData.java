@@ -17,5 +17,7 @@ public class ReplyData {
     private int userId;
     private String reply;
 
-    // Constructors, getters, and setters
+    //추가
+    private int parentid;
+
 }

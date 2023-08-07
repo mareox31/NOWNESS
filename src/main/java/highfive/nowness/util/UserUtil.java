@@ -32,7 +32,7 @@ public class UserUtil {
     }
 
     public static String getHost() {
-        return "http://localhost:8080";
+        return "http://101.101.218.244/:8080";
     }
 
 }

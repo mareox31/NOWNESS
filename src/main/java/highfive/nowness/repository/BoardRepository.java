@@ -10,4 +10,8 @@ import java.util.Map;
 @Repository
 public interface BoardRepository {
     List<Map<String, String>> loadRecentContentsAndReplies(long userId);
+    List<Map<String, String>> loadUserRecentPostsByPage(long userId, long page);
+    long loadUserPostsCount(long userId);
+    List<Map<String, String>> loadUserRecentRepliesByPage(long userId, long page);
+    long loadUserRepliesCount(long userId);
 }

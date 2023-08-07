@@ -212,6 +212,7 @@ function requestAjax(resource, method, data) {
                 }
             } else if (resource === nicknameResourceName && status === 'nocontent') {
                 $('#nickname').text(JSON.parse(this.data).newNickname);
+                $('#greeting').text(JSON.parse(this.data).newNickname + '님 안녕하세요!')
                 $('#btnChangingInfoMessage').hide();
                 $('#btnChangeRequest').show();
                 alert('닉네임이 변경되었습니다.');

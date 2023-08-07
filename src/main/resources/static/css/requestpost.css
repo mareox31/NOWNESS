@@ -1,3 +1,20 @@
+@import url(fontawesome-all.min.css);
+@import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Raleway:400,800,900");
+
+/*
+	Future Imperfect by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+*/
+/*!
+ * Font Awesome Free 5.15.4 by @fontawesome - https://fontawesome.com
+ * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
+ */
+
+
+
+
+
 /*css*/
 #deletereplybtn {
     background-color: white;
@@ -15,16 +32,16 @@
 }
 
 /*폰트*/
-@font-face {
-    font-family: 'NeoDunggeunmoPro-Regular';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/NeoDunggeunmoPro-Regular.woff2') format('woff2');
-    font-weight: normal;
-    font-style: normal;
-}
-body {
-    font-family: 'NeoDunggeunmoPro-Regular', sans-serif;
-    line-height: 1;
-}
+/*@font-face {*/
+/*    font-family: 'NeoDunggeunmoPro-Regular';*/
+/*    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/NeoDunggeunmoPro-Regular.woff2') format('woff2');*/
+/*    font-weight: normal;*/
+/*    font-style: normal;*/
+/*}*/
+/*body {*/
+/*    font-family: 'NeoDunggeunmoPro-Regular', sans-serif;*/
+/*    line-height: 1;*/
+/*}*/
 
 /*대댓*/
 .col-sm-12 sub{

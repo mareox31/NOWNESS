@@ -7,6 +7,12 @@
     <meta name="_csrf" th:content="${_csrf.token}">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/summernote/summernote-lite.css}">
+
+    <link rel="stylesheet" href="https://unpkg.com/@yaireo/tagify/dist/tagify.css">
+    <script th:src="@{/js/jquery-3.7.0.min.js}"></script>
+
+
+
 </head>
 <body>
 <div th:insert="~{header :: header}"></div>
@@ -19,7 +25,7 @@
 
 
 
-    <form action="/request/writer" method="post">
+    <form action="/request/writer" method="post"  enctype="multipart/form-data">
         <input type="hidden" name="userId"  th:value="${userId}">
         <input type="hidden" name="_csrf" th:value="${_csrf.token}">
 
@@ -59,7 +65,20 @@
             <option value="6">행사</option>
 
         </select>
+        <hr>
+        해시태그 (최대 5개 입력가능합니다. 엔터로 추가해주세요.)
+        <div id="tagContainer">
+            <input placeholder="#해시태그" name="hashtags" id="tagInput" type="hidden">
+        </div>
+        <!-- Warning message to show when exceeding the tag limit -->
+        <div id="warningMessage" style="display: none; color: red;">
+            최대 5개의 해시태그만 입력할 수 있습니다.(엔터로 입력)
+        </div>
 
+
+
+        <hr>
+        제  목  :
         <input type="text" placeholder="제목을 입력해주세요." id="postTitle" name="title"  required/>
 
 
@@ -69,9 +88,41 @@
         </div>
 
 
+<!--        파일테스트추가-->
+        <!-- File Upload 올려지긴함.-->
+<!--        <hr>-->
+<!--        파일을 첨부하세요 (최대 5개):-->
+<!--        <input type="file" name="files" id="fileInput" multiple>-->
+<!--        &lt;!&ndash; 'multiple' attribute allows multiple file selection &ndash;&gt;-->
+
+<!--        <div id="selectedFiles"></div>-->
+
+        <!--추가 미리보기-->
+        <!-- File Upload -->
+        <hr>
+        파일을 첨부하세요 (최대 5개):
+        <input type="file" name="files" id="fileInput" multiple>
+        <!-- 'multiple' attribute allows multiple file selection -->
+
+        <div id="selectedFiles"></div>
+        <!-- A div to display the selected files -->
+
+
+
+
+
+
+        <!--        파일테스트끝-->
+
         <button type="submit" id="submitButton">등록</button>
 
     </form>
+
+
+<!--    파일테스트2-->
+
+
+
 
 
     <!--                작성자id확인용-->
@@ -81,6 +132,10 @@
 
     <div th:insert="~{footer :: footer}"></div>
 </div>
+<script src="https://unpkg.com/@yaireo/tagify"></script>
+<script src="https://unpkg.com/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
+
+<!--<script>-->
 <script>
     $(document).ready(function() {
         const summernote = $('#summernote');
@@ -140,7 +195,147 @@
         summernote.summernote('undo');
         // 앞으로가기
         summernote.summernote('redo');
-    });
+
+
+
+
+        // 해시태그
+        var input = document.getElementById('tagInput');
+        var tagify = new Tagify(input);
+
+
+        tagify.DOM.input.addEventListener('keydown', function(event) {
+            if (event.key === ' ') {
+                event.preventDefault();
+            }
+        });
+
+        //태그 입력 5개 제한
+        tagify.on('input', function(e) {
+            var tags = tagify.value.map(tag => tag.value);
+            if (tags.length > 4) {
+                tagify.settings.mode = 'mix';
+                tagify.DOM.input.blur();
+
+                document.getElementById('warningMessage').style.display = 'block';
+            } else {
+                tagify.settings.mode = 'input';
+                document.getElementById('warningMessage').style.display = 'none';
+            }
+        });
+
+        tagify.on('keydown', function(e) {
+            var tags = tagify.value.map(tag => tag.value);
+            if (tags.length > 4) {
+                e.preventDefault();
+            }
+        });
+
+        tagify.on('focus', function(e) {
+            var tags = tagify.value.map(tag => tag.value);
+            if (tags.length > 4) {
+                tagify.DOM.input.blur();
+            }
+        });
+
+
+
+        // submit event-tag
+        // $('#submitButton').on('click', function() {
+        //     input.value = tagify.value.map(tag => tag.value).join(',');
+        //     $('form').submit();
+        // });
+
+
+
+
+
+
+
+
+//파일     ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ
+//파일 올리면 미리보기됨.이미지.
+// Function to display selected files and allow deleting them
+        function displaySelectedFiles(files) {
+            const selectedFilesDiv = document.getElementById('selectedFiles');
+            selectedFilesDiv.innerHTML = '';
+
+            files.forEach((file, index) => {
+                const fileDiv = document.createElement('div');
+                const fileName = file.name;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', () => {
+                    selectedFiles.splice(index, 1);
+                    displaySelectedFiles(selectedFiles);
+                });
+
+                fileDiv.textContent = fileName;
+                fileDiv.appendChild(deleteButton);
+
+                // Display image preview if it's an image file
+                if (file.type.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.width = 100; // You can adjust the preview size here
+                    fileDiv.appendChild(img);
+                }
+
+                selectedFilesDiv.appendChild(fileDiv);
+            });
+        }
+
+        // Event listener for file input change
+        const fileInput = document.getElementById('fileInput');
+        const selectedFiles = [];
+
+        fileInput.addEventListener('change', () => {
+            const files = fileInput.files;
+            if (files.length + selectedFiles.length > 5) {
+                alert('You can only upload up to 5 files.');
+                fileInput.value = ''; // Reset file input
+                return;
+            }
+
+            // Add selected files to the list
+            for (let i = 0; i < files.length; i++) {
+                selectedFiles.push(files[i]);
+            }
+
+            displaySelectedFiles(selectedFiles);
+        });
+
+
+//---------파일업로드때매 submit
+        // Submit event for form validation
+        $('#submitButton').on('click', function(event) {
+            event.preventDefault();
+
+            const files = fileInput.files;
+            let totalFileSize = 0;
+
+            // 전체 크기 계산
+            for (let i = 0; i < files.length; i++) {
+                totalFileSize += files[i].size;
+            }
+
+            // 전체 크기 체크.
+            const maxSize = 5 * 1024 * 1024; // 5 MB in bytes
+            if (totalFileSize > maxSize) {
+                alert('파일의 크기가 제한 크기를 넘었습니다. 파일 전체 총 합이 5MB까지 첨부가 가능합니다.');
+                return;
+            }
+
+            input.value = tagify.value.map(tag => tag.value).join(',');//해시태그용
+
+           //사이즈제한 맞으면 버튼동작.
+            $('form').submit();
+        });
+
+
+    });//ready end
+
 
 </script>
 <script th:src="@{/js/summernote/summernote-lite.js}"></script>
@@ -150,3 +345,6 @@
 
 </body>
 </html>
+
+
+

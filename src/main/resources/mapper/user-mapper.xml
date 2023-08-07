@@ -38,7 +38,7 @@
 
     <insert id="saveUnverifiedEmail">
         INSERT INTO unverified_emails
-        VALUES (#{arg0}, #{arg1});
+        VALUES (#{param1}, #{param2});
     </insert>
 
     <select id="verifyEmail" statementType="CALLABLE" parameterType="map">
@@ -47,7 +47,7 @@
 
     <insert id="savePasswordResetEmail">
         INSERT INTO password_reset_lists (code, email)
-        VALUES (#{arg0}, #{arg1});
+        VALUES (#{param1}, #{param2});
     </insert>
 
     <select id="countPasswordResetEmail" resultType="int">
@@ -59,11 +59,11 @@
     </select>
 
     <update id="changePasswordByEmail" parameterType="String">
-        UPDATE users SET password = #{arg1}, last_password_changed = now() WHERE email = #{arg0}
+        UPDATE users SET password = #{param2}, last_password_changed = now() WHERE email = #{param1}
     </update>
 
     <update id="changeNicknameByEmail" parameterType="String">
-        UPDATE users SET nickname = #{arg1} WHERE email = #{arg0}
+        UPDATE users SET nickname = #{param2} WHERE email = #{param1}
     </update>
 
     <delete id="deleteUser" parameterType="long">

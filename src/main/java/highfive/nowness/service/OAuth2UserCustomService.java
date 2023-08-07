@@ -116,7 +116,7 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
 
     private long saveOrUpdateUser(UserDTO userDTO) {
         userRepository.saveOrUpdateUser(userDTO);
-        return userRepository.findIdByEmail(userDTO.getEmail());
+        return userRepository.findIdByEmail(userDTO.getEmail()).orElse(0L);
     }
 
     private Set<GrantedAuthority> getUserAuthorities(OAuth2User oAuth2User) {

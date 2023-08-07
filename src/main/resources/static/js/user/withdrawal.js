@@ -30,7 +30,7 @@ $(document).ready(() => {
                 'X-CSRF-TOKEN': $('input[name="_csrf"]').val(),
             },
             success: function (xhr, status, response) {
-                if (status === 'success') {
+                if (status === 'nocontent') {
                     alert('회원탈퇴가 완료되었습니다. 그동안 이용해주셔서 감사합니다.');
                     location.href = '/';
                 }
