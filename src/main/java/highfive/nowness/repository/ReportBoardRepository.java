@@ -2,6 +2,7 @@ package highfive.nowness.repository;
 
 import highfive.nowness.dto.PostData;
 import highfive.nowness.dto.ReportDTO;
+import highfive.nowness.dto.ReportsDTO;
 import highfive.nowness.dto.TagsDTO;
 import lombok.RequiredArgsConstructor;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -81,6 +82,11 @@ public class ReportBoardRepository {
     // 글 상세 정보 조회 시 해당 글의 태그 정보도 함께 조회
     public List<TagsDTO> getTagsByContentsId(int contentsId) {
         return sql.selectList("report.getTagsByContentsId", contentsId);
+    }
+
+    // 게시글 신고 저장
+    public void reportPost(ReportsDTO reportsDTO) {
+        sql.insert("report.reportPost", reportsDTO);
     }
 
 }

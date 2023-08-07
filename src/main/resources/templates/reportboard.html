@@ -3,73 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <title>reportboard</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <link th:href="@{/css/reportboard.css}" rel="stylesheet">
 </head>
 <body>
 <div th:insert="~{header :: header}"></div>
-<div>
-    <div class="main-wrapper">
-        <div class="board_wrap">
-            <div class="board-title-searchbar-wrapper">
-                <div class="board_title">
-                    <strong>제보요청</strong>
-                </div>
+<div class="main-wrapper">
+    <div class="board_wrap">
+        <div class="board-title-searchbar-wrapper">
+            <div class="board_title">
+                <strong>제보요청</strong>
             </div>
-            <div class="board_list_wrap">
-                <div class="board_list">
-                    <div class="top">
-                        <div class="num">번호</div>
-                        <div class="title">제목</div>
-                        <div class="writer">작성자</div>
-                        <div class="date">등록일</div>
-                        <div class="count">조회</div>
+        </div>
+        <div class="board_list_wrap">
+            <div class="board_list">
+                <div class="top">
+                    <div class="num">번호</div>
+                    <div class="title">제목</div>
+                    <div class="writer">작성자</div>
+                    <div class="date">등록일</div>
+                    <div class="count">조회</div>
+                </div>
+
+                <div th:each="post : ${posts}">
+                    <!-- 제목을 클릭하면 상세 페이지로 이동 -->
+                    <div class="num" th:text="${post.id}"></div>
+                    <div class="title">
+                        <a th:href="@{'/report/board/' + ${post.id}}" th:text="${post.title}"></a>
                     </div>
-
-                    <div th:each="post : ${posts}">
-                        <!-- 제목을 클릭하면 상세 페이지로 이동 -->
-                        <div class="num" th:text="${post.id}"></div>
-                        <div class="title">
-                            <a th:href="@{'/report/board/' + ${post.id}}" th:text="${post.title}"></a>
-                        </div>
-                        <div class="writer">작성자1</div>
-                        <div class="date" th:text="${#temporals.format(post.createddatetime, 'yyyy.MM.dd')}"></div>
-                        <div class="count" th:text="${post.views}"></div>
-                    </div>
-
+                    <div class="writer">작성자1</div>
+                    <div class="date" th:text="${#temporals.format(post.createddatetime, 'yyyy.MM.dd')}"></div>
+                    <div class="count" th:text="${post.views}"></div>
                 </div>
 
             </div>
-            <div class="bt_wrap">
-                <a th:href="@{/report/writer}" class="on">글쓰기</a>
-            </div>
-            <div class="search">
-                <form th:action="@{/report/board/search}" method="get">
-                    <input type="text" placeholder="검색어 입력" name="searchTitle" th:value="${searchTitle}">
-                    <button type="submit">
-                        <img src="https://s3.ap-northeast-2.amazonaws.com/cdn.wecode.co.kr/icon/search.png">
-                    </button>
-                </form>
-            </div>
 
-            <div class="page_wrap">
-                <div class="page_nation">
-                    <a class="arrow pprev" th:href="@{/report/board/search(Page=1, searchTitle=${searchTitle})}"><<</a>
-                    <a class="arrow prev" th:href="@{/report/board/search(page=${currentPage - 1}, searchTitle=${searchTitle})}" th:if="${currentPage > 1}">이전</a>
+        </div>
+        <div class="bt_wrap">
+            <a th:href="@{/report/writer}" class="on">글쓰기</a>
+        </div>
+        <div class="search">
+            <form th:action="@{/report/board/search}" method="get">
+                <input type="text" placeholder="검색어 입력" name="searchTitle" th:value="${searchTitle}">
+                <img src="https://s3.ap-northeast-2.amazonaws.com/cdn.wecode.co.kr/icon/search.png">
+            </form>
+        </div>
 
-                    <!-- 페이지 번호 출력 -->
-                    <a th:each="pageNum : ${#numbers.sequence(1, totalPages)}"
-                       th:href="@{/report/board/search(page=${pageNum}, searchTitle=${searchTitle})}"
-                       th:class="${pageNum == currentPage ? 'active' : ''}"
-                       th:text="${pageNum}"></a>
+        <div class="page_wrap">
+            <div class="page_nation">
+                <a class="arrow pprev" th:href="@{/report/board/search(Page=1, searchTitle=${searchTitle})}"><<</a>
+                <a class="arrow prev" th:href="@{/report/board/search(page=${currentPage - 1}, searchTitle=${searchTitle})}" th:if="${currentPage > 1}">이전</a>
 
-                    <a class="arrow next" th:href="@{/report/board/search(page=${currentPage + 1}, searchTitle=${searchTitle})}" th:if="${currentPage < totalPages}">다음</a>
-                    <a class="arrow nnext"
-                       th:href="@{/report/board/search(page=${totalPages}, searchTitle=${searchTitle})}">>></a>
-                </div>
+                <!-- 페이지 번호 출력 -->
+                <a th:each="pageNum : ${#numbers.sequence(1, totalPages)}"
+                   th:href="@{/report/board/search(page=${pageNum}, searchTitle=${searchTitle})}"
+                   th:class="${pageNum == currentPage ? 'active' : ''}"
+                   th:text="${pageNum}"></a>
+
+                <a class="arrow next" th:href="@{/report/board/search(page=${currentPage + 1}, searchTitle=${searchTitle})}" th:if="${currentPage < totalPages}">다음</a>
+                <a class="arrow nnext"
+                   th:href="@{/report/board/search(page=${totalPages}, searchTitle=${searchTitle})}">>></a>
             </div>
         </div>
     </div>
-    <script th:src="@{/js/bootstrap.min.js}"></script>
-    <div th:insert="~{footer :: footer}"></div>
+</div>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<div th:insert="~{footer :: footer}"></div>
 </body>
 </html>

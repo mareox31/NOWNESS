@@ -2,6 +2,7 @@ package highfive.nowness.service;
 
 import highfive.nowness.dto.PostData;
 import highfive.nowness.dto.ReportDTO;
+import highfive.nowness.dto.ReportsDTO;
 import highfive.nowness.dto.TagsDTO;
 import highfive.nowness.repository.ReportBoardRepository;
 import lombok.RequiredArgsConstructor;
@@ -77,5 +78,10 @@ public class ReportBoardService {
     // 게시글 상세 정보 조회
     public List<TagsDTO> getTagsByContentsId(int contentsId) {
         return reportBoardRepository.getTagsByContentsId(contentsId);
+    }
+
+    // 게시글 신고 저장
+    public void reportPost(ReportsDTO reportsDTO) {
+        reportBoardRepository.reportPost(reportsDTO);
     }
 }

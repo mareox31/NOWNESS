@@ -34,7 +34,7 @@
 
     <!-- 게시글 검색 결과 수 가져오기 -->
     <select id="getTotalPostsCountByTitle" parameterType="string" resultType="int">
-        SELECT COUNT(*) FROM Contents WHERE title LIKE CONCAT('%', #{searchTitle}, '%');
+        select count(*) from Contents where title like CONCAT('%', #{searchTitle}, '%');
     </select>
 
     <!-- 제목으로 게시글 검색 결과 가져오기 -->
@@ -47,45 +47,50 @@
 
     <!-- 제보요청카테고리만 게시물 목록 출력 -->
     <select id="getTotalPostsCountByBoardType" parameterType="int" resultType="int">
-        SELECT COUNT(*) FROM Contents WHERE board_type = #{boardType};
+        select count(*) from contents where board_type = #{boardType};
     </select>
 
     <select id="getPostsByBoardTypeAndPage" parameterType="map" resultType="reportDTO">
-        SELECT * FROM Contents
-        WHERE board_type = #{boardType}
-        ORDER BY id DESC
-            LIMIT #{pageSize} OFFSET #{offset};
+        select * from contents
+        where board_type = #{boardType}
+        order by id desc
+            LIMIT #{pageSize} offset #{offset};
     </select>
 
     <!-- 제보요청카테고리만 검색 목록 출력 -->
     <select id="getTotalPostsCountByTitleAndBoardType" parameterType="map" resultType="int">
-        SELECT COUNT(*) FROM Contents WHERE title LIKE CONCAT('%', #{searchTitle}, '%') AND board_type = #{boardType};
+        select count(*) from contents where title like CONCAT('%', #{searchTitle}, '%') and board_type = #{boardType};
     </select>
 
     <select id="getPostsByTitleAndBoardTypeAndPage" parameterType="map" resultType="reportDTO">
-        SELECT * FROM Contents
-        WHERE title LIKE CONCAT('%', #{searchTitle}, '%') AND board_type = #{boardType}
-        ORDER BY id DESC
-            LIMIT #{pageSize} OFFSET #{offset};
+        select * from contents
+        where title like CONCAT('%', #{searchTitle}, '%') and board_type = #{boardType}
+        order by id desc
+            LIMIT #{pageSize} offset #{offset};
     </select>
 
     <!-- 게시글 삭제 -->
     <delete id="deletePostById" parameterType="int">
-        DELETE FROM Contents WHERE id = #{postId}
+        delete from contents where id = #{postId}
     </delete>
 
     <!-- 게시글 수정 -->
     <update id="updatePost" parameterType="reportDTO">
-        UPDATE Contents
-        SET board_type = #{boardtype},
+        update contents
+        set board_type = #{boardtype},
             title = #{title},
             contents = #{contents}
-        WHERE id = #{id}
+        where id = #{id}
     </update>
 
     <!-- 글 상세 정보 조회 시 해당 글의 태그 정보도 함께 조회 -->
     <select id="getTagsByContentsId" parameterType="int" resultType="tagsDTO">
-        SELECT * FROM Tags WHERE contents_id = #{contentsId}
+        select * from tags where contents_id = #{contentsId}
     </select>
 
+    <!-- 게시글 신고 -->
+    <insert id="reportPost" parameterType="reportsDTO">
+        insert into reports (`reported_contents_id`, `report_user_id`, `report_reason`)
+        values (#{reportedContentsId}, #{reportUserId}, #{reportReason})
+    </insert>
 </mapper>

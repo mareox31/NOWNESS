@@ -2,6 +2,7 @@ package highfive.nowness.controller;
 
 import highfive.nowness.dto.PostData;
 import highfive.nowness.dto.ReportDTO;
+import highfive.nowness.dto.ReportsDTO;
 import highfive.nowness.dto.TagsDTO;
 import highfive.nowness.service.ReportBoardService;
 import lombok.RequiredArgsConstructor;
@@ -163,4 +164,17 @@ public class ReportBoardController {
         return "redirect:/report/board";
     }
 
+    // 게시글 신고
+    @PostMapping("/board/{postId}/report")
+    public String reportPost(@PathVariable int postId, @RequestParam int reportUserId,
+                             @RequestParam String reportReason) {
+        ReportsDTO reportsDTO = new ReportsDTO();
+        reportsDTO.setReportedContentsId(postId);
+        reportsDTO.setReportUserId(reportUserId);
+        reportsDTO.setReportReason(reportReason);
+
+        reportBoardService.reportPost(reportsDTO);
+
+        return "redirect:/report/board/" + postId;
+    }
 }

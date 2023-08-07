@@ -51,8 +51,26 @@
         <div class="post-actions">
           <a th:href="@{/report/board/{postId}/edit(postId=${post.id})}">수정</a>
           <a th:href="@{/report/board/{postId}/delete(postId=${post.id})}">삭제</a>
+          <button type="button" onclick="showReportForm()">신고</button>
         </div>
       </main>
+
+      <!-- 신고 사유 입력 폼 -->
+      <div id="reportForm" style="display: none;">
+        <form th:action="@{/report/board/{postId}/report(postId=${post.id})}" method="post">
+          <input type="hidden" name="reportUserId"  value=7>
+          <input type="text" name="reportReason" placeholder="신고 사유를 입력하세요" required>
+          <button type="submit">신고하기</button>
+        </form>
+      </div>
+
+      <!-- 스크립트 -->
+      <script>
+        function showReportForm() {
+          const reportForm = document.getElementById("reportForm");
+          reportForm.style.display = "block";
+        }
+      </script>
 
       <!-- 댓글 -->
       <div class="comment_header_bar">
