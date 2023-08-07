@@ -1,14 +1,264 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:lang="ko">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.w3.org/1999/xhtml" th:lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/rankboard/rankboard.css}" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <title>NOWNESS</title>
+    <script>
+
+        // 페이지 처음 출력 시 화면 조절
+        $(document).ready(function() {
+            var rankListSize = parseInt($("#rankListCount").val());
+
+            var rankListSize = parseInt($("#rankListCount").val());
+            var newHeight = Math.ceil(rankListSize / 3) * 650 + 100;
+            $("#contents").css("height", newHeight + "px");
+        })
+
+        // 정렬 변경, 좋아요 및 조회수
+        function dataSend() {
+            var searchTime =$('input[name=serachtime]:checked').val();
+            var sortMethod =$('input[name=sortmethod]:checked').val();
+            var findlikeValue = $('input[name=findlike]:checked').val();
+            var searchSort = $('select[name=selectsort]').val();
+            var searchWord = $('input[id=searchInput]').val();
+
+            // var 사용 자제하기
+
+            console.log(searchTime);
+            console.log(sortMethod);
+            console.log(findlikeValue);
+            console.log(searchSort);
+            console.log(searchWord);
+
+            $.ajax({
+                url:"/dataSend",
+                data: {ST:searchTime, SM:sortMethod, FL:findlikeValue, SS:searchSort, SW:searchWord},
+                type:"POST",
+                beforeSend: function (jqXHR, settings) {
+                    var header = $("meta[name='_csrf_header']").attr("content");
+                    var token = $("meta[name='_csrf']").attr("content");
+                    jqXHR.setRequestHeader(header, token);
+                }
+            })
+                .done(function (result) {
+                    $("#contents").replaceWith(result);
+
+                    // #contents 크기 조절
+                    var rankListSize = parseInt($("#rankListCount").val());
+                    var newHeight = Math.ceil(rankListSize / 3) * 650 + 100;
+                    $("#contents").css("height", newHeight + "px");
+            })
+                .fail(function(result) {
+                    console.log("값 전송을 실패했습니다.");
+            });
+        }
+
+        // 좋아요 누를 경우 변경
+        function likeclick(element, id) {
+            var likesValue = element.getAttribute('value');
+            var likestextElement = element.querySelector(".liketext");
+            var imageElement = element.querySelector(".image");
+
+            // span 요소의 텍스트 값을 정수로 변환하여 사용합니다.
+            var likestext = parseInt(likestextElement.textContent);
+
+            $.ajax({
+                url:"/dataSendlike",
+                data: {id:id},
+                type:"POST",
+                dataType:"json",
+                beforeSend: function (jqXHR, settings) {
+                    var header = $("meta[name='_csrf_header']").attr("content");
+                    var token = $("meta[name='_csrf']").attr("content");
+                    jqXHR.setRequestHeader(header, token);
+                }
+            })
+            .done(function (result) {
+                if (result.checklike) {
+                    if (likesValue == "like") {
+                        element.setAttribute('value', "unlike");
+                        likestextElement.textContent = likestext - 1;
+                        imageElement.src = '/css/image/rankboard/unlike.jpg';
+                    }
+                    else if (likesValue == "unlike") {
+                        element.setAttribute('value', "like");
+                        likestextElement.textContent = likestext + 1;
+                        imageElement.src = '/css/image/rankboard/like.jpg';
+                    }
+                }
+                else {
+                    alert("로그인이 필요합니다.");
+                }
+            })
+                .fail(function(result) {
+                    console.log("값 전송을 실패했습니다.");
+            });
+        }
+
+        // 좋아요 누른 글만 보기 확인값
+        function dataSendonlylike(element){
+
+            $.ajax({
+                url:"/dataSendonlylike",
+                data: {},
+                type:"POST",
+                beforeSend: function (jqXHR, settings) {
+                    var header = $("meta[name='_csrf_header']").attr("content");
+                    var token = $("meta[name='_csrf']").attr("content");
+                    jqXHR.setRequestHeader(header, token);
+                }
+            })
+            .done(function (result) {
+                if (result.checklogin) {
+                    if(element.checked) {
+                        element.value = "findlike"
+                    }
+                    else {
+                        element.value = "unfindlike"
+                    }
+                    dataSend();
+                }
+                else {
+                    alert("로그인이 필요합니다.");
+                    element.checked = false;
+                }
+            })
+            .fail(function(result) {
+                console.log("값 전송을 실패했습니다.");
+            });
+        }
+
+        //태그 눌렀을 경우 해당 값 검색
+        function tagClick(elemenet)
+        {
+            var tagtext = elemenet.textContent;
+
+            var searchInput = document.getElementById("searchInput");
+
+            searchInput.value = tagtext;
+
+            var selectSort = document.getElementsByName("selectsort")[0];
+            for (var i = 0; i < selectSort.options.length; i++) {
+                if (selectSort.options[i].value === "tag") {
+                    selectSort.selectedIndex = i;
+                    break;
+                }
+            }
+            dataSend();
+        }
+
+        //입력창 엔터
+        function enterkey() {
+            if (window.event.keyCode === 13) {
+                dataSend();
+            }
+        }
+    </script>
 </head>
 <body>
-<h1>RANKBOARD</h1>
-<ul>
-    <li>test<span th:text="${data}"></span></li>
-</ul>
+
+<div th:insert="~{header :: header}"></div>
+
+<div class = "sortmotherdiv">
+    <div class="sortmethod">
+        최신순으로 보기
+        <label class="radio_select">
+            <input type="radio" name="serachtime" value="day" class="short_size" onclick="dataSend()"/><span>일</span>
+        </label>
+
+        <label class="radio_select">
+            <input type="radio" name="serachtime" value="week" class="short_size" onclick="dataSend()"/><span>주</span>
+        </label>
+
+        <label class="radio_select">
+            <input type="radio" name="serachtime" value="month" class="short_size" onclick="dataSend()"/><span>월</span>
+        </label>
+
+        <label class="radio_select">
+            <input type="radio" name="serachtime" value="year" class="short_size" checked onclick="dataSend()"/><span>년</span>
+        </label>
+    </div>
+    <div class="sortmethod">
+        정렬 방법(내림차순)
+        <label class="radio_select">
+            <input type="radio" name="sortmethod" value="likeCount" class="long_size" checked onclick="dataSend()"/><span>좋아요 순</span>
+        </label>
+
+        <label class="radio_select">
+            <input type="radio" name="sortmethod" value="viewCount" class="long_size" onclick="dataSend()"/><span>조회수 순</span>
+        </label>
+    </div>
+
+    <div class="sortmethod">
+        <select name="selectsort">
+            <option value="nickname">글쓴이</option>
+            <option value="title">제목</option>
+            <option value="contents" selected="selected">내용</option>
+            <option value="tag">태그</option>
+        </select>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="검색어를 입력하세요..." onkeyup="enterkey();">
+            <button id="searchButton" onclick="dataSend()">검색</button>
+        </div>
+    </div>
+
+    <div class="sortmethod">
+        <label class="radio_select">
+            <input type="checkbox" name="findlike" value="unfindlike" class="long_size" unchecked onclick="dataSendonlylike(this)"/><span>좋아요 누른 글만</span>
+        </label>
+    </div>
+
+</div>
+
+<hr>
+
+<div id="contents">
+
+    <div class="rankblock" th:each="rank: ${RankList}">
+        <div class = "name"><span th:text="${ rank.nickname }"></span></div><div class = "date"><span th:text="${ rank.daycount }"></span></div>
+        <div class = "pic">
+            <img src="@{/css/image/rankboard/testimg.jpg}" rel="stylesheet" alt="이미지" style="width:100%; height:100%;"/> <!-- 테스트용! -->
+        </div>
+        <div class = "title"><a th:href="@{/request/post/{id}(id=${rank.id})}" th:text="${rank.title}"></a></div>
+        <div class = "contents"><a th:href="@{/request/post/{id}(id=${rank.id})}" th:utext="${rank.contents}"></a></div>
+        <div class = "tag"><a th:each="tagarr : ${rank.tagarray}" href="#" th:attr="onclick='tagClick(this)'" th:text="${tagarr}">태그</a>&nbsp;</div>
+        <!-- <div class = "likes" th:value="${rank.checklike ? 'like' : 'unlike'}"  th:attr="onclick='likeclick(this, ' + ${rank.id} + ')'">
+            <img th:src="@{/css/image/rankboard/unlike.jpg}" alt = "Like/Unlike" class="image">&nbsp;&nbsp;<span class="liketext" th:text="${ rank.likeCount }"></span></div> -->
+        <div class="likes" th:value="${rank.checklike ? 'like' : 'unlike'}"
+             th:attr="onclick='likeclick(this, ' + ${rank.id} + ')'"
+             th:if="${rank.checklike}">
+            <img th:src="@{/css/image/rankboard/like.jpg}" alt="likebutton" class="image">
+            &nbsp;&nbsp;<span class="liketext" th:text="${rank.likeCount}"></span>
+        </div>
+        <div class="likes" th:value="${rank.checklike ? 'like' : 'unlike'}"
+             th:attr="onclick='likeclick(this, ' + ${rank.id} + ')'"
+             th:if="${not rank.checklike}">
+            <img th:src="@{/css/image/rankboard/unlike.jpg}" alt="likebutton" class="image">
+            &nbsp;&nbsp;<span class="liketext" th:text="${rank.likeCount}"></span>
+        </div>
+        <div class = "view">조회수 <span th:text="${ rank.views }"></span>회</div>
+    </div>
+
+    <input type="hidden" id="rankListCount" th:value="${RankListCount}" />
+
+    <br><br>
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            <li class="page-item" th:each="page:${#numbers.sequence(RankStartPage, RankEndPage)}" th:classappend="${page == RankNowPage} ? 'active' : ''">
+                <a class="page-link" th:if="${page != RankNowPage}" th:href="@{/rankboard(page=${page})}" th:text="${page}"></a>
+                <a class="page-link" th:if="${page == RankNowPage}" th:text="${page}"></a>
+            </li>
+        </ul>
+    </nav>
+    <br><br>
+</div>
+
+<div th:insert="~{footer :: footer}"></div>
+
 </body>
 </html>

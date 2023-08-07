@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="ko">
 <head>
     <meta charset="UTF-8">
 </head>
 <body>
 <div th:fragment="header">
     <th:block th:insert="~{header_script}"></th:block>
-    <div class="container-fluid p-0">
+    <div class="p-0">
         <nav class="navbar navbar-expand-lg"  style="background-color: #f3f3f3;">
             <div class="container-fluid">
                 <div class="row w-100">
@@ -23,7 +23,7 @@
                             </th:block>
                             <th:block th:if="${userId != null}">
                                 <li class="nav-item">
-                                    <p class="nav-link text-dark" th:text="|${nickname}님 안녕하세요!|">닉네임</p>
+                                    <p id="greeting" class="nav-link text-dark" th:text="|${nickname}님 안녕하세요!|">닉네임</p>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link user-link"
@@ -40,8 +40,8 @@
                     </div>
 
                     <div class="col-12 d-flex justify-content-center my-5">
-                        <a class="navbar-brand d-flex align-items-center justify-content-center logo-position" href="main">
-                            <img src="images/logo.png" alt="Logo" width="150" height="120">
+                        <a class="navbar-brand d-flex align-items-center justify-content-center logo-position" href="/main">
+                            <img th:src="@{/images/logo.png}" alt="Logo" width="150" height="120">
                         </a>
                     </div>
 
@@ -49,13 +49,13 @@
                     <div class="col-12 navbar-collapse justify-content-between" id="navbarSupportedContent">
                         <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
                             <li class="nav-item mb-5">
-                                <a class="nav-link text-dark board-link" href="rankboard">인기</a>
+                                <a class="nav-link text-dark board-link" href="/rankboard">인기</a>
                             </li>
                             <li class="nav-item mb-5">
-                                <a class="nav-link text-dark board-link" href="reportboard">공유</a>
+                                <a class="nav-link text-dark board-link" href="/report/board">공유</a>
                             </li>
                             <li class="nav-item mb-5">
-                                <a class="nav-link text-dark board-link" href="requestboard">요청</a>
+                                <a class="nav-link text-dark board-link" href="/request/list">요청</a>
                             </li>
                         </ul>
                     </div>

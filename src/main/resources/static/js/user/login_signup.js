@@ -4,37 +4,68 @@ $(document).ready(() => {
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
     const email = $('#floatingEmail');
-    const password = $('#floatingPassword');
-
     email.keyup(() => {
         validateEmail(email);
     });
+
+    const password = $('#floatingPassword');
     password.keyup(() => {
         validatePassword(password);
     });
 
     if (window.location.pathname === '/user/signup') {
         const nickname = $('#floatingNickname');
-        const passwordCheck = $('#floatingPasswordCheck');
-
         nickname.keyup(() => {
             validateNickname(nickname);
         });
 
+        const passwordCheck = $('#floatingPasswordCheck');
         passwordCheck.keyup(() => {
             validatePasswordCheck(password, passwordCheck);
         });
 
+        const captcha = $('#floatingCaptcha');
+        captcha.keyup(() => {
+            $('#floatingCaptcha').removeClass('is-invalid');
+            validateSingUpForm();
+        });
+
+        captcha.keypress((event) => {
+            if (event.which === 13) {
+                startSignUpProcess();
+            }
+        });
+
+        const refreshCaptchaImageButton = $('#btnRefreshCaptchaImage');
+        refreshCaptchaImageButton.click(() => {
+            refreshCaptcha();
+            return false; // 폼 제출 막기
+        });
+
+        const audioCaptchaButton = $('#btnAudioCaptcha');
+        audioCaptchaButton.click(() => {
+            alert('추후 추가 예정입니다.');
+            return false;
+        });
+
+
         $('#floatingEmail, #floatingNickname').on('focusout', function(event) {
             const element = $(event.target);
-            if (!element.hasClass('is-invalid'))
+            if (!element.hasClass('is-invalid') && element.val().length > 0)
                 duplicationCheck(element.attr('name'), element.val());
         });
 
-        $('#signupForm').submit(function() {
+        $('#signupForm').submit(function(event) {
+            event.preventDefault();
+            startSignUpProcess();
+        });
+
+        function startSignUpProcess() {
+            evaluateCaptcha();
             $('#btnSubmit').hide();
             $('#btnSignupProcessingMessage').show();
-        });
+        }
+
     }
 
 });
@@ -109,11 +140,13 @@ function validateSingUpForm() {
     const password = $('#floatingPassword');
     const nickname = $('#floatingNickname');
     const passwordCheck = $('#floatingPasswordCheck');
+    const captcha = $('#floatingCaptcha');
 
     if (email.hasClass('is-invalid') || email.val().trim() === '' ||
         password.hasClass('is-invalid') || password.val().trim() === '' ||
         nickname.hasClass('is-invalid') || nickname.val().trim() === '' ||
-        passwordCheck.hasClass('is-invalid') || passwordCheck.val().trim() === '') {
+        passwordCheck.hasClass('is-invalid') || passwordCheck.val().trim() === '' ||
+        captcha.hasClass('is-invalid') || captcha.val().trim() === '') {
         disableSubmitButton()
     } else {
         enableSubmitButton();
@@ -147,10 +180,21 @@ function duplicationCheck(type, value) {
     const data = {
         [type]: value,
     }
-    request('/api/v1/user/duplicate', 'POST', data, $('input[name="_csrf"]').val())
+    request('/api/v1/user/duplicate', 'POST', data);
 }
 
-function request(url, method, data, csrfToken) {
+function evaluateCaptcha() {
+    const url = '/api/v1/captcha/image/' + $('input[name="captchaKey"]').val();
+    const captchaInput = $('#floatingCaptcha').val();
+    request(url + '?input=' + captchaInput, 'GET', null);
+}
+
+function refreshCaptcha() {
+    const url = '/api/v1/captcha/image';
+    request(url, 'GET', null);
+}
+
+function request(url, method, data) {
     $.ajax({
         url: url,
         type: method,
@@ -158,10 +202,10 @@ function request(url, method, data, csrfToken) {
         data: JSON.stringify(data),
         contentType: 'application/json',
         headers: {
-            'X-CSRF-TOKEN': csrfToken
+            'X-CSRF-TOKEN': $('input[name="_csrf"]').val(),
         },
-        success: function(response) {
-            if(response === true) {
+        success: function(xhr, status, response) {
+            if(response.responseJSON === true) {
                 disableSubmitButton();
                 if (data.hasOwnProperty('email')) {
                     $('#floatingEmail').addClass('is-invalid');
@@ -170,10 +214,27 @@ function request(url, method, data, csrfToken) {
                     $('#floatingNickname').addClass('is-invalid');
                     $('#nicknameValidationFeedback').text('중복된 닉네임 입니다.');
                 }
+            } else if (response.responseJSON.result === false){
+                // CAPTCHA 인증에 실패한 경우
+                $('#floatingCaptcha').addClass('is-invalid');
+                $('#floatingCaptcha').focus();
+                $('#btnSubmit').show();
+                $('#btnSignupProcessingMessage').hide();
+                // Naver Captcha는 한 번 실패하면 파기되므로, 이미지 갱신 필요
+                refreshCaptcha();
+            } else if (response.responseJSON.result === true){
+                // CAPTCHA 인증에 성공한 경우
+                $('form')[0].submit();
+            } else if (response.responseJSON.hasOwnProperty('encodedCaptchaImage')) {
+                $('img[alt="Captcha 이미지"]').attr('src',
+                    'data:image/jpeg;base64,' + response.responseJSON.encodedCaptchaImage);
+                $('input[name="captchaKey"]').val(response.responseJSON.captchaKey);
             }
         },
         error: function(xhr, status, error) {
-            alert('중복 검사 중 오류가 발생하였습니다. 나중에 다시 시도해주세요.');
+            alert('오류가 발생하였습니다. 나중에 다시 시도해주세요.');
+            $('#btnSubmit').show();
+            $('#btnSignupProcessingMessage').hide();
         }
     });
 }

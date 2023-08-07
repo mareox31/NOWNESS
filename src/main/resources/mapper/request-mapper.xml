@@ -45,13 +45,31 @@
     </update>
 
 
-    <!--해당 게시글 닉네임 찾기 -->
+    <!--해당 게시글 닉네임 찾기 (세부게시글용)-->
     <select id="getNicknameById" parameterType="requestDTO" resultType="String">
         select users.nickname as id
         from users join contents
                         on contents.user_id = users.id
         where contents.id= #{id}
     </select>
+
+    <!--   게시글리스트 닉네임가져오기-->
+    <select id="getNickname2" parameterType="requestDTO" resultType="String" useCache="false">
+        SELECT users.nickname AS nickname
+        FROM users
+                 JOIN contents ON contents.user_id = users.id
+        WHERE contents.id = #{id}
+    </select>
+
+    <!--  ajax카테고리 분류시 닉네임가져오기-->
+    <select id="getNicknameByUserId" parameterType="int" resultType="String">
+        SELECT users.nickname AS nickname
+        FROM users
+                 JOIN contents ON contents.user_id = users.id
+        WHERE contents.user_id = #{userId}
+            LIMIT 1
+    </select>
+
 
     <!--리플쓴 유저id로  닉네임 찾기 -->
     <select id="getNickname" parameterType="requestDTO" resultType="String">
@@ -62,11 +80,9 @@
     </select>
 
 
-
-
     <!--해당 게시글 좋아요 (총 개수)  -->
     <select id="getLikes" resultType="java.lang.Integer">
-        SELECT COUNT(*) FROM Likes
+        SELECT COUNT(*) FROM likes
         where contents_id = #{id}
     </select>
 
@@ -98,42 +114,276 @@
     <select id="getReply" resultType="repliesDTO">
         SELECT * FROM replies
         WHERE contents_id = #{id}
-          AND deleted=0
+--           AND deleted=0
         order by parent_id asc
     </select>
 
 
+    <!--자식 댓글 개수조회(삭제X)-->
+    <select id="childCommentsCount" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM replies
+        where parent_id=#{id}
+          and deleted=0
+    </select>
+
+
+
     <!--    댓글등록-->
     <insert id="addReply" parameterType="replyDATA">
-        INSERT INTO Replies (contents_id, user_id, reply)
+        INSERT INTO replies (contents_id, user_id, reply)
         VALUES (#{contentsId}, #{userId}, #{reply})
+    </insert>
+
+    <!--    대댓글등록-->
+    <insert id="add_reReply" parameterType="replyDATA">
+        INSERT INTO replies (contents_id, user_id, reply, parent_id)
+        VALUES (#{contentsId}, #{userId}, #{reply}, #{parentid})
     </insert>
 
 
 
-    <!-- 댓글 삭제 deleted =1로. -->
+    <!-- 댓글 삭제 deleted =1로. +내용 -->
     <update id="deleteReply" parameterType="java.lang.Integer">
         UPDATE replies
         SET deleted = 1
+--             ,
+--         reply = "삭제된 댓글입니다"
         WHERE id = #{replyId}
     </update>
 
 
     <!--    게시글 등록-->
     <insert id="addPost" parameterType="postDATA">
-        INSERT INTO Contents (`user_id`, `contents`, `title`, `board_type`, `locale`, `subcategory`)
+        INSERT INTO contents (`user_id`, `contents`, `title`, `board_type`, `locale`, `subcategory`)
+        VALUES (#{userId}, #{contents}, #{title}, #{boardType}, #{locale}, #{subcategory})
+    </insert>
+
+    <!-- 게시글 저장 후, 글 번호 반환용. -->
+    <insert id="addPost2" parameterType="postDATA" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO contents (`user_id`, `contents`, `title`, `board_type`, `locale`, `subcategory`)
         VALUES (#{userId}, #{contents}, #{title}, #{boardType}, #{locale}, #{subcategory})
     </insert>
 
 
+
     <!--    게시글 수정등록 -->
     <insert id="updatePost" parameterType="postDATA">
-        UPDATE Contents
+        UPDATE contents
         SET  `contents` =#{contents}, `title` = #{title}, `board_type` = #{boardType}, `locale` = #{locale}, `subcategory` = #{subcategory}, edit_datetime =now()
-        WHERE `id` = #{id};
+        WHERE `id` = #{id}
     </insert>
 
+    <!--    게시글 수정등록22 -->
+    <insert id="updatePost2" parameterType="postDATA"  useGeneratedKeys="true" keyProperty="id">
+        UPDATE contents
+        SET  `contents` =#{contents}, `title` = #{title}, `board_type` = #{boardType}, `locale` = #{locale}, `subcategory` = #{subcategory}, edit_datetime =now()
+        WHERE `id` = #{id}
+    </insert>
+
+
+
+    <!--ajax테스트중-->
+    <!--카테고리분류별 게시글가져오기 DTO //필요파라메터 지역, 섭카테고리-->
+    <select id="categoryList" resultType="requestDTO">
+        select * from contents
+        where board_type=1
+          and locale = #{locale}
+          and subcategory =#{subcategory}
+          and deleted=0
+        order by id desc
+    </select>
+
+    <!--맵사용 테스트용 카테고리-->
+    <select id="categoryListMap" resultType="requestDTO" parameterType="java.util.Map">
+        select * from contents
+        where board_type=1
+          and locale = #{locale}
+          and subcategory =#{subcategory}
+          and deleted=0
+        order by id desc
+    </select>
+
+
+    <!--맵사용 테스트용 카테고리 갯수-->
+    <select id="categoryListMapCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+        select count(*) from contents
+        where board_type=1
+          and locale = #{locale}
+          and subcategory =#{subcategory}
+          and deleted=0
+    </select>
+
+
+
+    <!-- 카테고리별   동적쿼리-->
+    <select id="categoryPagingList" resultType="requestDTO" parameterType="java.util.Map">
+        SELECT * FROM contents
+        where board_type=1
+
+        <if test="#{locale} != null">
+            and locale = #{locale}
+        </if>
+        <if test="#{subcategory} != null">
+            and subcategory =#{subcategory}
+        </if>
+        and deleted=0
+        ORDER BY id DESC LIMIT #{pageIndex}, #{pageSize}
+    </select>
+
+
+    <!-- 검색 : 해당 글 갯수 가져오기(개수)-->
+    <select id="searchListMapCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT COUNT(*) FROM contents c
+        JOIN users u ON c.user_id = u.id
+        WHERE c.board_type = 1
+        AND c.deleted = 0
+        <if test="searchType == 'title'">
+            AND c.title LIKE CONCAT('%', #{searchKeyword}, '%')
+        </if>
+        <if test="searchType == 'contents'">
+            AND c.contents LIKE CONCAT('%', #{searchKeyword}, '%')
+        </if>
+        <if test="searchType == 'user_id'">
+            AND u.nickname LIKE CONCAT('%', #{searchKeyword}, '%')
+        </if>
+    </select>
+
+
+    <!-- 검색 : 해당 글 DTO가져오기.(닉네임포함)-->
+    <select id="searchPagingList" resultType="requestDTO" parameterType="java.util.Map">
+        SELECT c.* , u.nickname
+        FROM contents c
+        JOIN users u ON c.user_id = u.id
+        WHERE c.board_type = 1
+        AND c.deleted = 0
+        <if test="searchType == 'title'">
+            AND c.title LIKE CONCAT('%', #{searchKeyword}, '%')
+        </if>
+        <if test="searchType == 'contents'">
+            AND c.contents LIKE CONCAT('%', #{searchKeyword}, '%')
+        </if>
+        <if test="searchType == 'user_id'">
+            AND u.nickname LIKE CONCAT('%', #{searchKeyword}, '%')
+        </if>
+        ORDER BY id DESC LIMIT #{pageIndex}, #{pageSize}
+    </select>
+
+
+
+    <!-- 해당 게시글 좋아요 기록이 있는지 검사(개수)-->
+    <select id="checkIfUserLikedPost" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT COUNT(*) as like_count
+        FROM contents c
+                 JOIN likes l ON c.id = l.contents_id
+        WHERE c.deleted = 0
+          AND l.user_id =  #{userId}
+          AND c.id = #{contentsid}
+    </select>
+
+    <!--  해당 게시글에 좋아요 기록 저장.-->
+    <insert id="insertLike" parameterType="java.util.Map">
+        INSERT INTO likes (contents_id, user_id)
+        VALUES (#{contentsid}, #{userid})
+    </insert>
+
+
+
+    <!--해당 게시글 댓글 개수 조회-->
+    <select id="postRepliesCount" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM replies
+        where contents_id=#{id}
+          and deleted=0
+    </select>
+
+
+    <!--  태그저장 -->
+    <insert id="addHashtag" parameterType="java.util.List">
+        INSERT INTO tags (contents_id, tag)
+        VALUES
+        <foreach collection="list" item="tag" separator=",">
+            (#{tag.contentsid}, #{tag.tag})
+        </foreach>
+    </insert>
+
+    <!--게시물에 해당하는 태그 조회-->
+    <select id="getTags" resultType="tagsDTO" parameterType="java.lang.Integer">
+        SELECT tags.*
+        FROM contents
+                 JOIN tags ON tags.contents_id = contents.id
+        WHERE contents.id = #{id}
+    </select>
+
+
+    <!--태그 검색 : 해당하는 태그에 대한 게시물 갯수-->
+    <select id="searchTagListCount" resultType="java.lang.Integer" parameterType="String">
+        SELECT COUNT(*) FROM contents c
+                                 JOIN tags t ON t.contents_id = c.id
+        WHERE c.board_type = 1
+          AND c.deleted = 0
+          AND t.tag= #{tag}
+    </select>
+
+
+
+
+    <!-- 태그 검색 : 해당 글 DTO가져오기-->
+    <select id="searchPagingTagList" resultType="requestDTO" parameterType="java.util.Map">
+        SELECT c.* , u.nickname
+        FROM contents c
+                 JOIN tags t ON c.id = t.contents_id
+                 JOIN users u ON c.user_id = u.id
+        WHERE c.board_type = 1
+          AND c.deleted = 0
+          AND t.tag LIKE  #{tag}
+        ORDER BY c.id DESC LIMIT #{pageIndex}, #{pageSize}
+    </select>
+
+
+
+    <!--태그삭제 -->
+    <delete id="removeTags" parameterType="java.util.List">
+        DELETE FROM tags
+        <where>
+            <foreach collection="list" item="tag" separator=" OR ">
+                contents_id = #{tag.contentsid} AND tag = #{tag.tag}
+            </foreach>
+        </where>
+    </delete>
+
+    <!--파일저장-->
+    <insert id="saveFileData" parameterType="fileDATA">
+        INSERT INTO files (contents_id, orgin_name, save_name, path, size, ext)
+        VALUES (#{contentsId}, #{orginName}, #{saveName}, #{path}, #{size}, #{ext})
+    </insert>
+
+
+    <!-- Retrieve FileData by fileId파일다운 -->
+    <select id="getFileById" resultType="fileDATA">
+        SELECT * FROM files WHERE id = #{fileId}
+    </select>
+
+    <!-- 게시물에 해당하는 파일들 -->
+    <select id="getFileByContentsId" resultType="fileDATA">
+        SELECT * FROM files WHERE contents_id = #{id}
+    </select>
+
+    <!-- 파일 1개 삭제(id로) -->
+    <delete id="deleteFileById">
+        DELETE FROM files WHERE id = #{fileId}
+    </delete>
+
+
+    <!--파일 여러개 삭제 -->
+    <delete id="deleteFilesByIds" parameterType="java.util.List">
+        DELETE FROM files
+        WHERE id IN
+        <foreach collection="list" item="fileId" separator="," open="(" close=")">
+            #{fileId}
+        </foreach>
+    </delete>
+
+
+
+
 </mapper>
-
-
 

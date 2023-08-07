@@ -3,8 +3,9 @@ package highfive.nowness.controller;
 import highfive.nowness.domain.User;
 import highfive.nowness.service.UserDetailsService;
 import highfive.nowness.util.UserUtil;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,17 +19,12 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
 public class UserApiController {
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
-
-    @Autowired
-    UserApiController(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-        this.userDetailsService = userDetailsService;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     /**
      * 중복된 email 또는 nickname 이 있는지 확인합니다.
@@ -45,6 +41,21 @@ public class UserApiController {
             isExist = userDetailsService.isExistEmail(signUpForm.getEmail());
         }
         return ResponseEntity.ok().body(isExist);
+    }
+
+    /**
+     * 현재 사용자의 로그아웃을 수행합니다. 사용자의 Credentials가 저장된 SecurityContext 를 비우고, 세션을  파기합니다.
+     * @param request the HTTP request object
+     * @return 로그아웃 성공 시 204(No Content), 실패 시  400(Bad Request)를 반환
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        try {
+            request.logout();
+        } catch (ServletException e) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -179,15 +190,13 @@ public class UserApiController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> withdrawal(@AuthenticationPrincipal User user,
+    public ResponseEntity<Void> withdrawal(@AuthenticationPrincipal User user,
                                               @AuthenticationPrincipal OAuth2User oAuth2User,
                                               HttpServletRequest request,
                                               @PathVariable long id) {
         if (user == null) user = UserUtil.convertOAuth2UserToUser(oAuth2User);
         if (user.getId() == id && userDetailsService.withdrawal(id)) {
-            SecurityContextHolder.clearContext();
-            request.getSession(false).invalidate();
-            return ResponseEntity.ok().build();
+            return logout(request);
         }
         else return ResponseEntity.badRequest().build();
     }

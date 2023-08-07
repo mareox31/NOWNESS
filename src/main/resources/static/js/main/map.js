@@ -1,97 +1,35 @@
-// 기본
-var container = document.getElementById('map');
-var options = {
-    center: new kakao.maps.LatLng(37.2994, 127.2027), level: 4
-};
-var map = new kakao.maps.Map(container, options);
+var markers = [];
 
+var mapContainer = document.getElementById('map'),
+    mapOption = {
+        center: new kakao.maps.LatLng(37.566826, 126.9786567),
+        level: 4
+    };
 
-// 컨트롤러, 지도<->스카이뷰
-var mapTypeControl = new kakao.maps.MapTypeControl();
-map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
-
-var zoomControl = new kakao.maps.ZoomControl();
-map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
-
-map.addOverlayMapTypeId(kakao.maps.MapTypeId.TRAFFIC);
-
-
-// 마커
-var markerPosition  = new kakao.maps.LatLng();
-
-var marker = new kakao.maps.Marker({
-    position: markerPosition
-});
-
-marker.setMap(map);
-
-// 마커 기본 현재 위치로
-if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(position) {
-
-        var lat = position.coords.latitude,
-            lon = position.coords.longitude;
-
-        var locPosition = new kakao.maps.LatLng(lat, lon),
-            message = '<div style="padding:5px;">현재 위치</div>';
-        displayMarker(locPosition, message);
-    });
-
-} else {
-
-    var locPosition = new kakao.maps.LatLng(),
-        message = '위치 정보 접근을 허용해주세요.'
-
-    displayMarker(locPosition, message);
-}
-
-// 마커 및 인포윈도우
-function displayMarker(locPosition, message) {
-
-    var marker = new kakao.maps.Marker({
-        map: map,
-        position: locPosition
-    });
-
-    var iwContent = message, iwRemoveable = true;
-
-    var infowindow = new kakao.maps.InfoWindow({
-        content : iwContent,
-        removable : iwRemoveable
-    });
-
-    infowindow.open(map, marker);
-
-    map.setCenter(locPosition);
-}
-
-
-// 장소 검색
+var map = new kakao.maps.Map(mapContainer, mapOption);
 var ps = new kakao.maps.services.Places();
 var infowindow = new kakao.maps.InfoWindow({zIndex:1});
 
 searchPlaces();
 
+// 키워드 검색
 function searchPlaces() {
+    var keyword = document.getElementById('keyword').value.trim();
 
-    var keyword = document.getElementById('keyword').value;
-
-    if (!keyword.replace(/^\s+|\s+$/g, '')) {
-        alert('키워드를 입력해주세요!');
-        return false;
-    }
-
-    ps.keywordSearch( keyword, placesSearchCB);
+    ps.keywordSearch(keyword, placesSearchCB);
 }
 
+document.getElementById('searchForm').addEventListener('submit', function (event) {
+    event.preventDefault(); // 폼 제출을 막습니다
+    searchPlaces();
+});
+
+// 장소 검색 콜백
 function placesSearchCB(data, status, pagination) {
     if (status === kakao.maps.services.Status.OK) {
 
-        // 정상적으로 검색이 완료됐으면
-        // 검색 목록과 마커를 표출합니다
         displayPlaces(data);
 
-        // 페이지 번호를 표출합니다
         displayPagination(pagination);
 
     } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
@@ -103,6 +41,7 @@ function placesSearchCB(data, status, pagination) {
 
         alert('검색 결과 중 오류가 발생했습니다.');
         return;
+
     }
 }
 
@@ -115,6 +54,7 @@ function displayPlaces(places) {
         listStr = '';
 
     removeAllChildNods(listEl);
+
     removeMarker();
 
     for ( var i=0; i<places.length; i++ ) {
@@ -175,8 +115,9 @@ function getListItem(index, places) {
     return el;
 }
 
+// 마커
 function addMarker(position, idx, title) {
-    var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png', // 마커 이미지 url, 스프라이트 이미지를 씁니다
+    var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png',
         imageSize = new kakao.maps.Size(36, 37),
         imgOptions =  {
             spriteSize : new kakao.maps.Size(36, 691),
@@ -202,6 +143,7 @@ function removeMarker() {
     markers = [];
 }
 
+// 검색 결과 페이지 번호
 function displayPagination(pagination) {
     var paginationEl = document.getElementById('pagination'),
         fragment = document.createDocumentFragment(),
@@ -231,6 +173,7 @@ function displayPagination(pagination) {
     paginationEl.appendChild(fragment);
 }
 
+// 검색 결과 마커
 function displayInfowindow(marker, title) {
     var content = '<div style="padding:5px;z-index:1;">' + title + '</div>';
 
@@ -244,5 +187,55 @@ function removeAllChildNods(el) {
     }
 }
 
+// GEOLOCATION, 현재 위치
+var mapContainer = document.getElementById('map'),
+    mapOption = {
+        center: new kakao.maps.LatLng(33.450701, 126.570667),
+        level: 4
+    };
 
+var map = new kakao.maps.Map(mapContainer, mapOption);
 
+if (navigator.geolocation) {
+
+    navigator.geolocation.getCurrentPosition(function(position) {
+
+        var lat = position.coords.latitude,
+            lon = position.coords.longitude;
+
+        var locPosition = new kakao.maps.LatLng(lat, lon);
+
+        displayMarker(locPosition);
+
+    });
+
+} else {
+
+    var locPosition = new kakao.maps.LatLng(33.450701, 126.570667),
+        message = '위치 정보를 사용할 수 없습니다.'
+
+    displayMarker(locPosition, message);
+}
+
+function displayMarker(locPosition, message) {
+
+    var marker = new kakao.maps.Marker({
+        map: map,
+        position: locPosition
+    });
+
+    map.setCenter(locPosition);
+}
+
+// 교통 정보
+map.addOverlayMapTypeId(kakao.maps.MapTypeId.TRAFFIC);
+
+// 줌 컨트롤러
+var zoomControl = new kakao.maps.ZoomControl();
+map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+
+// 길찾기 URL
+function generateRouteURLByPlaceID(placeID) {
+    var url = "https://map.kakao.com/link/to/" + placeID;
+    window.open(url);
+}

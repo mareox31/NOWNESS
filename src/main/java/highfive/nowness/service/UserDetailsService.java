@@ -80,7 +80,7 @@ public class UserDetailsService implements UserService {
 
     @Transactional(readOnly = true)
     public boolean isExistEmail(String email) {
-        return userRepository.findIdByEmail(email) > 0;
+        return userRepository.findIdByEmail(email).orElse(0L) > 0;
     }
 
     @Transactional(readOnly = true)
@@ -201,6 +201,26 @@ public class UserDetailsService implements UserService {
     @Transactional(readOnly = true)
     public List<Map<String, String>> getRecentContentsAndReplies(long userId) {
         return boardRepository.loadRecentContentsAndReplies(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, String>> getUserRecentPostsByPage(long userId, long page) {
+        return boardRepository.loadUserRecentPostsByPage(userId, (page - 1) * 10);
+    }
+
+    @Transactional(readOnly = true)
+    public long getUserPostsCount(long userId) {
+        return boardRepository.loadUserPostsCount(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, String>> getUserRecentRepliesByPage(long userId, long page) {
+        return boardRepository.loadUserRecentRepliesByPage(userId, (page - 1) * 10);
+    }
+
+    @Transactional(readOnly = true)
+    public long getUserRepliesCount(long userId) {
+        return boardRepository.loadUserRepliesCount(userId);
     }
 
     @Transactional

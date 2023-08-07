@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/styles.css}" rel="stylesheet" type="text/css">
+    <style>
+        body * {
+            text-overflow: ellipsis; overflow: hidden; white-space:nowrap;
+        }
+    </style>
+    <title>NOWNESS</title>
+</head>
+<body>
+<header>
+    <th:block th:insert="~{header :: header}"></th:block>
+</header>
+<div class="container mt-5">
+    <div class="row justify-content-between">
+        <section class="container-fluid">
+            <div class="card container mb-2">
+                <div class="row mt-3 justify-content-center">
+                    <h4 th:text="${boardTitle}"></h4>
+                    <table class="table table-hover">
+                        <colgroup>
+                            <col style="width: 5%">
+                            <col style="width: 75%">
+                            <col style="width: 20%">
+                        </colgroup>
+                        <thead>
+                        <tr class="text-center">
+                            <th scope="col">#</th>
+                            <th scope="col">제목</th>
+                            <th scope="col">작성일시</th>
+                        </tr>
+                        </thead>
+                        <tbody class="table-group-divider">
+                        <tr class="text-center" th:each="content, c : ${contents}" th:object="${contents}">
+                            <th scope="row">[[${c.count}]]</th>
+                            <td><a th:href="|/request/post/${content.get('id')}|" class="text-dark" th:text="${content.get('title')}">제목</a></td>
+                            <td th:text="${#strings.replace(content.get('datetime'), 'T', ' ')}">작성일시</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <nav th:if="${totalPage > 0}" aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center" th:with="currentPage=${param.page == null ? '1' : param.page}">
+                            <li class="page-item"
+                                th:classappend="${previousPage == 0} ? 'disabled' : ''">
+                                <a class="page-link" th:href="@{/user/__${resourceName}__(page=${previousPage})}">이전</a>
+                            </li>
+                            <th:block th:with="pageNumbers=${#numbers.sequence(previousPage + 1, (nextPage - 1 > totalPage ? totalPage : nextPage - 1))}">
+                                <li class="page-item" th:each="pageNumber:${pageNumbers}"
+                                    th:classappend="${#strings.equals(currentPage, #strings.toString(pageNumber))} ? 'active' : ''">
+                                    <a class="page-link" th:href="@{/user/__${resourceName}__(page=${pageNumber})}">[[${pageNumber}]]</a>
+                                </li>
+                            </th:block>
+                            <li class="page-item"
+                                th:classappend="${nextPage > totalPage} ? 'disabled' : ''">
+                                <a class="page-link" th:href="@{/user/__${resourceName}__(page=${nextPage})}">다음</a>
+                            </li>
+                        </ul>
+                    </nav>
+                    <th:block th:if="${totalPage == 0}">
+                        <h4 class="text-center text-muted">작성하신 글이 없습니다. 원하시는 메뉴를 선택하시고, 글을 남겨보세요.</h4>
+                    </th:block>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+<footer th:insert="~{footer :: footer}"></footer>
+</body>
+</html>

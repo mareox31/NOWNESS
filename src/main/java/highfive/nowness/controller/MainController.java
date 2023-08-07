@@ -21,21 +21,6 @@ public class MainController {
         return "main";
     }
 
-    @GetMapping("/rankboard")
-    public String rankboard() {
-        return "rankboard";
-    }
-
-    @GetMapping("/reportboard")
-    public String reportboard() {
-        return "reportboard";
-    }
-
-    @GetMapping("/requestboard")
-    public String requestboard() {
-        return "requestboard";
-    }
-
     @GetMapping("/privacy")
     public String privacy() {
         return "privacy";
