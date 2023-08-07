@@ -128,6 +128,15 @@
 
 
 
+    <!--댓글 개수조회(삭제X deleted=0)-->
+    <select id="getRepliesCount" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM replies
+        where contents_id =#{id}
+          and deleted=0
+    </select>
+
+
+
     <!--    댓글등록-->
     <insert id="addReply" parameterType="replyDATA">
         INSERT INTO replies (contents_id, user_id, reply)

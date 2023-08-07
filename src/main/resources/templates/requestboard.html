@@ -3,70 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/requestboard/requestlist.css}" rel="stylesheet">
     <script th:src="@{/js/jquery-3.7.0.min.js}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <!--    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>-->
     <title>NOWNESS</title>
     <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <meta name="_csrf" th:content="${_csrf.token}">
-    <style>
-        body{
-            font-size: 16px;
-        }
 
-        .table a {
-            text-decoration: none;
-            color : black;
-        }
-
-
-        .table th,
-        .table td {
-            width: 150px;
-            max-width: 150px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-
-        #categorySelect{
-            margin: 0 auto;
-            text-align: right;
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-
-        .request_list{
-            margin: 0 auto;
-            width: 70%;
-            height: 80%;
-
-        }
-
-        #post_bottom {
-            /* Add any other styles you need for the #post_bottom container */
-        }
-
-        .post_bottom-container {
-            display: flex;
-            justify-content: space-between; /* This will align left and right */
-            /* Add any other styles you need for the container */
-        }
-
-        #post_bottom_left,
-        #post_bottom_right {
-            /* Add any other styles you need for the .post_bottom elements */
-        }
-
-
-
-    </style>
     <script th:inline="javascript">
 
         var history = window.history || {};
@@ -82,7 +25,6 @@
 
             var loginuser = [[${userId}]];
             var verifiedUser = [[${verifiedUser}]];
-
 
             $("#searchbtn").click(function(event) {
                 event.preventDefault();
@@ -116,108 +58,14 @@
 
 
 
-            //ajax-게시판리스트 요청.
-            function updateRequestList(locale, subcategory, page) {
-                $.ajax({
-                    type: "get",
-                    url: "/request/ajaxlist",
-                    data: { locale: locale, subcategory: subcategory, page: page },
-                    success: function (response) {
-                        var requestList = response.requestList;
-                        var tableBody = $('#requestListTableBody');
-                        tableBody.empty();
-                        $('#pagination').empty();
-
-
-                        //ajax로 재구성된 게시물리스트출력
-                        $.each(requestList, function (index, request) {
-
-                            var row = $('<tr>').addClass('text-center');
-                            var formattedDate = moment(request.createdDatetime).format('MM-DD');
-
-                            $('<th>').attr('scope', 'row').text( response.totalRequestCount - ((response.currentPage) -1)*10 -index ).appendTo(row);
-                            $('<th>').attr('scope', 'row').text(regionNames[request.locale]).appendTo(row);
-                            $('<th>').attr('scope', 'row').text(subcategoryNames[request.subcategory]).appendTo(row);
-                            // $('<th>').attr('scope', 'row').text(request.id).appendTo(row);
-                            // $('<td>').addClass('title-column').append($('<a>').attr('href', '/request/post/' + request.id).text(request.title)).appendTo(row);
-                            $('<td>').addClass('title-column').append(
-                                $('<a>').attr('href', '/request/post/' + request.id).text(request.title + ' (' + request.repliesCount + ')')
-                            ).appendTo(row);
-                            $('<td>').addClass('title-column').text(request.nickname).appendTo(row);
-                            $('<td>').addClass('title-column').text(request.views).appendTo(row);
-                            $('<td>').addClass('title-column').text(formattedDate).appendTo(row);
-
-                            row.appendTo(tableBody);
-                        });
-
-                        updatePagination(response.currentPage, response.totalPages, locale, subcategory);
-
-                        var newURL = '/request/listtest?page=' + page + '&locale=' + locale + '&subcategory=' + subcategory;
-                        history.pushState({ page: page, locale: locale, subcategory: subcategory }, '', newURL);
-                    },
-                    error: function (e) {
-                        alert('Error occurred while retrieving request list.' + JSON.stringify(e));
-                        console.log(JSON.stringify(e));
-                    }
-                });
-            }
-
-            $(window).on('popstate', function(event) {
-                var state = event.originalEvent.state;
-                if (state) {
-                    var locale = state.locale;
-                    var subcategory = state.subcategory;
-                    var page = state.page;
-                    updateRequestList(locale, subcategory, page);
-                }
-            });
-
-
-
-
-            //ajax요청시 재구성할 페이지네이션
-            function updatePagination(currentPage, totalPages) {
-
-                var paginationDiv = $('.pagination');
-                paginationDiv.empty();
-
-                var locale = $('#localeSelect').val();
-                var subcategory = $('#subcategorySelect').val()
-
-                paginationDiv.append(
-                    $('<a>').addClass('btn btn-light').attr('href', '/request/listtest?page='+ '&locale=' +locale+ '&subcategory='+ subcategory).text('First')
-                );
-
-                if (currentPage > 1) {
-                    paginationDiv.append(
-                        $('<a>').addClass('btn btn-light').attr('href', '/request/listtest?page=' + (currentPage - 1)+ '&locale=' +locale+ '&subcategory='+ subcategory).text('Previous')
-                    );
-                }
-
-                for (var i = 1; i <= totalPages; i++) {
-                    paginationDiv.append(
-                        $('<a>').addClass('btn btn-light').attr('href', '/request/listtest?page=' + i + '&locale=' +locale+ '&subcategory='+ subcategory).text(i)
-                    );
-                }
-
-                if (currentPage < totalPages) {
-                    paginationDiv.append(
-                        $('<a>').addClass('btn btn-light').attr('href', '/request/listtest?page=' + (currentPage + 1)+ '&locale=' +locale+ '&subcategory='+ subcategory).text('Next')
-                    );
-                }
-
-                if (totalPages > 0)paginationDiv.append(
-                    $('<a>').addClass('btn btn-light').attr('href', '/request/listtest?page=' + totalPages+ '&locale=' +locale+ '&subcategory='+ subcategory).text('Last')
-                );
-            }
-
             //지역/분류 선택 후 검색버튼 눌렀을때
             $('#submitBtn').click(function() {
                 var locale = $('#localeSelect').val();
                 var subcategory = $('#subcategorySelect').val();
                 var page = 1;
-                updateRequestList(locale, subcategory, page);
+                window.location.href = '/request/list?page=' + page + '&locale=' + locale + '&subcategory=' + subcategory;
             });
+
 
         });
 
@@ -231,8 +79,13 @@
 <div th:insert="~{header :: header}"></div>
 
 
+
 <!--게시판 리스트 목차, 기본 구성-->
-<div class="request_list">
+<!--<div style="width: 1250px; margin: 0 auto;">-->
+<div class="request_list" style="width: 1250px; margin: 0 auto;">
+    <div class="board_title">
+        <strong>공   유</strong>
+    </div>
 
     <!-- 카테고리별-->
     <div id="categorySelect">
@@ -270,14 +123,14 @@
     <table class="table">
         <thead class="thead-light">
         <tr class="text-center">
-            <th scope="col" style="width: 8%">게시글순서</th>
-            <th scope="col" style="width: 10%">지역</th>
-            <th scope="col" style="width: 10%">분류</th>
+            <th scope="col" style="width: 8%">번호</th>
+            <th scope="col" style="width: 8%">지역</th>
+            <th scope="col" style="width: 8%">분류</th>
             <!--            <th scope="col">게시글원래번호(id)</th>-->
-            <th scope="col">제목</th>
-            <th scope="col"style="width: 10%">작성자</th>
-            <th scope="col"style="width: 10%">조회수</th>
-            <th scope="col"style="width: 15%">작성일</th>
+            <th scope="col">제&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;목</th>
+            <th scope="col"style="width: 8%">작성자</th>
+            <th scope="col"style="width: 8%">조회수</th>
+            <th scope="col"style="width: 8%">작성일</th>
         </tr>
         </thead>
         <tbody id="requestListTableBody">
@@ -340,66 +193,111 @@
 
     <!--페이지네이션 출력-->
     <div class="pagination">
+<!--        기본출력OK-->
+                <th:block th:if="${subcategory == null && locale==null && searchType == null && searchKeyword==null && searchtag == null }">
+                    <a class="btn btn-light" th:href="@{/request/list(page=1)}" role="button"><<</a>
+                    <a class="btn btn-light" th:if="${currentPage > 1}" th:href="@{/request/list(page=${currentPage - 1})}" role="button">이전</a>
+                    <span th:if="${startPage > 1}">...</span>
+                    <div th:if="${totalRequestCount > 0}">
+                        <div class="page_num" th:each="pageNumber : ${#numbers.sequence(startPage, endPage)}">
+                            <a class="btn btn-light"
+                               th:href="@{/request/list(page=${pageNumber})}"
+                               th:text="${pageNumber}"
+                               th:classappend="${currentPage == pageNumber ? 'active' : ''}"
+                               role="button"></a>
+                        </div>
+                    </div>
+                    <a class="btn btn-light"
+                       th:if="${currentPage <= 0}"
+                       th:href="@{/request/list(page=1)}"
+                       role="button">1</a>
+                    <a class="btn btn-light" th:if="${currentPage < totalPages}" th:href="@{/request/list(page=${currentPage + 1})}" role="button">다음</a>
+                    <span th:if="${endPage < totalPages}">...</span>
+                    <!--페이지0일때 last누르면 1페이지로-->
+                    <a class="btn btn-light" th:if="${currentPage == 0}" th:href="@{/request/list(page=1)}" role="button">last</a>
+                    <a class="btn btn-light" th:if="${ currentPage > 0}" th:href="@{/request/list(page=${totalPages})}" role="button">>></a>
+                </th:block>
 
-        <!--기본출력-->
-        <th:block th:if="${subcategory == null && locale==null && searchType == null && searchKeyword==null && searchtag == null }">
-            <a class="btn btn-light" th:href="@{/request/list(page=1)}" role="button">First</a>
-            <a class="btn btn-light" th:if="${currentPage > 1}" th:href="@{/request/list(page=${currentPage - 1})}" role="button">Previous</a>
-            <div th:each="pageNumber : ${#numbers.sequence(1, totalPages)}">
-                <a class="btn btn-light" th:href="@{/request/list(page=${pageNumber})}" th:text="${pageNumber}" role="button"></a>
-            </div>
-            <a class="btn btn-light" th:if="${currentPage < totalPages}" th:href="@{/request/list(page=${currentPage + 1})}" role="button">Next</a>
-            <!--페이지0일때 last누르면 1페이지로-->
-            <a class="btn btn-light" th:if="${currentPage == 0}" th:href="@{/request/list(page=1)}" role="button">Last</a>
-            <a class="btn btn-light" th:if="${ currentPage > 0}" th:href="@{/request/list(page=${totalPages})}" role="button">Last</a>
-
-        </th:block>
 
 
         <!--카테고리랑, 지역있을때-->
         <th:block th:if="${subcategory != null && locale!=null && searchType == null && searchKeyword==null && searchtag == null}">
-            <a class="btn btn-light" th:href="@{/request/listtest(page=1, locale=${locale}, subcategory=${subcategory})}" role="button">First</a>
-            <a class="btn btn-light" th:if="${currentPage > 1}" th:href="@{/request/listtest(page=${currentPage - 1}, locale=${locale}, subcategory=${subcategory})}" role="button">Previous</a>
-            <div th:each="pageNumber : ${#numbers.sequence(1, totalPages)}">
-                <a class="btn btn-light" th:if="${currentPage > 0}" th:href="@{/request/listtest(page=${pageNumber}, locale=${locale}, subcategory=${subcategory})}" th:text="${pageNumber}" role="button"></a>
+            <a class="btn btn-light" th:href="@{/request/list(page=1, locale=${locale}, subcategory=${subcategory})}" role="button"><<</a>
+            <a class="btn btn-light" th:if="${currentPage > 1}" th:href="@{/request/list(page=${currentPage - 1}, locale=${locale}, subcategory=${subcategory})}" role="button">이전</a>
+            <span th:if="${startPage > 1}">...</span>
+            <div th:if="${totalRequestCount > 0}">
+                <div class="page_num" th:each="pageNumber : ${#numbers.sequence(startPage, endPage)}">
+                    <a class="btn btn-light"
+                       th:href="@{/request/list(page=${pageNumber}, locale=${locale}, subcategory=${subcategory})}"
+                       th:text="${pageNumber}"
+                       th:classappend="${currentPage == pageNumber ? 'active' : ''}"
+                       role="button"></a>
+                </div>
             </div>
-            <a class="btn btn-light" th:if="${currentPage < totalPages}" th:href="@{/request/listtest(page=${currentPage + 1}, locale=${locale}, subcategory=${subcategory})}" role="button">Next</a>
+            <a class="btn btn-light"
+               th:if="${currentPage <= 0}"
+               th:href="@{/request/list(page=1)}"
+               role="button">1</a>
+            <a class="btn btn-light" th:if="${currentPage < totalPages}" th:href="@{/request/list(page=${currentPage + 1}, locale=${locale}, subcategory=${subcategory})}" role="button">다음</a>
+            <span th:if="${endPage < totalPages}">...</span>
             <!-- 페이지0일때 last누르면 1페이지로 -->
-            <a class="btn btn-light" th:if="${currentPage == 0}" th:href="@{/request/list/search(page=1, searchType=${searchType}, searchKeyword=${searchKeyword})}" role="button">Last</a>
-            <a class="btn btn-light" th:if="${currentPage > 0}" th:href="@{/request/listtest(page=${totalPages}, locale=${locale}, subcategory=${subcategory})}" role="button">Last</a>
-
-
-
+            <a class="btn btn-light" th:if="${currentPage == 0}" th:href="@{/request/list/search(page=1, searchType=${searchType}, searchKeyword=${searchKeyword})}" role="button">>></a>
+            <a class="btn btn-light" th:if="${currentPage > 0}" th:href="@{/request/list(page=${totalPages}, locale=${locale}, subcategory=${subcategory})}" role="button">>></a>
         </th:block>
 
 
-        <!--검색어 있을때-->
+        <!--검색어 있을때 OK-->
         <th:block th:if="${searchType != null && searchKeyword != null && subcategory == null && locale == null && searchtag == null}">
-            <a class="btn btn-light" th:href="@{/request/list/search(page=1, searchType=${searchType}, searchKeyword=${searchKeyword})}" role="button">First</a>
-            <a class="btn btn-light" th:if="${currentPage > 1}" th:href="@{/request/list/search(page=${currentPage - 1}, searchType=${searchType}, searchKeyword=${searchKeyword})}" role="button">Previous</a>
-            <div th:each="pageNumber : ${#numbers.sequence(1, totalPages)}">
-                <a class="btn btn-light" th:if="${currentPage > 0}" th:href="@{/request/list/search(page=${pageNumber}, searchType=${searchType}, searchKeyword=${searchKeyword})}" th:text="${pageNumber}" role="button"></a>
+            <a class="btn btn-light" th:href="@{/request/list/search(page=1, searchType=${searchType}, searchKeyword=${searchKeyword})}" role="button"><<</a>
+            <a class="btn btn-light" th:if="${currentPage > 1}" th:href="@{/request/list/search(page=${currentPage - 1}, searchType=${searchType}, searchKeyword=${searchKeyword})}" role="button">이전</a>
+            <span th:if="${startPage > 1}">...</span>
+            <div th:if="${totalRequestCount > 0}">
+                <div class="page_num" th:each="pageNumber : ${#numbers.sequence(startPage, endPage)}">
+                    <a class="btn btn-light"
+                       th:href="@{/request/list/search(page=${pageNumber}, searchType=${searchType}, searchKeyword=${searchKeyword})}"
+                       th:text="${pageNumber}"
+                       th:classappend="${currentPage == pageNumber ? 'active' : ''}"
+                       role="button"></a>
+                </div>
             </div>
-            <a class="btn btn-light" th:if="${currentPage < totalPages}" th:href="@{/request/list/search(page=${currentPage + 1}, searchType=${searchType}, searchKeyword=${searchKeyword})}" role="button">Next</a>
+            <a class="btn btn-light"
+               th:if="${currentPage <= 0}"
+               th:href="@{/request/list/search(page=1, searchType=${searchType}, searchKeyword=${searchKeyword})}"
+               role="button">1</a>
+            <a class="btn btn-light" th:if="${currentPage < totalPages}" th:href="@{/request/list/search(page=${currentPage + 1}, searchType=${searchType}, searchKeyword=${searchKeyword})}" role="button">다음</a>
+            <span th:if="${endPage < totalPages}">...</span>
             <!--페이지수 0일때 last누르면 1페이지로-->
-            <a class="btn btn-light" th:if="${currentPage == 0}" th:href="@{/request/list/search(page=1, searchType=${searchType}, searchKeyword=${searchKeyword})}" role="button">Last</a>
-            <a class="btn btn-light" th:if="${currentPage > 0}" th:href="@{/request/list/search(page=${totalPages}, searchType=${searchType}, searchKeyword=${searchKeyword})}" role="button">Last</a>
+            <a class="btn btn-light" th:if="${currentPage == 0}" th:href="@{/request/list/search(page=1, searchType=${searchType}, searchKeyword=${searchKeyword})}" role="button">>></a>
+            <a class="btn btn-light" th:if="${currentPage > 0}" th:href="@{/request/list/search(page=${totalPages}, searchType=${searchType}, searchKeyword=${searchKeyword})}" role="button">>></a>
         </th:block>
 
 
-        <!--태그 검색어 있을때-->
+
+
+        <!--태그 검색어 있을때 된거같음-->
         <th:block th:if="${searchtag != null }">
-            <a class="btn btn-light" th:href="@{/request/list/searchtag(page=1, tag=${searchtag})}" role="button">First</a>
-            <a class="btn btn-light" th:if="${currentPage > 1}" th:href="@{/request/list/searchtag(page=${currentPage - 1}, tag=${searchtag})}" role="button">Previous</a>
-            <div th:each="pageNumber : ${#numbers.sequence(1, totalPages)}">
-                <a class="btn btn-light" th:if="${currentPage > 0}" th:href="@{/request/list/searchtag(page=${pageNumber}, tag=${searchtag})}" th:text="${pageNumber}" role="button"></a>
+            <a class="btn btn-light" th:href="@{/request/list/searchtag(page=1, tag=${searchtag})}" role="button"><<</a>
+            <a class="btn btn-light" th:if="${currentPage > 1}" th:href="@{/request/list/searchtag(page=${currentPage - 1}, tag=${searchtag})}" role="button">이전</a>
+            <span th:if="${startPage > 1}">...</span>
+            <div th:if="${totalRequestCount > 0}">
+                <div class="page_num" th:each="pageNumber : ${#numbers.sequence(startPage, endPage)}">
+                    <a class="btn btn-light"
+                       th:href="@{/request/list/searchtag(page=${pageNumber}, tag=${searchtag})}"
+                       th:text="${pageNumber}"
+                       th:classappend="${currentPage == pageNumber ? 'active' : ''}"
+                       role="button"></a>
+                </div>
             </div>
-            <a class="btn btn-light" th:if="${currentPage < totalPages}" th:href="@{/request/list/searchtag(page=${currentPage + 1}, tag=${searchtag})}" role="button">Next</a>
+            <a class="btn btn-light"
+               th:if="${currentPage <= 0}"
+               th:href="@{/request/list/searchtag}"
+               role="button">1</a>
+            <a class="btn btn-light" th:if="${currentPage < totalPages}" th:href="@{/request/list/searchtag(page=${currentPage + 1}, tag=${searchtag})}" role="button">다음</a>
+            <span th:if="${endPage < totalPages}">...</span>
             <!--페이지수 0일때 last누르면 1페이지로-->
-            <a class="btn btn-light" th:if="${currentPage == 0}" th:href="@{/request/list/searchtag(page=1, tag=${searchtag})}" role="button">Last</a>
-            <a class="btn btn-light" th:if="${currentPage > 0}" th:href="@{/request/list/searchtag(page=${totalPages}, tag=${searchtag})}" role="button">Last</a>
+            <a class="btn btn-light" th:if="${currentPage == 0}" th:href="@{/request/list/searchtag(page=1, tag=${searchtag})}" role="button">>></a>
+            <a class="btn btn-light" th:if="${currentPage > 0}" th:href="@{/request/list/searchtag(page=${totalPages}, tag=${searchtag})}" role="button">>></a>
         </th:block>
-
 
 
     </div>
@@ -408,6 +306,14 @@
     <!-- 검색-->
     <div id="post_bottom">
         <div class="post_bottom-container">
+
+
+
+            <!--글쓰기-->
+            <div id="post_bottom_right" class="post_bottom">
+                <button type="button" class="btn btn-outline-dark" id="writebtn">글쓰기</button>
+            </div>
+
             <div id="post_bottom_left" class="post_bottom">
 
                 <form th:action="@{/request/list/search}" method="get">
@@ -418,26 +324,33 @@
 
                     </select>
 
+
                     <label>
                         <input type="text" placeholder="검색어 입력" id="searchspace" name="searchKeyword">
+
                     </label>
-                    <button type="submit" class="btn btn-outline-dark" id="searchbtn">검색</button>
+                    <button type="submit" class="btn btn-outline-dark" id="searchbtn"> <img src="https://s3.ap-northeast-2.amazonaws.com/cdn.wecode.co.kr/icon/search.png" id="searchimg"></button>
                 </form>
             </div>
 
-
-            <!--글쓰기-->
-            <div id="post_bottom_right" class="post_bottom">
-                <button type="button" class="btn btn-outline-dark" id="writebtn">글쓰기</button>
-            </div>
         </div>
     </div>
 
-</div>
+<!--</div>-->
 
 
 <!--체크용-->
 <!--<span th:text=" ${currentPage}"></span>-->
+<!--<span th:text=" ${currentPage}"></span>-->
+<!--<span th:text=" ${totalPages}"></span>-->
+<!--스타트-->
+<!--<span th:text=" ${startPage}"></span>-->
+<!--엔드-->
+<!--<span th:text=" ${endPage}"></span>-->
+
+</div>
+
+
 
 <div th:insert="~{footer :: footer}"></div>
 <script th:src="@{/static/js/bootstrap.min.js}"></script>
