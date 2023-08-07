@@ -77,6 +77,9 @@ public class RequestBoardRepository {
     //자식댓글개수조회
     public int childCommentsCount(int id) { return sql.selectOne("request.childCommentsCount",id); }
 
+    //댓글 개수(deleted=0)
+    public int getRepliesCount(int id) { return sql.selectOne("request.getRepliesCount",id); }
+
 
     //테스트 해당 글 댓글갯수 - postRepliesCount
     public int postRepliesCount(int id) {

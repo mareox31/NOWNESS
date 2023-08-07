@@ -7,22 +7,30 @@
     <meta name="_csrf" th:content="${_csrf.token}">
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <script th:src="@{/js/jquery-3.7.0.min.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/requestboard/requestmodifypost.css}">
     <link rel="stylesheet" th:href="@{/css/summernote/summernote-lite.css}">
-
     <link rel="stylesheet" href="https://unpkg.com/@yaireo/tagify/dist/tagify.css">
-<style>
-
-</style>
+    <style>
+        #existingFilesContainer{
+            background-color: red;
+        }
+    </style>
 </head>
 <body>
 <div th:insert="~{header :: header}"></div>
 
-<div class="contents">
     <div class="post-header-wrapper">
 
         <!-- 현재 기입항목 :  userId, String contents, String title, int boardType, int locale, int subcategory-->
         <!--                이미지, 해시태그, 멀티미디어항목추가해야함.-->
 
+
+        <div class="board_title">
+            <div class="board_title2">게시글 수정</div>
+        </div>
+
+        <div class="board_view_wrap">
+            <div class="board_view">
 
 
         <form action="/request/updatepost" method="post" enctype="multipart/form-data">
@@ -31,15 +39,14 @@
 
             <input type="hidden" name="id"  th:value="${modifypost.id}">
 
-            게시판을 선택하세요(공유/요청)
+
+            게시판을 선택하세요.
             <select name="boardType" id="boardType">
                 <option value="1" th:selected="${modifypost.boardType == 1}">공유</option>
                 <option value="2" th:selected="${modifypost.boardType == 2}">요청</option>
             </select>
 
-            <hr>
-
-            지역을 선택하세요
+            지역
             <select name="locale" id="locale">
                 <option value="1" th:selected="${modifypost.locale == 1}">서울</option>
                 <option value="2" th:selected="${modifypost.locale == 2}">경기</option>
@@ -56,8 +63,7 @@
 
             </select>
 
-            <hr>
-            분류를 선택하세요.
+            분류
             <select name="subcategory" id="subcategory">
                 <option value="1" th:selected="${modifypost.subcategory == 1}">혼잡도</option>
                 <option value="2" th:selected="${modifypost.subcategory == 2}">교통</option>
@@ -67,20 +73,20 @@
                 <option value="6" th:selected="${modifypost.subcategory == 6}">행사</option>
             </select>
 
-            <hr>
-            해시태그 (최대 5개 입력가능합니다. 엔터로 추가해주세요.)
+            <div id="postTitle2">
+            <input type="text" placeholder="제목을 입력해주세요." id="postTitle" name="title" required th:value="${modifypost.title}">
+            </div>
+
+
             <div id="tagContainer">
+                해시태그 (최대 5개)
                 <input placeholder="#해시태그" name="hashtags" id="tagInput" type="hidden">
             </div>
             <div id="warningMessage" style="display: none; color: red;">
                 5개를 초과한 태그를 입력할 수 없습니다.(최대 5개)
             </div>
 
-
             <hr>
-            제  목  :
-
-            <input type="text" placeholder="제목을 입력해주세요." id="postTitle" name="title" required th:value="${modifypost.title}">
 
             <!--썸머노트-->
             <div>
@@ -89,7 +95,7 @@
             </div>
 
 
-            <!--기존파일-->
+            <!--기존파일 히든-->
             <div id="existingFilesContainer">
             </div>
             <div id="file_count" th:each="existingFile : ${existingFiles}">
@@ -103,7 +109,6 @@
             <input type="file" name="files" id="fileInput" multiple>
             <div id="selectedFiles"></div>
 
-
             <button type="submit" id="submitButton">등록</button>
 
         </form>
@@ -114,11 +119,11 @@
         <!--     <span th:text="${tagslist}"></span>-->
 
 
-        <div th:insert="~{footer :: footer}"></div>
+    </div>
     </div>
 </div>
 
-
+        <div th:insert="~{footer :: footer}"></div>
 
 <script src="https://unpkg.com/@yaireo/tagify"></script>
 <script src="https://unpkg.com/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
@@ -254,10 +259,13 @@
                 fileDiv.appendChild(fileInfo);
 
                 const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete';
+                deleteButton.textContent = '삭제';
                 fileDiv.appendChild(deleteButton);
+                // //추가2
+                // fileDiv.classList.add('appendimg');
 
                 container.appendChild(fileDiv);
+
 
                 deleteButton.addEventListener('click', () => {
                     deleteExistingFile(file.saveName);
@@ -285,6 +293,8 @@
 
             files.forEach((file, index) => {
                 const fileDiv = document.createElement('div');
+                //추가3
+                fileDiv.classList.add('appendimg');
                 const fileName = file.name;
 
                 const deleteButton = document.createElement('button');
@@ -319,6 +329,8 @@
                     img.src = URL.createObjectURL(file);
                     img.width = 100;
                     fileDiv.appendChild(img);
+                    //추가
+                    fileDiv.classList.add('appendimg');
                 }
 
                 selectedFilesDiv.appendChild(fileDiv);
@@ -358,25 +370,35 @@
         $('#submitButton').on('click', function(event) {
             event.preventDefault();
 
-            const files = fileInput.files;
-            let totalFileSize = 0;
+            //빈칸체크
+            var tagInput = document.getElementById("postTitle");
+            var contentckeck = $('#summernote').summernote('code');
+            var checktitle = tagInput.value;
 
-            // 전체 크기 계산
-            for (let i = 0; i < files.length; i++) {
-                totalFileSize += files[i].size;
+            if (checktitle === ""||contentckeck=="<p><br></p>") {
+                alert("빈 칸을 입력해 주세요.");
+            }else {
+
+                const files = fileInput.files;
+                let totalFileSize = 0;
+
+                // 전체 크기 계산
+                for (let i = 0; i < files.length; i++) {
+                    totalFileSize += files[i].size;
+                }
+
+                // 전체 크기 체크.
+                const maxSize = 5 * 1024 * 1024; // 5 MB in bytes
+                if (totalFileSize > maxSize) {
+                    alert('파일의 크기가 제한 크기를 넘었습니다. 파일 전체 총 합이 5MB까지 첨부가 가능합니다.');
+                    return;
+                }
+
+                input.value = tagify.value.map(tag => tag.value).join(',');//해시태그용
+
+                //사이즈제한 맞으면 버튼동작.
+                $('form').submit();
             }
-
-            // 전체 크기 체크.
-            const maxSize = 5 * 1024 * 1024; // 5 MB in bytes
-            if (totalFileSize > maxSize) {
-                alert('파일의 크기가 제한 크기를 넘었습니다. 파일 전체 총 합이 5MB까지 첨부가 가능합니다.');
-                return;
-            }
-
-            input.value = tagify.value.map(tag => tag.value).join(',');//해시태그용
-
-            //사이즈제한 맞으면 버튼동작.
-            $('form').submit();
         });
 
     });
