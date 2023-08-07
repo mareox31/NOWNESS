@@ -15,60 +15,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 
-    <style>
-        .col-sm-12 sub{
-            display: inline-block;
-            clear:both;
-            float:left;
-        }
-
-        .subReplyWithMargin {
-            margin-left: 3%;
-            width: 97%;
-        }
-
-
-        button.postmodifybtn{
-            /*text-align: right;*/
-            float: right;
-        }
-
-        button.deletereplybtn {
-
-            border-color: transparent;
-            background-color: transparent;
-            margin: 0px;
-
-        }
-
-        a {
-            text-decoration: none;
-            color : black;
-        }
-
-        .button-container {
-            display: flex;
-            justify-content: flex-end;
-            margin : 8px;
-        }
-
-        .button-container form,
-        .button-container button {
-            margin-left: 1%; /* Adjust the spacing between the buttons */
-            /*padding: 3px;*/
-            width: 60px;
-            height: 35px;
-
-        }
-
-        textarea {
-            resize: none;
-        }
-
-    </style>
-
-
-
 
     <script th:inline="javascript">
         $(document).ready(function() {
@@ -84,7 +30,6 @@
 
             // 페이지 로드 시 댓글 가져오기
             getReplyList(boardId);
-
 
             //댓글 textarea 엔터처리용.
             //enter => <br>
@@ -236,7 +181,6 @@
                     alert("작성자 본인만 삭제 가능합니다.");
                 }
             });//post delete end
-
 
 
 
@@ -545,9 +489,6 @@
 });// ready end
 
 
-
-
-
     </script>
 
 </head>
@@ -563,7 +504,7 @@
 
 <!--게시글 세부내용 본문-->
 <div class="container">
-    <a class="btn btn-light" id="backbtn" href="javascript:history.back()">back</a>
+    <a id="backbtn" href="javascript:history.back()"><img src="/images/back2.png" alt="download" width="30px" height="30px"></a>
 
     <!--게시글 상세내용-->
     <div id="main">
@@ -577,16 +518,16 @@
                 <!--오른쪽부분 날짜와 닉네임-->
                 <div class="meta">
                     <time class="published" th:text="${#temporals.format(postdetail.createdDatetime,'yyyy-MM-dd HH:mm:ss')}"></time>
-                    <a href="#" class="author"><span class="name" th:text="${nickname}"></span><img src="images/avatar.jpg" alt="" /></a>
+                    <a th:href="@{'/request/list/search?searchType=user_id&searchKeyword=' + ${nickname}}" class="author"><span class="name" th:text="${nickname}"></span><img src="images/avatar.jpg" alt="" /></a>
                 </div>
             </header>
 
             <!-- 글 본문 자리-->
             <p th:utext="${postdetail.contents}"></p>
 
-
             <!-- 로그인 유저 확인 후, 게시글 작성자와 일치하면 수정/삭제 버튼 생성-->
             <footer>
+                <div id="details">
                 <ul class="stats">
                     <li><a href="#" class="icon solid fa-view">view <span th:text="${postdetail.views}"></span></a></li>
                     <li id="likesContainer">
@@ -596,13 +537,15 @@
                             <span id="likesCount" th:text="${likes}"></span>
                         </a>
                     </li>
-                    <li><a href="#" class="icon solid fa-comment">comment <span th:text="${comments.size()}"></span></a></li>
+                    <li><a href="#" class="icon solid fa-comment">comment <span th:text="${repliesCount}"></span></a></li>
                     <li><a href="#" class="icon solid fa-report">report</a></li>
                 </ul>
 
+                </div>
 
                 <!-- 해시태그 -->
-
+                <div id="hashtags">
+                    <img th:if="${tagslist.size() > 0}" src="/images/tag.png" alt="download" width="20px" height="20px">
                 <ul  class="stats" th:each="tag : ${tagslist}">
                     <li>
                         <a  class="icon solid fa-tag" th:href="@{'/request/list/searchtag?page=1&tag=' + ${tag.tag}}">
@@ -610,18 +553,21 @@
                         </a>
                     </li>
                 </ul>
+                </div>
 
-                <!--파일다운로드-->
-                <div>
-                    <ul class="stats" th:each="file : ${fileDatalist}">
+                <!-- 파일다운로드 -->
+                <div id="files">
+                    <img th:if="${fileDatalist.size() > 0}" src="/images/download.png" alt="download" width="20px" height="20px">
+                    <ul class="stats" id="filesize" th:each="file : ${fileDatalist}">
                         <li>
-                            <a th:id="'fileLink_' + ${file.id}" href="#" class="download-link">
-                                첨부파일 : <span th:text="${file.orginName}"></span>
-                            </a>
+                            <div class="download-link-container">
+                                <a th:id="'fileLink_' + ${file.id}" href="#" class="download-link">
+                                    <span th:text="${file.orginName}"></span>
+                                </a>
+                            </div>
                         </li>
                     </ul>
                 </div>
-
 
 
             </footer>
@@ -650,7 +596,6 @@
         <button type="button" class="btn btn-outline-dark" id="submitbtn">등록</button>
         <button type="button" class="btn btn-outline-dark" id="reply_refresh">댓글 새로고침</button>
     </form>
-
 
 
     <!--댓글 보여주는 곳 -->

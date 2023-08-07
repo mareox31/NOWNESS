@@ -1,0 +1,150 @@
+
+#existingFilesContainer{
+    display: none;
+}
+
+
+.post-header-wrapper{
+    background-color: white;
+    width : 75%;
+
+    margin-top: 5px;
+        display: flex;
+    margin: 0 auto;
+        flex-direction: column;
+        /*min-width: 1000px;*/
+        /*max-width: 1200px;*/
+
+        padding: 75px;
+        border-radius: 1rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+
+}
+
+.board_title2{
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.board_title {
+    /*margin: 0 auto;*/
+    text-align: left;
+    font-size: 2rem;
+    border-bottom: #f0f0f0 2px solid;
+    margin-bottom: 10px;
+}
+
+#submitButton {
+    background-color: #6B66FF;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background-color;
+    height: 60px;
+    width: 150px;
+    margin-left: 900px;
+    margin-top: 20px;
+    border: solid #f0f0f0;
+    border-width: 2px 0 0 0;
+}
+
+#submitButton:hover {
+    background-color:#B5B2FF;
+}
+
+#postTitle{
+    border-color: transparent;
+    margin-bottom: 10px;
+    font-size: 30px;
+    width: 100%;
+}
+#postTitle2{
+padding: 25px 0;
+width: 100%;
+height: 23%;
+border-color: transparent;
+border-bottom: #f0f0f0 2px solid;
+margin-bottom: 10px;
+    font-size: 30px;
+
+}
+
+.appendimg {
+    /*background-color: red;*/
+    width: 100%;
+    height: 90px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    /*justify-content: center;*/
+
+    justify-content: flex-start; /* Left-align the contents */
+    padding-left: 10px; /* Add some padding for spacing */
+    box-sizing: border-box; /* Include padding in the width calculation */
+    padding-right: 30px;
+    border-bottom: #f0f0f0 2px solid;
+}
+
+.appendimg img {
+    width: 100px;
+    height: auto;
+    max-width: 100%;
+    margin-left: auto;
+}
+
+#boardType, #locale,#subcategory{
+
+    width: 7%;
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+#fileInput{
+    width: 50%;
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+.appendimg >button{
+    background-color: transparent;
+    /*width: 10%;*/
+    /*border: 1px solid #bbb;*/
+    /*border-radius: 8px;*/
+    /*padding: 10px 12px;*/
+    /*font-size: 14px;*/
+    border: 1px solid #8C8C8C;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    border-radius: 0.25rem;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+.appendimg >button:hover{
+    color: #6B66FF;
+}
+
+/* Corrected styling for file input button */
+input[type=file]::-webkit-file-upload-button {
+    width: 150px;
+    height: 30px;
+    background: #fff;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+input[type=file]::-webkit-file-upload-button:hover {
+    background: transparent;
+    color: #6B66FF;
+}
