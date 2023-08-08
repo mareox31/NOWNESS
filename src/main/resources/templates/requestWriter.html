@@ -18,7 +18,7 @@
 <div th:insert="~{header :: header}"></div>
 
 <div class="post-header-wrapper" >
-<!--    style="width: 1250px; margin: 0 auto;"-->
+    <!--    style="width: 1250px; margin: 0 auto;"-->
 
     <div class="board_title">
         <div class="board_title2">게시글 작성</div>
@@ -31,87 +31,88 @@
     <div class="board_view_wrap">
         <div class="board_view">
 
-    <form action="/request/writer" method="post"  enctype="multipart/form-data">
-        <input type="hidden" name="userId"  th:value="${userId}">
-        <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+            <form action="/request/writer" method="post"  enctype="multipart/form-data">
+                <input type="hidden" name="userId"  th:value="${userId}">
+                <input type="hidden" name="_csrf" th:value="${_csrf.token}">
 
-        게시판을 선택하세요.
-        <select name="boardType" id="boardType">
-            <option value="1">공유</option>
-            <option value="2">요청</option>
-        </select>
+                게시판을 선택하세요.
+                <select name="boardType" id="boardType">
+                    <option value="1">공유</option>
+                    <option value="2">요청</option>
+                </select>
 
 
-        지역
-        <select name="locale" id="locale">
-            <option value="1">서울</option>
-            <option value="2">경기</option>
-            <option value="3">인천</option>
-            <option value="4">부산</option>
-            <option value="5">광주</option>
-            <option value="6">대구</option>
-            <option value="7">대전</option>
-            <option value="8">울산</option>
-            <option value="9">제주</option>
-            <option value="10">경상</option>
-            <option value="11">전라</option>
-            <option value="12">충청</option>
+                지역
+                <select name="locale" id="locale">
+                    <option value="1">서울</option>
+                    <option value="2">경기</option>
+                    <option value="3">인천</option>
+                    <option value="4">부산</option>
+                    <option value="5">광주</option>
+                    <option value="6">대구</option>
+                    <option value="7">대전</option>
+                    <option value="8">울산</option>
+                    <option value="9">제주</option>
+                    <option value="10">경상</option>
+                    <option value="11">전라</option>
+                    <option value="12">충청</option>
 
-        </select>
+                </select>
 
-        분류
-        <select name="subcategory" id="subcategory">
-            <option value="1">혼잡도</option>
-            <option value="2">교통</option>
-            <option value="3">날씨</option>
-            <option value="4">주변</option>
-            <option value="5">사건사고</option>
-            <option value="6">행사</option>
+                분류
+                <select name="subcategory" id="subcategory">
+                    <option value="1">혼잡도</option>
+                    <option value="2">교통</option>
+                    <option value="3">날씨</option>
+                    <option value="4">주변</option>
+                    <option value="5">사건사고</option>
+                    <option value="6">행사</option>
 
-        </select>
+                </select>
 
-        <br>
+                <br>
 
-        <div id="postTitle2">
-            <input type="text" placeholder="제목을 입력해주세요." id="postTitle" name="title"  required/>
+                <div id="postTitle2">
+                    <input type="text" placeholder="제목을 입력해주세요." id="postTitle" name="title"  required/>
+                </div>
+
+
+                <div id="tagContainer">
+                    해시태그 (최대 5개)
+                    <input placeholder="#해시태그" name="hashtags" id="tagInput" type="hidden">
+                </div>
+                <div id="warningMessage" style="display: none; color: red;">
+                    최대 5개의 해시태그만 입력할 수 있습니다.(엔터로 입력)
+                </div>
+
+                <hr>
+                <!--썸머노트-->
+                <div>
+                    <textarea id="summernote" name="contents"></textarea>
+                </div>
+                <p id="warningMessage2" style="color: red;"></p>
+
+                <!-- File Upload -->
+                <hr>
+                파일을 첨부하세요 (최대 5개):
+                <input type="file" name="files" id="fileInput" multiple>
+
+                <div id="selectedFiles"></div>
+
+                <button type="submit" id="submitButton">등록</button>
+
+            </form>
+
+
         </div>
-
-
-        <div id="tagContainer">
-            해시태그 (최대 5개)
-            <input placeholder="#해시태그" name="hashtags" id="tagInput" type="hidden">
-        </div>
-        <div id="warningMessage" style="display: none; color: red;">
-            최대 5개의 해시태그만 입력할 수 있습니다.(엔터로 입력)
-        </div>
-
-        <hr>
-        <!--썸머노트-->
-        <div>
-            <textarea id="summernote" name="contents"></textarea>
-        </div>
-
-        <!-- File Upload -->
-        <hr>
-        파일을 첨부하세요 (최대 5개):
-        <input type="file" name="files" id="fileInput" multiple>
-
-        <div id="selectedFiles"></div>
-
-        <button type="submit" id="submitButton">등록</button>
-
-    </form>
-
-
-          </div>
-        </div>
+    </div>
 
     <!--                작성자id확인용-->
     <!--                <span th:text="${user.id}"></span>-->
 
 </div>
 
-    <div th:insert="~{footer :: footer}"></div>
+<div th:insert="~{footer :: footer}"></div>
 
 <script src="https://unpkg.com/@yaireo/tagify"></script>
 <script src="https://unpkg.com/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
@@ -176,6 +177,24 @@
         summernote.summernote('undo');
         // 앞으로가기
         summernote.summernote('redo');
+
+
+        // 썸머노트 용량 체크
+        var contentSizeInMB;
+
+        function checkContentSize() {
+            var content = $('#summernote').summernote('code');
+            var contentSizeInBytes = new Blob([content]).size; // Convert to bytes
+
+            // Convert bytes to megabytes
+            contentSizeInMB = contentSizeInBytes / (1024 * 1024);
+
+            if (contentSizeInMB > 1.5) {
+                $('#warningMessage2').text('제한 용량 1.5MB를 초과했습니다.');
+            } else {
+                $('#warningMessage2').text('');
+            }
+        }
 
 
 
@@ -291,25 +310,38 @@
             }else{
 
 
-            const files = fileInput.files;
-            let totalFileSize = 0;
+                const files = fileInput.files;
+                let totalFileSize = 0;
 
-            // 전체 크기 계산
-            for (let i = 0; i < files.length; i++) {
-                totalFileSize += files[i].size;
-            }
+                // 전체 크기 계산
+                for (let i = 0; i < files.length; i++) {
+                    totalFileSize += files[i].size;
+                }
 
-            // 전체 크기 체크.
-            const maxSize = 5 * 1024 * 1024; // 5 MB in bytes
-            if (totalFileSize > maxSize) {
-                alert('파일의 크기가 제한 크기를 넘었습니다. 파일 전체 총 합이 5MB까지 첨부가 가능합니다.');
-                return;
-            }
+                // 전체 크기 체크.
+                const maxSize = 5 * 1024 * 1024; // 5 MB in bytes
+                if (totalFileSize > maxSize) {
+                    alert('파일의 크기가 제한 크기를 넘었습니다. 파일 전체 총 합이 5MB까지 첨부가 가능합니다.');
+                    return;
+                }
 
-            input.value = tagify.value.map(tag => tag.value).join(',');//해시태그용
 
-           //사이즈제한 맞으면 버튼동작.
-            $('form').submit();
+                //썸머노트 용량 체크 후 1.5mb이하만 등록 가능.
+                checkContentSize();
+                console.log(contentSizeInMB);
+
+                if (contentSizeInMB > 1.5) {
+                    return;
+                }
+
+                input.value = tagify.value.map(tag => tag.value).join(',');//해시태그용
+
+                //사이즈제한 맞으면 버튼동작.
+                $('form').submit();
+
+
+
+
 
             }
         });
