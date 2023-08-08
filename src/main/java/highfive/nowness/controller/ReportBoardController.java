@@ -19,7 +19,7 @@ public class ReportBoardController {
     private final ReportBoardService reportBoardService;
     @GetMapping("/")
     public String mainpage() {
-        return "/main";
+        return "main";
     }
 
     @GetMapping("/writer")
@@ -145,7 +145,7 @@ public class ReportBoardController {
         ReportDTO post = reportBoardService.getPostById(postId);
         if (post == null) {
             // 게시글이 존재하지 않을 경우 게시판으로 리다이렉트합니다.
-            return "redirect:report/board";
+            return "redirect:/report/board";
         }
 
         // 삭제 확인 페이지에 게시글 정보를 전달합니다.
