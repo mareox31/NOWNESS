@@ -697,7 +697,7 @@ public class RequestBoardController {
         model.addAttribute("endPage", endPage);
         model.addAttribute("maxPagesToShow", maxPagesToShow);
 
-        return "/requestboard";
+        return "requestboard";
 
     }
 
@@ -817,7 +817,7 @@ public class RequestBoardController {
         model.addAttribute("user", user);
         model.addAttribute("searchtag", tag);
 
-        return "/requestboard";
+        return "requestboard";
 
     }
 
