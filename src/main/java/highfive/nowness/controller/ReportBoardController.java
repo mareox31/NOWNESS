@@ -44,7 +44,7 @@ public class ReportBoardController {
 
         reportBoardService.addPost(postData);
 
-        return "redirect:report/board";
+        return "redirect:/report/board";
     }
 
     // 게시글 출력, 게시글 목록 조회
@@ -79,7 +79,7 @@ public class ReportBoardController {
     public String reportPostDetail(@PathVariable int postId, Model model) {
         ReportDTO post = reportBoardService.getPostById(postId);
         if (post == null) {
-            return "redirect:report/board";
+            return "redirect:/report/board";
         }
 
         // 게시물의 조회수를 증가시키고 DB에 조회수 증가
@@ -161,7 +161,7 @@ public class ReportBoardController {
         reportBoardService.deletePostById(postId);
 
         // 삭제가 성공하면 게시판으로 리다이렉트합니다.
-        return "redirect:report/board";
+        return "redirect:/report/board";
     }
 
     // 게시글 신고
@@ -175,6 +175,6 @@ public class ReportBoardController {
 
         reportBoardService.reportPost(reportsDTO);
 
-        return "redirect:report/board/" + postId;
+        return "redirect:/report/board/" + postId;
     }
 }
