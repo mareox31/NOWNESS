@@ -4,6 +4,8 @@ import highfive.nowness.dto.RankBoardDTO;
 import highfive.nowness.dto.RankBoardPaginationDTO;
 import highfive.nowness.repository.RankBoardRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +13,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -33,8 +37,6 @@ public class RankBoardService {
             String dateString = String.valueOf(temp.getDate());
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
             LocalDateTime date = LocalDateTime.parse(dateString, formatter);
-
-
 
             Duration duration = Duration.between(date, nowtime);
 
@@ -59,29 +61,30 @@ public class RankBoardService {
                 Datediff = seconds + "초 전";
             }
 
+            
+            // 이미지 추출
+            String text = RankList.get(i).getContents();
+            String t_img = text;
+            String pattern = "src=\"(.*?)\"";
 
-            /*
-            if (nowtime.getYear() != date.getYear()) {
-                Datediff = nowtime.getYear() - date.getYear() + "년 전";
-            } else if (nowtime.getMonthValue() != date.getMonthValue()) {
-                Datediff = nowtime.getMonthValue() - date.getMonthValue() + "개월 전";
-            } else if (nowtime.getDayOfMonth() != date.getDayOfMonth()) {
-                Datediff = nowtime.getDayOfMonth() - date.getDayOfMonth() + "일 전";
-            } else if (nowtime.getHour() != date.getHour()) {
-                Datediff = nowtime.getHour() - date.getHour() + "시간 전";
-            } else if (nowtime.getMinute() != date.getMinute()) {
-                Datediff = nowtime.getMinute() - date.getMinute() + "분 전";
-            } else if (nowtime.getSecond() != date.getSecond()) {
-                Datediff = nowtime.getSecond() - date.getSecond() + "초 전";
+            Pattern srcPattern = Pattern.compile(pattern);
+            Matcher matcher = srcPattern.matcher(t_img);
+
+            if (matcher.find()) {
+                t_img = matcher.group(1);
+                RankList.get(i).setImgsrc(t_img);
             }
-             */
+
+            // html 태그 제거
+            String convertingText = Jsoup.clean(text, Whitelist.none());
+            RankList.get(i).setContents(convertingText);
 
             if(temp.getTagString() != null) {
                 String[] tagarr = temp.getTagString().split(" ");
                 ArrayList<String> arrTemp = new ArrayList<>();
 
                 for (int j = 0; j < tagarr.length; j++) {
-                    arrTemp.add(tagarr[j]);
+                    if(!Objects.equals(tagarr[j], "0")) arrTemp.add(tagarr[j]);
                     if(j >= 4) break;
                 }
                 RankList.get(i).setTagarray(arrTemp);
@@ -94,39 +97,53 @@ public class RankBoardService {
         return RankList;
     }
 
-    public List<RankBoardDTO> likeCalculation(List<RankBoardDTO> RankList, int userid) {
-
-        for(int i = 0; i < RankList.size(); i++) {
-            boolean temp = rankBoardRepository.findLike(userid, RankList.get(i).getId());
-            if(temp) {
-                RankList.get(i).setChecklike(true);
-            }
-            else {
-                RankList.get(i).setChecklike(false);
-            }
-        }
-
-        return RankList;
-    }
-
     public RankBoardPaginationDTO pagination(List<RankBoardDTO> RankList, RankBoardPaginationDTO pageDTO) {
 
         pageDTO.setPageSize(t_pageDTO.getPageSize()); // 페이지 당 보여지는 게시글의 최대 개수
         pageDTO.setBlockSize(t_pageDTO.getBlockSize()); // 페이징된 버튼의 블럭당 최대 개수
 
-        pageDTO.setTotalBlockCnt((int)Math.ceil(RankList.size()*1.0/ pageDTO.getBlockSize())); // 총 블록 수
+        int temp = (int)Math.ceil(RankList.size()*1.0/ pageDTO.getPageSize());
+        if(RankList.size() % pageDTO.getPageSize() != 0 && RankList.size() > temp * pageDTO.getPageSize()) temp++;
+
+        pageDTO.setTotalBlockCnt(temp); // 총 블록 수
         pageDTO.setTotalPageCnt(RankList.size()); // 총 게시글 수
 
-        pageDTO.setStartBlock((pageDTO.getBlock() / pageDTO.getBlockSize()) * pageDTO.getBlockSize()+1); // 시작 블록
-        pageDTO.setEndBlock(pageDTO.getStartBlock() + pageDTO.getBlockSize()-1); // 종료 블록
+        pageDTO.setStartBlock(((pageDTO.getBlock()-1) / pageDTO.getBlockSize()) * pageDTO.getBlockSize() + 1); // 시작 블록
 
+        if(pageDTO.getBlock() < 1) {
+            pageDTO.setBlock(1);;
+        }
 
-        if(pageDTO.getEndBlock() > pageDTO.getTotalBlockCnt()) pageDTO.setEndBlock(pageDTO.getTotalBlockCnt()); // 종료 블록이 총 블록 개수를 넘어가면 안됨.
+        pageDTO.setEndBlock(pageDTO.getStartBlock() + pageDTO.getBlockSize() - 1); // 종료 블록
+
+        if(pageDTO.getEndBlock() >= pageDTO.getTotalBlockCnt()) {
+            pageDTO.setEndBlock(pageDTO.getTotalBlockCnt()); // 종료 블록이 총 블록 개수를 넘어가면 안됨.
+        }
+
+        // 종료 블록
+        if(pageDTO.getBlock() > pageDTO.getEndBlock()) {
+            pageDTO.setBlock(pageDTO.getEndBlock());;
+        }
+
+        //log.info("pagesize");
+        //log.info(String.valueOf(pageDTO.getPageSize()));
+
+        //log.info("block");
+        //log.info(String.valueOf(pageDTO.getBlock()));
+
+        //log.info("total");
+        //log.info(String.valueOf(pageDTO.getTotalPageCnt()));
+
+        //log.info("blockcnt");
+        //log.info(String.valueOf(pageDTO.getTotalBlockCnt()));
+
         if(pageDTO.getBlock() == pageDTO.getTotalBlockCnt()) {
             if(pageDTO.getTotalPageCnt() <= pageDTO.getPageSize()) {
                 pageDTO.setPageSize(pageDTO.getTotalPageCnt());
             }
-            else pageDTO.setPageSize(pageDTO.getTotalPageCnt()%pageDTO.getPageSize()); // 마지막 블록일 경우 페이지 출력 개수 값을 조정해줍니다.
+            else {
+                if(pageDTO.getTotalPageCnt()%pageDTO.getPageSize() != 0) pageDTO.setPageSize(pageDTO.getTotalPageCnt()%pageDTO.getPageSize()); // 마지막 블록일 경우 카드형 출력 개수 값을 조정해줍니다.
+            }
         }
 
         if(pageDTO.getEndBlock() == 0) pageDTO.setEndBlock(1); // 0일 경우를 대비하여 1로 설정
@@ -147,7 +164,6 @@ public class RankBoardService {
         else {
             paramMap.put("action", "insert");
         }
-
         rankBoardRepository.deleteOrInsertLike(paramMap);
     }
 

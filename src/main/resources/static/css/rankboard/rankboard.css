@@ -117,6 +117,9 @@ select option {
     justify-content: center;
 }
 /* Pagination 중앙 정렬 */
+.page-link:hover{
+    cursor: pointer;
+}
 
 .fill {
     object-fit: fill;
