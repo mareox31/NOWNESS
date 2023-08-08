@@ -11,8 +11,8 @@
         IFNULL(MAX(CASE WHEN likes.user_id = #{userid} THEN 1 ELSE 0 END), 0) AS liked_by_me,
         (
             SELECT GROUP_CONCAT(tag SEPARATOR ' ')
-            FROM Tags
-            WHERE contents.id = Tags.contents_id
+            FROM tags
+            WHERE contents.id = tags.contents_id
 
         ) AS tag
         FROM contents
@@ -55,8 +55,8 @@
         <if test='SS == "tag"'>
             AND (
             SELECT GROUP_CONCAT(tag SEPARATOR ' ')
-            FROM Tags
-            WHERE contents.id = Tags.contents_id
+            FROM tags
+            WHERE contents.id = tags.contents_id
             ) LIKE CONCAT('%', #{SW}, '%')
         </if>
 
