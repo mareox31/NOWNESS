@@ -29,11 +29,13 @@
 
             // var 사용 자제하기
 
+            /*
             console.log(searchTime);
             console.log(sortMethod);
             console.log(findlikeValue);
             console.log(searchSort);
             console.log(searchWord);
+            */
 
             $.ajax({
                 url:"/dataSend",
@@ -100,7 +102,7 @@
             });
         }
 
-        // 좋아요 누른 글만 보기 확인값
+        // 자신이 좋아요 누른 글만 보기
         function dataSendonlylike(element){
 
             $.ajax({
@@ -158,6 +160,47 @@
                 dataSend();
             }
         }
+
+        // 페이지 이동
+        function pageSend(page) {
+            var searchTime =$('input[name=serachtime]:checked').val();
+            var sortMethod =$('input[name=sortmethod]:checked').val();
+            var findlikeValue = $('input[name=findlike]:checked').val();
+            var searchSort = $('select[name=selectsort]').val();
+            var searchWord = $('input[id=searchInput]').val();
+
+            // var 사용 자제하기
+
+            $.ajax({
+                url: "/rankboard?page=" + page,
+                data: {ST:searchTime, SM:sortMethod, FL:findlikeValue, SS:searchSort, SW:searchWord},
+                type:"GET",
+                beforeSend: function (jqXHR, settings) {
+                    var header = $("meta[name='_csrf_header']").attr("content");
+                    var token = $("meta[name='_csrf']").attr("content");
+                    jqXHR.setRequestHeader(header, token);
+                }
+            })
+                .done(function (result) {
+                    $("#contents").replaceWith(result);
+
+                    /*
+                    // 링크 조절
+                    var renewURL = location.href;
+                    renewURL = renewURL.replace(/\&page=([0-9]+)/ig,'');
+                    renewURL += '&page='+page;
+                    history.pushState(null, null, renewURL);
+                    */
+
+                    // #contents 크기 조절
+                    var rankListSize = parseInt($("#rankListCount").val());
+                    var newHeight = Math.ceil(rankListSize / 3) * 650 + 100;
+                    $("#contents").css("height", newHeight + "px");
+                })
+                .fail(function(result) {
+                    console.log("값 전송을 실패했습니다.");
+                });
+        }
     </script>
 </head>
 <body>
@@ -192,6 +235,10 @@
         <label class="radio_select">
             <input type="radio" name="sortmethod" value="viewCount" class="long_size" onclick="dataSend()"/><span>조회수 순</span>
         </label>
+
+        <label class="radio_select">
+            <input type="radio" name="sortmethod" value="fastCount" class="long_size" onclick="dataSend()"/><span>최신 순</span>
+        </label>
     </div>
 
     <div class="sortmethod">
@@ -221,23 +268,21 @@
 
     <div class="rankblock" th:each="rank: ${RankList}">
         <div class = "name"><span th:text="${ rank.nickname }"></span></div><div class = "date"><span th:text="${ rank.daycount }"></span></div>
-        <div class = "pic">
-            <img src="@{/css/image/rankboard/testimg.jpg}" rel="stylesheet" alt="이미지" style="width:100%; height:100%;"/> <!-- 테스트용! -->
+        <div class="pic">
+            <a th:href="@{/request/post/{id}(id=${rank.id})}">
+                <img th:src="${rank.imgsrc}" rel="stylesheet" onerror="this.src='/css/image/rankboard/logo.png'" alt="이미지" style="width:100%; height:100%;" />
+            </a>
         </div>
+
         <div class = "title"><a th:href="@{/request/post/{id}(id=${rank.id})}" th:text="${rank.title}"></a></div>
         <div class = "contents"><a th:href="@{/request/post/{id}(id=${rank.id})}" th:utext="${rank.contents}"></a></div>
         <div class = "tag"><a th:each="tagarr : ${rank.tagarray}" href="#" th:attr="onclick='tagClick(this)'" th:text="${tagarr}">태그</a>&nbsp;</div>
-        <!-- <div class = "likes" th:value="${rank.checklike ? 'like' : 'unlike'}"  th:attr="onclick='likeclick(this, ' + ${rank.id} + ')'">
-            <img th:src="@{/css/image/rankboard/unlike.jpg}" alt = "Like/Unlike" class="image">&nbsp;&nbsp;<span class="liketext" th:text="${ rank.likeCount }"></span></div> -->
-        <div class="likes" th:value="${rank.checklike ? 'like' : 'unlike'}"
-             th:attr="onclick='likeclick(this, ' + ${rank.id} + ')'"
-             th:if="${rank.checklike}">
+
+        <div class="likes" th:if="${rank.checklike == 1}" th:value="like" th:attr="onclick='likeclick(this, ' + ${rank.id} + ')'">
             <img th:src="@{/css/image/rankboard/like.jpg}" alt="likebutton" class="image">
             &nbsp;&nbsp;<span class="liketext" th:text="${rank.likeCount}"></span>
         </div>
-        <div class="likes" th:value="${rank.checklike ? 'like' : 'unlike'}"
-             th:attr="onclick='likeclick(this, ' + ${rank.id} + ')'"
-             th:if="${not rank.checklike}">
+        <div class="likes" th:unless="${rank.checklike == 1}" th:value="unlike" th:attr="onclick='likeclick(this, ' + ${rank.id} + ')'">
             <img th:src="@{/css/image/rankboard/unlike.jpg}" alt="likebutton" class="image">
             &nbsp;&nbsp;<span class="liketext" th:text="${rank.likeCount}"></span>
         </div>
@@ -249,10 +294,12 @@
     <br><br>
     <nav aria-label="Page navigation example">
         <ul class="pagination">
+            <a class="page-link" th:attr="onclick='pageSend(' + ${RankStartPage - 1} + ')'" th:text="이전"></a>
             <li class="page-item" th:each="page:${#numbers.sequence(RankStartPage, RankEndPage)}" th:classappend="${page == RankNowPage} ? 'active' : ''">
-                <a class="page-link" th:if="${page != RankNowPage}" th:href="@{/rankboard(page=${page})}" th:text="${page}"></a>
+                <a class="page-link" th:if="${page != RankNowPage}" th:attr="onclick='pageSend(' + ${page} + ')'" th:text="${page}"></a>
                 <a class="page-link" th:if="${page == RankNowPage}" th:text="${page}"></a>
             </li>
+            <a class="page-link" th:attr="onclick='pageSend(' + ${RankEndPage + 1} + ')'" th:text="다음"></a>
         </ul>
     </nav>
     <br><br>

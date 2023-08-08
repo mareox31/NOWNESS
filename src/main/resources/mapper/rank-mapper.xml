@@ -6,16 +6,19 @@
 
     <select id="getRank" resultType="RankBoardDTO" parameterType="hashMap">
         SELECT contents.id, contents.user_id, users.nickname, contents.created_datetime,
-        contents.views, contents.contents, contents.title, IFNULL(count(likes.id), 0) AS count,
+        contents.views, contents.contents, contents.title,
+        IFNULL((SELECT COUNT(*) FROM likes WHERE contents_id = contents.id), 0) AS like_count,
+        IFNULL(MAX(CASE WHEN likes.user_id = #{userid} THEN 1 ELSE 0 END), 0) AS liked_by_me,
         (
-        SELECT GROUP_CONCAT(tag SEPARATOR ' ')
-        FROM Tags
-        WHERE contents.id = Tags.contents_id
+            SELECT GROUP_CONCAT(tag SEPARATOR ' ')
+            FROM Tags
+            WHERE contents.id = Tags.contents_id
+
         ) AS tag
         FROM contents
         LEFT JOIN likes ON contents.id = likes.contents_id
         INNER JOIN users ON contents.user_id = users.id
-        WHERE contents.blind = 0 AND contents.board_type = 1 AND 'contents.delete' = 0
+        WHERE contents.blind = 0 AND contents.board_type = 1 AND contents.deleted = 0
 
         <if test='ST == "day"'>
             AND contents.created_datetime between date_add(now(), interval -1 day ) and now()
@@ -60,18 +63,22 @@
         GROUP BY contents.id
 
         <if test='SM == "likeCount"'>
-            ORDER BY count desc;
+            ORDER BY like_count desc;
         </if>
 
         <if test='SM == "viewCount"'>
             ORDER BY views desc;
+        </if>
+
+        <if test='SM == "fastCount"'>
+            ORDER BY created_datetime desc;
         </if>
     </select>
 
 
     <select id="findLike" resultType="boolean">
         SELECT EXISTS (
-            SELECT 1 FROM likes WHERE contents_id = #{contentsId} AND user_id = #{userId}
+            SELECT #{userId} FROM likes WHERE contents_id = #{contentsId} AND user_id = #{userId}
         ) AS exist
     </select>
 
@@ -91,97 +98,6 @@
             </when>
         </choose>
     </update>
-
-
-<!--
-    <select id="getRank" resultType="RankBoardDTO" parameterType="hashMap">
-        SELECT t_contents.id, t_contents.user_id, t_users.nickname, t_contents.created_datetime,
-        t_contents.views, t_contents.contents, t_contents.title, IFNULL(count(t_likes.id), 0) AS count,
-        (
-            SELECT GROUP_CONCAT(tag SEPARATOR ' ')
-            FROM t_Tags
-            WHERE t_contents.id = t_Tags.contents_id
-        ) AS tag
-        FROM t_contents
-        LEFT JOIN t_likes ON t_contents.id = t_likes.contents_id
-        INNER JOIN t_users ON t_contents.user_id = t_users.id
-        WHERE t_contents.blind = 0 AND t_contents.board_type = 1
-
-        <if test='ST == "day"'>
-            AND t_contents.created_datetime between date_add(now(), interval -1 day ) and now()
-        </if>
-
-        <if test='ST == "week"'>
-            AND t_contents.created_datetime between date_add(now(), interval -1 week ) and now()
-        </if>
-
-        <if test='ST == "month"'>
-            AND t_contents.created_datetime between date_add(now(), interval -1 month ) and now()
-        </if>
-
-        <if test='ST == "year"'>
-            AND t_contents.created_datetime between date_add(now(), interval -1 year ) and now()
-        </if>
-
-        <if test='FL == "findlike"'>
-            AND t_likes.user_id = #{userid}
-        </if>
-
-        <if test='SS == "nickname"'>
-            AND t_users.nickname LIKE CONCAT('%', #{SW}, '%')
-        </if>
-
-        <if test='SS == "title"'>
-            AND t_contents.title LIKE CONCAT('%', #{SW}, '%')
-        </if>
-
-        <if test='SS == "contents"'>
-            AND t_contents.contents LIKE CONCAT('%', #{SW}, '%')
-        </if>
-
-        <if test='SS == "tag"'>
-            AND (
-            SELECT GROUP_CONCAT(tag SEPARATOR ' ')
-            FROM t_Tags
-            WHERE t_contents.id = t_Tags.contents_id
-            ) LIKE CONCAT('%', #{SW}, '%')
-        </if>
-
-        GROUP BY t_contents.id
-
-        <if test='SM == "likeCount"'>
-            ORDER BY count desc;
-        </if>
-
-        <if test='SM == "viewCount"'>
-            ORDER BY views desc;
-        </if>
-    </select>
-
-
-    <select id="findLike" resultType="boolean">
-        SELECT EXISTS (
-            SELECT 1 FROM t_likes WHERE contents_id = #{contentsId} AND user_id = #{userId}
-        ) AS exist
-    </select>
-
-
-    <update id="deleteOrInsertLike" parameterType="map">
-        <choose>
-            <when test="action == 'delete'">
-                DELETE FROM t_likes
-                WHERE contents_id = #{contentsId} AND user_id = #{userId}
-            </when>
-            <when test="action == 'insert'">
-                INSERT INTO t_likes (contents_id, user_id)
-                SELECT #{contentsId}, #{userId} FROM dual
-                WHERE NOT EXISTS (
-                SELECT 1 FROM t_likes WHERE contents_id = #{contentsId} AND user_id = #{userId}
-                )
-            </when>
-        </choose>
-    </update>
-    -->
 
     <!--
     <insert id="addTest">

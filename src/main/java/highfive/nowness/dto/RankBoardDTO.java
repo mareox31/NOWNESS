@@ -5,7 +5,6 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 
 @Getter
 @Setter
@@ -23,9 +22,10 @@ public class RankBoardDTO {
     private int viewsnum; // 게시판 페이징을 위한 실제 출력되는 값 가져오기
     private String tagString; // 태그를 가져오기 위한 문자열 값입니다. (아직 정제되지 않음)
     private ArrayList<String> tagarray = new ArrayList<>(); // 태그를 정리한 값입니다.
-    private boolean checklike;
+    private int checklike; // 내 아이디가 좋아요를 체크했는지 안했는지 확인하는 값
+    private String imgsrc;
 
-    public RankBoardDTO(int id, int user_id, String nickname, Date date, int views, String contents, String title, int likeCount, String tagString)
+    public RankBoardDTO(int id, int user_id, String nickname, Date date, int views, String contents, String title, int likeCount, int checklike, String tagString)
     {
         this.id = id;
         this.user_id = user_id;
@@ -35,7 +35,8 @@ public class RankBoardDTO {
         this.contents = contents;
         this.title = title;
         this.likeCount = likeCount;
+        this.checklike = checklike;
         this.tagString = tagString;
+        this.imgsrc = "";
     }
-
 }
