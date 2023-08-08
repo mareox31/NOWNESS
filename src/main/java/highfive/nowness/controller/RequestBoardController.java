@@ -81,7 +81,8 @@ public class RequestBoardController {
 
 
         //파일저장 :DB와 서버에 저장
-        String savePath = "c:/kdt/upload/nowness/"; //파일저장경로.
+//        String savePath = "c:/kdt/upload/nowness/"; //파일저장경로.
+        String savePath ="/usr/mydir/upload/";//서버 파일 저장경로
 
         for (MultipartFile file : files) {
             if (file.isEmpty() || file.getOriginalFilename() == null || file.getOriginalFilename().isEmpty()) {
@@ -209,7 +210,8 @@ public class RequestBoardController {
 
         if (fileData != null) {
            //파일 가져오는 경로
-            String filePath = "c:/kdt/upload/nowness/" + fileData.getSaveName();
+//            String filePath = "c:/kdt/upload/nowness/" + fileData.getSaveName();//로컬용
+            String filePath = "/usr/mydir/upload/" + fileData.getSaveName(); //서버용
 
             try {
                 byte[] fileContent = Files.readAllBytes(Paths.get(filePath));
@@ -413,7 +415,8 @@ public class RequestBoardController {
 
 
         //파일저장 :DB와 서버에 저장
-        String savePath = "c:/kdt/upload/nowness/"; //파일저장경로.
+//        String savePath = "c:/kdt/upload/nowness/"; //파일저장경로.로컬용
+        String savePath = "/usr/mydir/upload/"; //파일저장경로.서버용
 
         for (MultipartFile file : files) {
             if (file.isEmpty() || file.getOriginalFilename() == null || file.getOriginalFilename().isEmpty()) {
