@@ -19,111 +19,112 @@
 <body>
 <div th:insert="~{header :: header}"></div>
 
-    <div class="post-header-wrapper">
+<div class="post-header-wrapper">
 
-        <!-- 현재 기입항목 :  userId, String contents, String title, int boardType, int locale, int subcategory-->
-        <!--                이미지, 해시태그, 멀티미디어항목추가해야함.-->
-
-
-        <div class="board_title">
-            <div class="board_title2">게시글 수정</div>
-        </div>
-
-        <div class="board_view_wrap">
-            <div class="board_view">
+    <!-- 현재 기입항목 :  userId, String contents, String title, int boardType, int locale, int subcategory-->
+    <!--                이미지, 해시태그, 멀티미디어항목추가해야함.-->
 
 
-        <form action="/request/updatepost" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="userId"  th:value="${userId}">
-            <input type="hidden" name="_csrf" th:value="${_csrf.token}">
-
-            <input type="hidden" name="id"  th:value="${modifypost.id}">
-
-
-            게시판을 선택하세요.
-            <select name="boardType" id="boardType">
-                <option value="1" th:selected="${modifypost.boardType == 1}">공유</option>
-                <option value="2" th:selected="${modifypost.boardType == 2}">요청</option>
-            </select>
-
-            지역
-            <select name="locale" id="locale">
-                <option value="1" th:selected="${modifypost.locale == 1}">서울</option>
-                <option value="2" th:selected="${modifypost.locale == 2}">경기</option>
-                <option value="3" th:selected="${modifypost.locale == 3}">인천</option>
-                <option value="4" th:selected="${modifypost.locale == 4}">부산</option>
-                <option value="5" th:selected="${modifypost.locale == 5}">광주</option>
-                <option value="6" th:selected="${modifypost.locale == 6}">대구</option>
-                <option value="7" th:selected="${modifypost.locale == 7}">대전</option>
-                <option value="8" th:selected="${modifypost.locale == 8}">울산</option>
-                <option value="9" th:selected="${modifypost.locale == 9}">제주</option>
-                <option value="10" th:selected="${modifypost.locale == 10}">경상</option>
-                <option value="11" th:selected="${modifypost.locale == 11}">전라</option>
-                <option value="12" th:selected="${modifypost.locale == 12}">충청</option>
-
-            </select>
-
-            분류
-            <select name="subcategory" id="subcategory">
-                <option value="1" th:selected="${modifypost.subcategory == 1}">혼잡도</option>
-                <option value="2" th:selected="${modifypost.subcategory == 2}">교통</option>
-                <option value="3" th:selected="${modifypost.subcategory == 3}">날씨</option>
-                <option value="4" th:selected="${modifypost.subcategory == 4}">주변</option>
-                <option value="5" th:selected="${modifypost.subcategory == 5}">사건사고</option>
-                <option value="6" th:selected="${modifypost.subcategory == 6}">행사</option>
-            </select>
-
-            <div id="postTitle2">
-            <input type="text" placeholder="제목을 입력해주세요." id="postTitle" name="title" required th:value="${modifypost.title}">
-            </div>
-
-
-            <div id="tagContainer">
-                해시태그 (최대 5개)
-                <input placeholder="#해시태그" name="hashtags" id="tagInput" type="hidden">
-            </div>
-            <div id="warningMessage" style="display: none; color: red;">
-                5개를 초과한 태그를 입력할 수 없습니다.(최대 5개)
-            </div>
-
-            <hr>
-
-            <!--썸머노트-->
-            <div>
-                <textarea id="summernote" name="contents"></textarea>
-                <!--            <textarea id="summernote" name="contents" th:text="${modifypost.contents}"></textarea>-->
-            </div>
-
-
-            <!--기존파일 히든-->
-            <div id="existingFilesContainer">
-            </div>
-            <div id="file_count" th:each="existingFile : ${existingFiles}">
-                <input type="hidden" name="existingSavenames" th:value="${existingFile.saveName}">
-            </div>
-
-
-            <!--파일 업로드-->
-            <hr>
-            파일을 첨부하세요 (최대 5개):
-            <input type="file" name="files" id="fileInput" multiple>
-            <div id="selectedFiles"></div>
-
-            <button type="submit" id="submitButton">등록</button>
-
-        </form>
-
-
-        <!--                작성자id확인용-->
-        <!--                <span th:text="${user.id}"></span>-->
-        <!--     <span th:text="${tagslist}"></span>-->
-
-
+    <div class="board_title">
+        <div class="board_title2">게시글 수정</div>
     </div>
+
+    <div class="board_view_wrap">
+        <div class="board_view">
+
+
+            <form action="/request/updatepost" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="userId"  th:value="${userId}">
+                <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+
+                <input type="hidden" name="id"  th:value="${modifypost.id}">
+
+
+                게시판을 선택하세요.
+                <select name="boardType" id="boardType">
+                    <option value="1" th:selected="${modifypost.boardType == 1}">공유</option>
+                    <option value="2" th:selected="${modifypost.boardType == 2}">요청</option>
+                </select>
+
+                지역
+                <select name="locale" id="locale">
+                    <option value="1" th:selected="${modifypost.locale == 1}">서울</option>
+                    <option value="2" th:selected="${modifypost.locale == 2}">경기</option>
+                    <option value="3" th:selected="${modifypost.locale == 3}">인천</option>
+                    <option value="4" th:selected="${modifypost.locale == 4}">부산</option>
+                    <option value="5" th:selected="${modifypost.locale == 5}">광주</option>
+                    <option value="6" th:selected="${modifypost.locale == 6}">대구</option>
+                    <option value="7" th:selected="${modifypost.locale == 7}">대전</option>
+                    <option value="8" th:selected="${modifypost.locale == 8}">울산</option>
+                    <option value="9" th:selected="${modifypost.locale == 9}">제주</option>
+                    <option value="10" th:selected="${modifypost.locale == 10}">경상</option>
+                    <option value="11" th:selected="${modifypost.locale == 11}">전라</option>
+                    <option value="12" th:selected="${modifypost.locale == 12}">충청</option>
+
+                </select>
+
+                분류
+                <select name="subcategory" id="subcategory">
+                    <option value="1" th:selected="${modifypost.subcategory == 1}">혼잡도</option>
+                    <option value="2" th:selected="${modifypost.subcategory == 2}">교통</option>
+                    <option value="3" th:selected="${modifypost.subcategory == 3}">날씨</option>
+                    <option value="4" th:selected="${modifypost.subcategory == 4}">주변</option>
+                    <option value="5" th:selected="${modifypost.subcategory == 5}">사건사고</option>
+                    <option value="6" th:selected="${modifypost.subcategory == 6}">행사</option>
+                </select>
+
+                <div id="postTitle2">
+                    <input type="text" placeholder="제목을 입력해주세요." id="postTitle" name="title" required th:value="${modifypost.title}">
+                </div>
+
+
+                <div id="tagContainer">
+                    해시태그 (최대 5개)
+                    <input placeholder="#해시태그" name="hashtags" id="tagInput" type="hidden">
+                </div>
+                <div id="warningMessage" style="display: none; color: red;">
+                    5개를 초과한 태그를 입력할 수 없습니다.(최대 5개)
+                </div>
+
+                <hr>
+
+                <!--썸머노트-->
+                <div>
+                    <textarea id="summernote" name="contents"></textarea>
+                    <!--            <textarea id="summernote" name="contents" th:text="${modifypost.contents}"></textarea>-->
+                    <p id="warningMessage2" style="color: red;"></p>
+                </div>
+
+
+                <!--기존파일 히든-->
+                <div id="existingFilesContainer">
+                </div>
+                <div id="file_count" th:each="existingFile : ${existingFiles}">
+                    <input type="hidden" name="existingSavenames" th:value="${existingFile.saveName}">
+                </div>
+
+
+                <!--파일 업로드-->
+                <hr>
+                파일을 첨부하세요 (최대 5개):
+                <input type="file" name="files" id="fileInput" multiple>
+                <div id="selectedFiles"></div>
+
+                <button type="submit" id="submitButton">등록</button>
+
+            </form>
+
+
+            <!--                작성자id확인용-->
+            <!--                <span th:text="${user.id}"></span>-->
+            <!--     <span th:text="${tagslist}"></span>-->
+
+
+        </div>
     </div>
 </div>
 
-        <div th:insert="~{footer :: footer}"></div>
+<div th:insert="~{footer :: footer}"></div>
 
 <script src="https://unpkg.com/@yaireo/tagify"></script>
 <script src="https://unpkg.com/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
@@ -201,6 +202,26 @@
 
         var markupStr =  [[${modifypost.contents}]];
         summernote.summernote('code', markupStr);
+
+
+        // 썸머노트 용량 체크
+        var contentSizeInMB;
+
+        function checkContentSize() {
+            var content = $('#summernote').summernote('code');
+            var contentSizeInBytes = new Blob([content]).size; // Convert to bytes
+
+            // Convert bytes to megabytes
+            contentSizeInMB = contentSizeInBytes / (1024 * 1024);
+
+            if (contentSizeInMB > 1.5) {
+                $('#warningMessage2').text('제한 용량 1.5MB를 초과했습니다.');
+            } else {
+                $('#warningMessage2').text('');
+            }
+        }
+
+
 
 
         // 해시태그-수정용
@@ -391,6 +412,14 @@
                 const maxSize = 5 * 1024 * 1024; // 5 MB in bytes
                 if (totalFileSize > maxSize) {
                     alert('파일의 크기가 제한 크기를 넘었습니다. 파일 전체 총 합이 5MB까지 첨부가 가능합니다.');
+                    return;
+                }
+
+                //썸머노트 용량 체크 후 1.5mb이하만 등록 가능.
+                checkContentSize();
+                console.log(contentSizeInMB);
+
+                if (contentSizeInMB > 1.5) {
                     return;
                 }
 
