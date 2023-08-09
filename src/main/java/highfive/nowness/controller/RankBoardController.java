@@ -96,7 +96,7 @@ public class RankBoardController {
         model.addAttribute("RankStartPage", rankBoardPaginationDTO.getStartBlock());
         model.addAttribute("RankEndPage", rankBoardPaginationDTO.getEndBlock());
 
-        return "/rankboard";
+        return "rankboard";
     }
 
     // 페이지를 이동했을 경우
@@ -142,7 +142,7 @@ public class RankBoardController {
         model.addAttribute("RankStartPage", rankBoardPaginationDTO.getStartBlock());
         model.addAttribute("RankEndPage", rankBoardPaginationDTO.getEndBlock());
 
-        return "/rankboard::#contents";
+        return "rankboard::#contents";
     }
 
 
@@ -188,7 +188,7 @@ public class RankBoardController {
         model.addAttribute("RankStartPage", rankBoardPaginationDTO.getStartBlock());
         model.addAttribute("RankEndPage", rankBoardPaginationDTO.getEndBlock());
 
-        return "/rankboard::#contents";
+        return "rankboard::#contents";
     }
 
     // 글에 좋아요 누르기, 로그인 했는지 확인하기
