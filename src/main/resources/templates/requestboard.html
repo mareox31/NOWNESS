@@ -37,6 +37,24 @@
             });
 
 
+            //추가
+            var localeName = ['서울', '경기', '인천', '부산', '광주', '대구', '대전', '울산', '제주', '경상', '전라', '충청'];
+            var subcategoryName = ['혼잡도', '교통', '날씨', '주변', '사건사고', '행사'];
+
+            var locale = /*[[${locale}]]*/;
+            var subcategory = /*[[${subcategory}]]*/;
+
+            // Mapping locale and subcategory numbers to their corresponding names
+            var localeNameSelectName = localeName[locale - 1];
+            var subcategorySelectName = subcategoryName[subcategory - 1]; // Corrected line
+
+            // Update the spans in the HTML with the selected names
+            if (localeNameSelectName) {
+                $('#placename span:nth-child(2)').text(localeNameSelectName + " > " +subcategorySelectName);
+                // $('#placename span:nth-child(2)').text(localeNameSelectName );
+            }
+            //추가end
+
 
             // 글쓰기 버튼 클릭 이벤트
             $("#writebtn").click(function(event) {
@@ -87,6 +105,16 @@
         <strong>공   유</strong>
     </div>
 
+    <!--추가-->
+    <div id="placename">
+        전체
+        <span th:if="${locale != null}"> &gt; <span th:text="${localeNameSelectName}"></span></span>
+        <span th:if="${subcategory != null}"> &gt; <span th:text="${subcategorySelectName}"></span></span>
+
+        <span th:if="${searchKeyword != null}"> > 검색어: <span th:text="${searchKeyword}"></span></span>
+    </div>
+
+    
     <!-- 카테고리별-->
     <div id="categorySelect">
         <label for="localeSelect"> 지역 </label>
