@@ -523,7 +523,10 @@
             </header>
 
             <!-- 글 본문 자리-->
-            <p th:utext="${postdetail.contents}"></p>
+<!--            <p th:utext="${postdetail.contents}"></p>-->
+
+            <!-- 글 본문 자리-->
+            <div class="post-contents" th:utext="${postdetail.contents}"></div>
 
             <!-- 로그인 유저 확인 후, 게시글 작성자와 일치하면 수정/삭제 버튼 생성-->
             <footer>
