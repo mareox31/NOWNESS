@@ -8,6 +8,10 @@
  * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
  */
 
+.post-contents{
+    overflow: revert;
+}
+
 .col-sm-12 sub{
     display: inline-block;
     clear:both;
