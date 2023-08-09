@@ -8,8 +8,14 @@
  * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
  */
 
-.post-contents{
-    overflow: revert;
+.post-contents {
+    max-width: 100%; /* Ensure the content doesn't exceed the parent width */
+    height: auto; /* Let the height adjust automatically based on content */
+}
+
+.post-contents img {
+    max-width: 100%; /* Make sure images don't exceed their container's width */
+    height: auto; /* Allow images to scale proportionally */
 }
 
 .col-sm-12 sub{
